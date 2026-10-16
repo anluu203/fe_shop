@@ -7,6 +7,7 @@ import Button from "../../../components/ui/Button";
 import Modal from "../../../components/ui/Modal";
 import Input from "../../../components/ui/Input";
 import { PageSpinner } from "../../../components/ui/Spinner";
+import ImageUpload from "../../../components/ui/ImageUpload";
 
 export default function AdminCategoriesPage() {
   const [parents, setParents] = useState<CategoryParent[]>([]);
@@ -17,14 +18,14 @@ export default function AdminCategoriesPage() {
   // Parent modal
   const [parentModal, setParentModal] = useState<"create" | "edit" | null>(null);
   const [editParent, setEditParent] = useState<CategoryParent | null>(null);
-  const [parentForm, setParentForm] = useState({ name: "", description: "" });
+  const [parentForm, setParentForm] = useState({ name: "", description: "", imageUrl: "" });
   const [parentSaving, setParentSaving] = useState(false);
   const [parentError, setParentError] = useState("");
 
   // Category modal
   const [catModal, setCatModal] = useState<"create" | "edit" | null>(null);
   const [editCat, setEditCat] = useState<Category | null>(null);
-  const [catForm, setCatForm] = useState({ name: "", description: "", parentId: "" });
+  const [catForm, setCatForm] = useState({ name: "", description: "", parentId: "", imageUrl: "" });
   const [catSaving, setCatSaving] = useState(false);
   const [catError, setCatError] = useState("");
 
@@ -44,14 +45,14 @@ export default function AdminCategoriesPage() {
 
   // --- Parent CRUD ---
   const openCreateParent = () => {
-    setParentForm({ name: "", description: "" });
+    setParentForm({ name: "", description: "", imageUrl: "" });
     setParentError("");
     setParentModal("create");
   };
 
   const openEditParent = (p: CategoryParent) => {
     setEditParent(p);
-    setParentForm({ name: p.name, description: p.description ?? "" });
+    setParentForm({ name: p.name, description: p.description ?? "", imageUrl: p.imageUrl ?? "" });
     setParentError("");
     setParentModal("edit");
   };
@@ -61,10 +62,15 @@ export default function AdminCategoriesPage() {
     setParentSaving(true);
     setParentError("");
     try {
+      const body: CategoryParentBody = {
+        name: parentForm.name.trim(),
+        description: parentForm.description.trim() || undefined,
+        imageUrl: parentForm.imageUrl.trim() || undefined,
+      };
       if (parentModal === "create") {
-        await categoryApi.createParent({ name: parentForm.name.trim(), description: parentForm.description.trim() || undefined });
+        await categoryApi.createParent(body);
       } else if (editParent) {
-        await categoryApi.updateParent(editParent.id, { name: parentForm.name.trim(), description: parentForm.description.trim() || undefined });
+        await categoryApi.updateParent(editParent.id, body);
       }
       setParentModal(null);
       load();
@@ -87,14 +93,14 @@ export default function AdminCategoriesPage() {
 
   // --- Category CRUD ---
   const openCreateCat = () => {
-    setCatForm({ name: "", description: "", parentId: selectedParent ?? (parents[0]?.id ?? "") });
+    setCatForm({ name: "", description: "", parentId: selectedParent ?? (parents[0]?.id ?? ""), imageUrl: "" });
     setCatError("");
     setCatModal("create");
   };
 
   const openEditCat = (c: Category) => {
     setEditCat(c);
-    setCatForm({ name: c.name, description: c.description ?? "", parentId: c.parentId });
+    setCatForm({ name: c.name, description: c.description ?? "", parentId: c.parentId, imageUrl: c.imageUrl ?? "" });
     setCatError("");
     setCatModal("edit");
   };
@@ -105,10 +111,16 @@ export default function AdminCategoriesPage() {
     setCatSaving(true);
     setCatError("");
     try {
+      const body: CategoryBody = {
+        name: catForm.name.trim(),
+        description: catForm.description.trim() || undefined,
+        parentId: catForm.parentId,
+        imageUrl: catForm.imageUrl.trim() || undefined,
+      };
       if (catModal === "create") {
-        await categoryApi.create({ name: catForm.name.trim(), description: catForm.description.trim() || undefined, parentId: catForm.parentId });
+        await categoryApi.create(body);
       } else if (editCat) {
-        await categoryApi.update(editCat.id, { name: catForm.name.trim(), description: catForm.description.trim() || undefined, parentId: catForm.parentId });
+        await categoryApi.update(editCat.id, body);
       }
       setCatModal(null);
       load();
@@ -397,6 +409,13 @@ export default function AdminCategoriesPage() {
             value={parentForm.description}
             onChange={(e) => setParentForm({ ...parentForm, description: e.target.value })}
           />
+          <ImageUpload
+            id="parent-imageUrl"
+            target="categories"
+            label="Ảnh danh mục cha"
+            value={parentForm.imageUrl}
+            onChange={(url) => setParentForm({ ...parentForm, imageUrl: url })}
+          />
         </div>
       </Modal>
 
@@ -456,6 +475,13 @@ export default function AdminCategoriesPage() {
             label="Mô tả"
             value={catForm.description}
             onChange={(e) => setCatForm({ ...catForm, description: e.target.value })}
+          />
+          <ImageUpload
+            id="cat-imageUrl"
+            target="categories"
+            label="Ảnh danh mục"
+            value={catForm.imageUrl}
+            onChange={(url) => setCatForm({ ...catForm, imageUrl: url })}
           />
         </div>
       </Modal>

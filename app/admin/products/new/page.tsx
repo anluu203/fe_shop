@@ -8,6 +8,7 @@ import { categoryApi } from "../../../../lib/api/categories";
 import type { Category, CategoryParent } from "../../../../lib/types";
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
+import ImageUpload from "../../../../components/ui/ImageUpload";
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -42,8 +43,13 @@ export default function NewProductPage() {
     if (!form.price || !/^\d+$/.test(form.price)) e.price = "Giá phải là số nguyên dương";
     if (form.price && form.price.length > 12) e.price = "Giá tối đa 12 chữ số";
     if (!form.categoryId) e.categoryId = "Vui lòng chọn danh mục";
-    if (form.imageUrl && !/^https?:\/\/.+/.test(form.imageUrl))
+    if (
+      form.imageUrl &&
+      !/^\/images\//.test(form.imageUrl) &&
+      !/^https?:\/\/.+/.test(form.imageUrl)
+    ) {
       e.imageUrl = "URL ảnh không hợp lệ";
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -166,15 +172,19 @@ export default function NewProductPage() {
               />
             </div>
 
-            <Input
+            <ImageUpload
               id="product-imageUrl"
-              label="URL ảnh sản phẩm"
+              target="products"
+              label="Ảnh sản phẩm"
               placeholder="https://example.com/product.jpg"
               value={form.imageUrl}
-              onChange={set("imageUrl")}
-              error={errors.imageUrl}
-              icon={<i className="fa fa-picture-o" />}
+              onChange={(url) => setForm({ ...form, imageUrl: url })}
             />
+            {errors.imageUrl && (
+              <span style={{ fontSize: 12, color: "var(--danger)", marginTop: -10, display: "block" }}>
+                {errors.imageUrl}
+              </span>
+            )}
 
             <Input
               id="product-price"

@@ -9,6 +9,7 @@ export interface User {
   username: string;
   email: string;
   role: "USER" | "ADMIN";
+  avatarUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -30,7 +31,8 @@ export interface LoginBody {
 }
 
 export interface UpdateUserBody {
-  username: string;
+  username?: string;
+  avatarUrl?: string | null;
 }
 
 // ---------- Category ----------
@@ -38,6 +40,7 @@ export interface CategoryParent {
   id: string;
   name: string;
   description: string | null;
+  imageUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -45,12 +48,14 @@ export interface CategoryParent {
 export interface CategoryParentBody {
   name: string;
   description?: string;
+  imageUrl?: string | null;
 }
 
 export interface Category {
   id: string;
   name: string;
   description: string | null;
+  imageUrl: string | null;
   parentId: string;
   parent: CategoryParent;
   createdAt: string;
@@ -61,6 +66,7 @@ export interface CategoryBody {
   name: string;
   description?: string;
   parentId: string;
+  imageUrl?: string | null;
 }
 
 // ---------- Product ----------

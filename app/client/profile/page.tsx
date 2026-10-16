@@ -8,6 +8,8 @@ import Input from "../../../components/ui/Input";
 import Button from "../../../components/ui/Button";
 import { PageSpinner } from "../../../components/ui/Spinner";
 import { formatDate } from "../../../lib/utils/format";
+import ImageUpload from "../../../components/ui/ImageUpload";
+import { imageSrc } from "../../../lib/utils/image";
 
 export default function ProfilePage() {
   const { user, isLoading: authLoading, updateUser, logout } = useAuth();
@@ -17,9 +19,18 @@ export default function ProfilePage() {
   const [success, setSuccess] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Avatar state
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarSaving, setAvatarSaving] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
+  const [avatarSuccess, setAvatarSuccess] = useState("");
+
   useEffect(() => {
     if (!authLoading && !user) router.push("/client/auth/login");
-    if (user) setUsername(user.username);
+    if (user) {
+      setUsername(user.username);
+      setAvatarUrl(user.avatarUrl ?? "");
+    }
   }, [user, authLoading]);
 
   if (authLoading) return <PageSpinner />;
@@ -46,6 +57,25 @@ export default function ProfilePage() {
     }
   };
 
+  const handleSaveAvatar = async () => {
+    setAvatarSaving(true);
+    setAvatarError("");
+    setAvatarSuccess("");
+    try {
+      const updated = await authApi.updateAvatar(avatarUrl.trim() || null);
+      updateUser(updated);
+      setAvatarUrl(updated.avatarUrl ?? "");
+      setAvatarSuccess("Đổi ảnh đại diện thành công!");
+      setTimeout(() => setAvatarSuccess(""), 3000);
+    } catch (err: any) {
+      setAvatarError(err.message ?? "Cập nhật ảnh thất bại");
+    } finally {
+      setAvatarSaving(false);
+    }
+  };
+
+  const currentAvatarSrc = imageSrc(user.avatarUrl);
+
   return (
     <div style={{ background: "var(--bg-page)", minHeight: "100vh" }}>
       {/* Header */}
@@ -66,19 +96,35 @@ export default function ProfilePage() {
               gap: 12,
             }}
           >
+            {/* Avatar hiển thị trong header */}
             <div
               style={{
-                width: 48,
-                height: 48,
+                width: 56,
+                height: 56,
                 borderRadius: "50%",
                 background: "rgba(255,255,255,0.2)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: 22,
+                overflow: "hidden",
+                flexShrink: 0,
+                border: "2px solid rgba(255,255,255,0.5)",
               }}
             >
-              <i className="fa fa-user" />
+              {currentAvatarSrc ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={currentAvatarSrc}
+                  alt={user.username}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              ) : (
+                <i className="fa fa-user" />
+              )}
             </div>
             {user.username}
           </h1>
@@ -98,113 +144,193 @@ export default function ProfilePage() {
           alignItems: "start",
         }}
       >
-        {/* Edit profile */}
-        <div
-          style={{
-            background: "var(--bg-card)",
-            borderRadius: "var(--radius-lg)",
-            border: "1px solid var(--border)",
-            overflow: "hidden",
-          }}
-        >
+        {/* Left column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          {/* Edit profile */}
           <div
             style={{
-              padding: "16px 24px",
-              borderBottom: "1px solid var(--border)",
-              background: "var(--primary-bg)",
+              background: "var(--bg-card)",
+              borderRadius: "var(--radius-lg)",
+              border: "1px solid var(--border)",
+              overflow: "hidden",
             }}
           >
-            <h2
+            <div
               style={{
-                fontSize: 15,
-                fontWeight: 800,
-                color: "var(--primary-dark)",
+                padding: "16px 24px",
+                borderBottom: "1px solid var(--border)",
+                background: "var(--primary-bg)",
               }}
             >
-              <i className="fa fa-pencil" style={{ marginRight: 6 }} /> Chỉnh sửa hồ sơ
-            </h2>
-          </div>
-          <form onSubmit={handleSave} style={{ padding: "24px" }}>
-            {error && (
-              <div
+              <h2
                 style={{
-                  background: "var(--danger-bg)",
-                  color: "var(--danger)",
-                  padding: "10px 14px",
-                  borderRadius: "var(--radius-md)",
-                  fontSize: 13,
-                  marginBottom: 16,
-                  fontWeight: 600,
+                  fontSize: 15,
+                  fontWeight: 800,
+                  color: "var(--primary-dark)",
                 }}
               >
-                <i className="fa fa-exclamation-triangle" style={{ marginRight: 4 }} /> {error}
-              </div>
-            )}
-            {success && (
-              <div
-                style={{
-                  background: "var(--success-bg)",
-                  color: "#15803d",
-                  padding: "10px 14px",
-                  borderRadius: "var(--radius-md)",
-                  fontSize: 13,
-                  marginBottom: 16,
-                  fontWeight: 600,
-                  animation: "fadeIn 0.3s ease",
-                }}
-              >
-                <i className="fa fa-check-circle" style={{ marginRight: 4 }} /> {success}
-              </div>
-            )}
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <Input
-                id="profile-username"
-                label="Tên hiển thị"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                icon={<i className="fa fa-user" />}
-              />
-              <div>
-                <label
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: "var(--text-secondary)",
-                    display: "block",
-                    marginBottom: 6,
-                  }}
-                >
-                  Email
-                </label>
+                <i className="fa fa-pencil" style={{ marginRight: 6 }} /> Chỉnh sửa hồ sơ
+              </h2>
+            </div>
+            <form onSubmit={handleSave} style={{ padding: "24px" }}>
+              {error && (
                 <div
                   style={{
-                    padding: "10px 12px",
-                    background: "var(--bg-section)",
+                    background: "var(--danger-bg)",
+                    color: "var(--danger)",
+                    padding: "10px 14px",
                     borderRadius: "var(--radius-md)",
-                    border: "1.5px solid var(--border)",
-                    fontSize: 14,
-                    color: "var(--text-muted)",
+                    fontSize: 13,
+                    marginBottom: 16,
+                    fontWeight: 600,
                   }}
                 >
-                  {user.email}
+                  <i className="fa fa-exclamation-triangle" style={{ marginRight: 4 }} /> {error}
                 </div>
-                <p style={{ fontSize: 11, color: "var(--text-disabled)", marginTop: 4 }}>
-                  Email không thể thay đổi hiện tại
-                </p>
+              )}
+              {success && (
+                <div
+                  style={{
+                    background: "var(--success-bg)",
+                    color: "#15803d",
+                    padding: "10px 14px",
+                    borderRadius: "var(--radius-md)",
+                    fontSize: 13,
+                    marginBottom: 16,
+                    fontWeight: 600,
+                    animation: "fadeIn 0.3s ease",
+                  }}
+                >
+                  <i className="fa fa-check-circle" style={{ marginRight: 4 }} /> {success}
+                </div>
+              )}
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <Input
+                  id="profile-username"
+                  label="Tên hiển thị"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  icon={<i className="fa fa-user" />}
+                />
+                <div>
+                  <label
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "var(--text-secondary)",
+                      display: "block",
+                      marginBottom: 6,
+                    }}
+                  >
+                    Email
+                  </label>
+                  <div
+                    style={{
+                      padding: "10px 12px",
+                      background: "var(--bg-section)",
+                      borderRadius: "var(--radius-md)",
+                      border: "1.5px solid var(--border)",
+                      fontSize: 14,
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    {user.email}
+                  </div>
+                  <p style={{ fontSize: 11, color: "var(--text-disabled)", marginTop: 4 }}>
+                    Email không thể thay đổi hiện tại
+                  </p>
+                </div>
               </div>
-            </div>
-            <Button
-              id="save-profile-btn"
-              type="submit"
-              loading={saving}
-              style={{ marginTop: 20 }}
+              <Button
+                id="save-profile-btn"
+                type="submit"
+                loading={saving}
+                style={{ marginTop: 20 }}
+              >
+                <i className="fa fa-floppy-o" style={{ marginRight: 6 }} /> Lưu thay đổi
+              </Button>
+            </form>
+          </div>
+
+          {/* Avatar upload */}
+          <div
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: "var(--radius-lg)",
+              border: "1px solid var(--border)",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                padding: "16px 24px",
+                borderBottom: "1px solid var(--border)",
+                background: "var(--primary-bg)",
+              }}
             >
-              <i className="fa fa-floppy-o" style={{ marginRight: 6 }} /> Lưu thay đổi
-            </Button>
-          </form>
+              <h2
+                style={{
+                  fontSize: 15,
+                  fontWeight: 800,
+                  color: "var(--primary-dark)",
+                }}
+              >
+                <i className="fa fa-camera" style={{ marginRight: 6 }} /> Ảnh đại diện
+              </h2>
+            </div>
+            <div style={{ padding: "24px" }}>
+              {avatarError && (
+                <div
+                  style={{
+                    background: "var(--danger-bg)",
+                    color: "var(--danger)",
+                    padding: "10px 14px",
+                    borderRadius: "var(--radius-md)",
+                    fontSize: 13,
+                    marginBottom: 16,
+                    fontWeight: 600,
+                  }}
+                >
+                  <i className="fa fa-exclamation-triangle" style={{ marginRight: 4 }} /> {avatarError}
+                </div>
+              )}
+              {avatarSuccess && (
+                <div
+                  style={{
+                    background: "var(--success-bg)",
+                    color: "#15803d",
+                    padding: "10px 14px",
+                    borderRadius: "var(--radius-md)",
+                    fontSize: 13,
+                    marginBottom: 16,
+                    fontWeight: 600,
+                    animation: "fadeIn 0.3s ease",
+                  }}
+                >
+                  <i className="fa fa-check-circle" style={{ marginRight: 4 }} /> {avatarSuccess}
+                </div>
+              )}
+              <ImageUpload
+                id="profile-avatar"
+                target="avatars"
+                label="Chọn ảnh đại diện"
+                placeholder="https://example.com/avatar.jpg"
+                value={avatarUrl}
+                onChange={setAvatarUrl}
+              />
+              <Button
+                id="save-avatar-btn"
+                loading={avatarSaving}
+                onClick={handleSaveAvatar}
+                style={{ marginTop: 16 }}
+              >
+                <i className="fa fa-check" style={{ marginRight: 6 }} /> Lưu ảnh đại diện
+              </Button>
+            </div>
+          </div>
         </div>
 
-        {/* Account info */}
+        {/* Right column */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div
             style={{

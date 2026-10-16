@@ -10,6 +10,7 @@ import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
 import { PageSpinner } from "../../../../components/ui/Spinner";
 import { formatPrice } from "../../../../lib/utils/format";
+import ImageUpload from "../../../../components/ui/ImageUpload";
 
 export default function EditProductPage() {
   const { id } = useParams<{ id: string }>();
@@ -59,8 +60,13 @@ export default function EditProductPage() {
     const e: Partial<typeof form> = {};
     if (!form.name.trim() || form.name.length > 200) e.name = "Tên 1–200 ký tự";
     if (!form.price || !/^\d+$/.test(form.price)) e.price = "Giá phải là số nguyên";
-    if (form.imageUrl && !/^https?:\/\/.+/.test(form.imageUrl))
+    if (
+      form.imageUrl &&
+      !/^\/images\//.test(form.imageUrl) &&
+      !/^https?:\/\/.+/.test(form.imageUrl)
+    ) {
       e.imageUrl = "URL ảnh không hợp lệ";
+    }
     if (!form.categoryId) e.categoryId = "Vui lòng chọn danh mục";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -200,14 +206,20 @@ export default function EditProductPage() {
                 onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
               />
             </div>
-            <Input
+            <ImageUpload
               id="edit-product-imageUrl"
-              label="URL ảnh"
+              target="products"
+              label="Ảnh sản phẩm"
+              placeholder="https://example.com/product.jpg"
               value={form.imageUrl}
-              onChange={set("imageUrl")}
-              error={errors.imageUrl}
-              icon={<i className="fa fa-picture-o" />}
+              onChange={(url) => setForm({ ...form, imageUrl: url })}
             />
+            {errors.imageUrl && (
+              <span style={{ fontSize: 12, color: "var(--danger)", marginTop: -10, display: "block" }}>
+                {errors.imageUrl}
+              </span>
+            )}
+
             <Input
               id="edit-product-price"
               label="Giá (VND) *"

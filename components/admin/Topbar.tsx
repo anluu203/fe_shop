@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { imageSrc } from "../../lib/utils/image";
 
 const BREADCRUMB_MAP: Record<string, string> = {
   "/admin": "Dashboard",
@@ -76,9 +77,22 @@ export default function Topbar() {
               fontSize: 13,
               fontWeight: 800,
               flexShrink: 0,
+              overflow: "hidden",
             }}
           >
-            {user?.username?.charAt(0).toUpperCase() ?? "A"}
+            {imageSrc(user?.avatarUrl) ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={imageSrc(user?.avatarUrl)!}
+                alt={user?.username ?? ""}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
+            ) : (
+              user?.username?.charAt(0).toUpperCase() ?? "A"
+            )}
           </div>
           <div>
             <div

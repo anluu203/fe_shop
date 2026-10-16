@@ -1,41 +1,45 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 const SLIDES = [
   {
     id: 1,
-    title: "CPU Thế Hệ Mới",
-    subtitle: "AMD Ryzen 9 & Intel Core Ultra",
-    description: "Hiệu năng đỉnh cao cho gaming và sáng tạo nội dung",
-    cta: "Khám phá ngay",
+    title: "GPU & CPU Banner",
+    subtitle: "High performance hardware",
+    description: "Explore our top GPU and CPU selections",
+    cta: "Xem chi tiết",
     href: "/client/products",
-    bg: "linear-gradient(135deg, #418dbf 0%, #2d6a94 50%, #1e4f71 100%)",
-    iconClass: "fa fa-desktop",
-    accent: "#6ab0d9",
+    image: "/images/Banner_1_GPU_CPU.jpg",
+    iconClass: "fa fa-microchip",
+    accent: "#ff6f61",
+    bg: "linear-gradient(135deg, #1a0a00 0%, #3d1500 60%, #6b2500 100%)",
   },
   {
     id: 2,
-    title: "Card Đồ Hoạ RTX 50 Series",
-    subtitle: "NVIDIA GeForce RTX 5090 / 5080",
-    description: "Ray Tracing & AI-powered gaming ở mức chưa từng có",
-    cta: "Xem ngay",
+    title: "Mainboard & RAM SSD Banner",
+    subtitle: "Stable and fast",
+    description: "Discover the best mainboards and RAM SSD combos",
+    cta: "Xem chi tiết",
     href: "/client/products",
-    bg: "linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)",
-    iconClass: "fa fa-gamepad",
-    accent: "#76c442",
+    image: "/images/Banner_2_Mainboard_RAM_SSD.jpg",
+    iconClass: "fa fa-hdd",
+    accent: "#61a0ff",
+    bg: "linear-gradient(135deg, #000d2e 0%, #00215e 60%, #003a8c 100%)",
   },
   {
     id: 3,
-    title: "SSD NVMe Gen 5",
-    subtitle: "Tốc độ đọc lên tới 14.000 MB/s",
-    description: "Khởi động máy tính trong nháy mắt với công nghệ Gen 5",
-    cta: "Mua ngay",
+    title: "Case & AIO Cooling Banner",
+    subtitle: "Cool and stylish",
+    description: "Find perfect PC cases and cooling solutions",
+    cta: "Xem chi tiết",
     href: "/client/products",
-    bg: "linear-gradient(135deg, #f97316 0%, #ea580c 50%, #c2410c 100%)",
-    iconClass: "fa fa-bolt",
-    accent: "#fbbf24",
+    image: "/images/Banner_3_Case_PC_AIO_Cooling.jpg",
+    iconClass: "fa fa-tint",
+    accent: "#34d399",
+    bg: "linear-gradient(135deg, #00170d 0%, #00391f 60%, #005c30 100%)",
   },
 ];
 
@@ -78,13 +82,27 @@ export default function HeroBanner() {
           alignItems: "center",
           position: "relative",
           overflow: "hidden",
-          transition: "background 0.5s ease",
           opacity: animating ? 0 : 1,
           transform: animating ? "translateY(8px)" : "none",
-          transition2: "opacity 0.3s ease, transform 0.3s ease",
-        } as React.CSSProperties}
+          transition: "opacity 0.3s ease, transform 0.3s ease",
+        }}
       >
-        {/* Background decoration */}
+        {/* Background Image */}
+        <Image
+          src={slide.image}
+          alt={slide.title}
+          fill
+          priority={slide.id === 1}
+          style={{
+            objectFit: "cover",
+            objectPosition: "center",
+            opacity: 0.45,
+            zIndex: 0,
+          }}
+          sizes="100vw"
+        />
+
+        {/* Background decoration icon */}
         <div
           style={{
             position: "absolute",
@@ -95,10 +113,13 @@ export default function HeroBanner() {
             opacity: 0.08,
             userSelect: "none",
             color: "#fff",
+            zIndex: 1,
           }}
         >
           <i className={slide.iconClass} />
         </div>
+
+        {/* Accent circle decoration */}
         <div
           style={{
             position: "absolute",
@@ -109,10 +130,12 @@ export default function HeroBanner() {
             right: 80,
             top: "50%",
             transform: "translateY(-50%)",
+            zIndex: 1,
           }}
         />
 
-        <div className="container" style={{ position: "relative", zIndex: 1 }}>
+        {/* Content */}
+        <div className="container" style={{ position: "relative", zIndex: 2 }}>
           <div style={{ maxWidth: 560, padding: "48px 0" }}>
             <div
               style={{

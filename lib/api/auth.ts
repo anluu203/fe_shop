@@ -10,4 +10,8 @@ export const authApi = {
   me: () => api.get<User>("/auth/me"),
 
   updateMe: (body: UpdateUserBody) => api.patch<User>("/users/me", body),
+
+  /** Cập nhật avatar — gọi PATCH /users/me với { avatarUrl } */
+  updateAvatar: (avatarUrl: string | null) =>
+    api.patch<User>("/users/me", { avatarUrl }),
 };
