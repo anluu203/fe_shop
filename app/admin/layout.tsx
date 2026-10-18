@@ -19,29 +19,17 @@ export default function AdminLayout({
     if (!isLoading && (!user || user.role !== "ADMIN")) {
       router.replace("/client/auth/login");
     }
-  }, [user, isLoading]);
+  }, [user, isLoading, router]);
 
   if (isLoading) return <PageSpinner />;
   if (!user || user.role !== "ADMIN") return null;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        background: "var(--bg-page)",
-      }}
-    >
+    <div className="flex min-h-screen min-w-0 flex-col bg-[var(--bg-page)] lg:flex-row">
       <Sidebar />
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+      <div className="flex min-w-0 flex-1 flex-col">
         <Topbar />
-        <main
-          style={{
-            flex: 1,
-            padding: 24,
-            overflowY: "auto",
-          }}
-        >
+        <main className="min-w-0 flex-1 overflow-y-auto p-4 lg:p-6">
           {children}
         </main>
       </div>

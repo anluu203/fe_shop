@@ -150,62 +150,17 @@ export function ViewAllLink({ href, label, id }: ViewAllLinkProps) {
 
 export function CtaSection() {
   return (
-    <section
-      style={{
-        background: "linear-gradient(135deg, var(--primary-darker) 0%, var(--primary) 100%)",
-        padding: "60px 0",
-      }}
-    >
-      <div className="container" style={{ textAlign: "center" }}>
-        <h2
-          style={{
-            fontSize: "clamp(22px, 4vw, 36px)",
-            fontWeight: 900,
-            color: "#fff",
-            marginBottom: 12,
-            letterSpacing: "-0.5px",
-          }}
-        >
-          <i className="fa fa-crosshairs" style={{ marginRight: 8 }} /> Build PC Theo Yêu Cầu
+    <section className="bg-[linear-gradient(135deg,var(--primary-darker)_0%,var(--primary)_100%)] py-[60px]">
+      <div className="mx-auto w-full max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+        <h2 className="mb-3 text-[clamp(22px,4vw,36px)] font-black tracking-[-0.5px] text-white">
+          <i className="fa fa-crosshairs mr-2" aria-hidden="true" /> Build PC Theo Yêu Cầu
         </h2>
-        <p
-          style={{
-            fontSize: 15,
-            color: "rgba(255,255,255,0.8)",
-            marginBottom: 28,
-            maxWidth: 480,
-            margin: "0 auto 28px",
-          }}
-        >
+        <p className="mx-auto mb-7 max-w-[480px] text-[15px] text-white/80">
           Không biết chọn linh kiện gì? Đội ngũ chuyên gia của chúng tôi sẵn sàng tư vấn miễn phí!
         </p>
-        <Link
-          href="/client/products"
-          id="cta-shop-now"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            background: "var(--accent)",
-            color: "#fff",
-            padding: "14px 32px",
-            borderRadius: "var(--radius-full)",
-            fontWeight: 800,
-            fontSize: 15,
-            textDecoration: "none",
-            boxShadow: "0 4px 20px rgba(249,115,22,0.4)",
-            transition: "all var(--transition)",
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-2px)";
-            (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 8px 32px rgba(249,115,22,0.5)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.transform = "none";
-            (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 20px rgba(249,115,22,0.4)";
-          }}
-        >
-          <i className="fa fa-shopping-cart" style={{ marginRight: 6 }} /> Mua sắm ngay
+        <Link href="/client/consultation" id="cta-shop-now"
+          className="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-3.5 text-[15px] font-extrabold text-white no-underline shadow-[0_4px_20px_rgba(249,115,22,0.4)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(249,115,22,0.5)]">
+          <i className="fa fa-lightbulb-o mr-1.5" aria-hidden="true" /> Tư vấn chọn sản phẩm
         </Link>
       </div>
     </section>

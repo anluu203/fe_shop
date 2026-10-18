@@ -6,7 +6,8 @@
     "dev": "next dev -p 5173",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:customer-services": "node --test tests/customer-services.test.mjs"
   },
   "dependencies": {
     "font-awesome": "^4.7.0",
