@@ -30,47 +30,48 @@ export default function AdminConsultationPage() {
     setSnapshot(result);
     setEditor(null);
     setError("");
-    setSuccess(id ? "Đã cập nhật sản phẩm tư vấn." : "Đã thêm sản phẩm tư vấn.");
+    setSuccess(result.warning ? "" : id ? "Đã cập nhật sách tư vấn." : "Đã thêm sách tư vấn.");
   }
 
   function toggle(product: ManagedConsultationProduct) {
     setError("");
     try {
-      setSnapshot(adminCustomerServices.setConsultationProductActive(product.id, !product.isActive));
-      setSuccess(product.isActive ? `Đã ẩn ${product.name} khỏi gợi ý của user.` : `Đã bật hiển thị ${product.name}.`);
-    } catch (caught) { setError(caught instanceof Error ? caught.message : "Không thể cập nhật sản phẩm."); }
+      const result = adminCustomerServices.setConsultationProductActive(product.id, !product.isActive);
+      setSnapshot(result);
+      setSuccess(result.warning ? "" : product.isActive ? `Đã ẩn ${product.name} khỏi gợi ý của user.` : `Đã bật hiển thị ${product.name}.`);
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Không thể cập nhật sách."); }
   }
 
   return <div>
-    <ServiceAdminIntro title="Quản lý tư vấn sản phẩm" description="Quản lý danh sách linh kiện, giá, nhu cầu sử dụng và lý do gợi ý. Thay đổi được lưu trên trình duyệt này và áp dụng ngay cho trang tư vấn của khách hàng.">
+    <ServiceAdminIntro title="Quản lý tư vấn sách" description="Quản lý danh sách sách, giá, nhu cầu sử dụng và lý do gợi ý. Thay đổi được lưu trên trình duyệt này và áp dụng ngay cho trang tư vấn của khách hàng.">
       <div className="flex flex-wrap gap-2">
         <Link href="/client/consultation" className={ui.secondary}>Xem trang tư vấn</Link>
-        <button type="button" className={ui.primary} onClick={() => { setEditor("new"); setSuccess(""); }}><i className="fa fa-plus" aria-hidden="true" /> Thêm sản phẩm tư vấn</button>
+        <button type="button" className={ui.primary} onClick={() => { setEditor("new"); setSuccess(""); }}><i className="fa fa-plus" aria-hidden="true" /> Thêm sách tư vấn</button>
       </div>
     </ServiceAdminIntro>
     <ServiceFeedback warning={snapshot.warning} success={success} error={error} />
     <div className="mb-6 grid grid-cols-3 gap-3">
-      {[{ label: "Tổng sản phẩm", value: snapshot.products.length }, { label: "Đang hiển thị", value: snapshot.products.filter((product) => product.isActive).length }, { label: "Đang ẩn", value: snapshot.products.filter((product) => !product.isActive).length }].map((stat) => (
+      {[{ label: "Tổng số sách", value: snapshot.products.length }, { label: "Đang hiển thị", value: snapshot.products.filter((product) => product.isActive).length }, { label: "Đang ẩn", value: snapshot.products.filter((product) => !product.isActive).length }].map((stat) => (
         <div className="rounded-xl border border-[var(--border)] bg-white p-4" key={stat.label}><p className={ui.muted}>{stat.label}</p><strong className="mt-1 block text-2xl font-extrabold text-primary-dark">{stat.value}</strong></div>
       ))}
     </div>
     {editor && <CatalogEditor key={editor === "new" ? "new" : editor.id} product={editor === "new" ? undefined : editor} onSave={save} onCancel={() => setEditor(null)} />}
     <div className={`${ui.panel} mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4`}>
-      <label className={ui.label} htmlFor="admin-consultation-search">Tìm sản phẩm
-        <input id="admin-consultation-search" className={ui.control} type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Tên sản phẩm..." />
+      <label className={ui.label} htmlFor="admin-consultation-search">Tìm sách
+        <input id="admin-consultation-search" className={ui.control} type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Tên sách..." />
       </label>
-      <label className={ui.label} htmlFor="admin-consultation-component">Loại linh kiện
-        <select id="admin-consultation-component" className={ui.control} value={component} onChange={(event) => setComponent(event.target.value)}><option value="">Tất cả linh kiện</option>{options.components.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select>
+      <label className={ui.label} htmlFor="admin-consultation-component">Loại sách
+        <select id="admin-consultation-component" className={ui.control} value={component} onChange={(event) => setComponent(event.target.value)}><option value="">Tất cả sách</option>{options.components.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select>
       </label>
       <label className={ui.label} htmlFor="admin-consultation-usage">Nhu cầu
         <select id="admin-consultation-usage" className={ui.control} value={usage} onChange={(event) => setUsage(event.target.value)}><option value="">Tất cả nhu cầu</option>{options.usages.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select>
       </label>
       <label className={ui.label} htmlFor="admin-consultation-visibility">Hiển thị
-        <select id="admin-consultation-visibility" className={ui.control} value={visibility} onChange={(event) => setVisibility(event.target.value)}><option value="">Tất cả sản phẩm</option><option value="active">Đang hiển thị</option><option value="hidden">Đang ẩn</option></select>
+        <select id="admin-consultation-visibility" className={ui.control} value={visibility} onChange={(event) => setVisibility(event.target.value)}><option value="">Tất cả sách</option><option value="active">Đang hiển thị</option><option value="hidden">Đang ẩn</option></select>
       </label>
     </div>
     <h3 className="mb-4 text-lg font-bold">Danh sách gợi ý ({filtered.length})</h3>
-    {filtered.length === 0 ? <p className={`${ui.panel} py-12 text-center text-sm text-[var(--text-muted)]`}>Không tìm thấy sản phẩm phù hợp với bộ lọc.</p> :
+    {filtered.length === 0 ? <p className={`${ui.panel} py-12 text-center text-sm text-[var(--text-muted)]`}>Không tìm thấy sách phù hợp với bộ lọc.</p> :
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">{filtered.map((product) => (
         <article key={product.id} className={ui.panel}>
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -95,10 +96,10 @@ function CatalogEditor({ product, onSave, onCancel }: {
   onCancel: () => void;
 }) {
   const [name, setName] = useState(product?.name ?? "");
-  const [component, setComponent] = useState<ComponentType>(product?.component ?? "cpu");
+  const [component, setComponent] = useState<ComponentType>(product?.component ?? "literature");
   const [price, setPrice] = useState(product ? String(product.price) : "");
   const [specs, setSpecs] = useState(product?.specs.join("\n") ?? "");
-  const [usages, setUsages] = useState<Usage[]>(product?.usages ?? ["office"]);
+  const [usages, setUsages] = useState<Usage[]>(product?.usages ?? ["learning"]);
   const [reasons, setReasons] = useState<Partial<Record<Usage, string>>>({ ...product?.reasons });
   const [isActive, setIsActive] = useState(product?.isActive ?? true);
   const [error, setError] = useState("");
@@ -108,18 +109,18 @@ function CatalogEditor({ product, onSave, onCancel }: {
     setError("");
     try {
       onSave({ name, component, price: Number(price), specs: specs.split("\n").map((line) => line.trim()).filter(Boolean), usages, reasons, isActive }, product?.id);
-    } catch (caught) { setError(caught instanceof Error ? caught.message : "Không thể lưu sản phẩm."); }
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Không thể lưu sách."); }
   }
 
-  return <section className={`${ui.panel} mb-6`} aria-label="Biểu mẫu sản phẩm tư vấn">
-    <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><h3 className="text-lg font-bold">{product ? "Chỉnh sửa sản phẩm tư vấn" : "Thêm sản phẩm tư vấn"}</h3><button type="button" className={ui.secondary} onClick={onCancel}>Đóng biểu mẫu</button></div>
+  return <section className={`${ui.panel} mb-6`} aria-label="Biểu mẫu sách tư vấn">
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><h3 className="text-lg font-bold">{product ? "Chỉnh sửa sách tư vấn" : "Thêm sách tư vấn"}</h3><button type="button" className={ui.secondary} onClick={onCancel}>Đóng biểu mẫu</button></div>
     <form onSubmit={submit} className="space-y-5" noValidate>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <label className={ui.label} htmlFor="consultation-name">Tên sản phẩm<input autoFocus id="consultation-name" className={ui.control} value={name} maxLength={200} onChange={(event) => setName(event.target.value)} required /></label>
-        <label className={ui.label} htmlFor="consultation-type">Loại linh kiện<select id="consultation-type" className={ui.control} value={component} onChange={(event) => setComponent(event.target.value as ComponentType)}>{options.components.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
+        <label className={ui.label} htmlFor="consultation-name">Tên sách<input autoFocus id="consultation-name" className={ui.control} value={name} maxLength={200} onChange={(event) => setName(event.target.value)} required /></label>
+        <label className={ui.label} htmlFor="consultation-type">Loại sách<select id="consultation-type" className={ui.control} value={component} onChange={(event) => setComponent(event.target.value as ComponentType)}>{options.components.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
         <label className={ui.label} htmlFor="consultation-price">Giá tham khảo (VNĐ)<input id="consultation-price" className={ui.control} type="number" min="1" step="1" value={price} onChange={(event) => setPrice(event.target.value)} required /></label>
       </div>
-      <label className={ui.label} htmlFor="consultation-specs">Thông số chính (mỗi dòng một thông số)<textarea id="consultation-specs" className={`${ui.control} min-h-24 resize-y`} value={specs} maxLength={3000} onChange={(event) => setSpecs(event.target.value)} required /></label>
+      <label className={ui.label} htmlFor="consultation-specs">Thông tin chính (mỗi dòng một thông tin)<textarea id="consultation-specs" className={`${ui.control} min-h-24 resize-y`} value={specs} maxLength={3000} onChange={(event) => setSpecs(event.target.value)} required /></label>
       <fieldset><legend className="mb-3 text-sm font-semibold">Nhu cầu phù hợp</legend><div className="flex flex-wrap gap-4">{options.usages.map((item) => (
         <label key={item.id} className="flex items-center gap-2 text-sm"><input type="checkbox" className="size-4 accent-primary" checked={usages.includes(item.id)} onChange={(event) => setUsages(event.target.checked ? [...usages, item.id] : usages.filter((usage) => usage !== item.id))} />{item.label}</label>
       ))}</div></fieldset>
@@ -130,7 +131,7 @@ function CatalogEditor({ product, onSave, onCancel }: {
       ))}</div>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="size-4 accent-primary" checked={isActive} onChange={(event) => setIsActive(event.target.checked)} />Hiển thị trong kết quả tư vấn của user</label>
       <ServiceFeedback error={error} />
-      <div className="flex flex-wrap gap-2"><button type="submit" className={ui.primary}>Lưu sản phẩm</button><button type="button" className={ui.secondary} onClick={onCancel}>Hủy</button></div>
+      <div className="flex flex-wrap gap-2"><button type="submit" className={ui.primary}>Lưu sách</button><button type="button" className={ui.secondary} onClick={onCancel}>Hủy</button></div>
     </form>
   </section>;
 }

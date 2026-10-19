@@ -3,23 +3,23 @@
 
 /* =========================================
    DESIGN TOKENS — Biến màu chủ đạo toàn cục
-   Màu chính: #418dbf
+   Màu chính: #224e43
    ========================================= */
 :root {
   /* ---- Primary brand color ---- */
-  --primary: #418dbf;
-  --primary-dark: #2d6a94;
-  --primary-darker: #1e4f71;
-  --primary-light: #6ab0d9;
-  --primary-lighter: #9ccce8;
-  --primary-bg: #eaf4fb;
-  --primary-border: #b8ddf0;
+  --primary: #224e43;
+  --primary-dark: #193d34;
+  --primary-darker: #102d25;
+  --primary-light: #78a38e;
+  --primary-lighter: #afd0bd;
+  --primary-bg: #edf3ed;
+  --primary-border: #c8dacf;
 
   /* ---- CTA / Accent (cam) ---- */
-  --accent: #f97316;
-  --accent-dark: #ea6c0a;
-  --accent-light: #fb9a57;
-  --accent-bg: #fff7ed;
+  --accent: #a86545;
+  --accent-dark: #895036;
+  --accent-light: #78a38e;
+  --accent-bg: #f6eee4;
 
   /* ---- Semantic colors ---- */
   --success: #22c55e;
@@ -32,20 +32,20 @@
   --info-bg: #eff6ff;
 
   /* ---- Background ---- */
-  --bg-page: #f5f7fa;
-  --bg-card: #ffffff;
-  --bg-section: #f0f4f8;
+  --bg-page: #f7f4ec;
+  --bg-card: #fffdf8;
+  --bg-section: #efeee5;
   --bg-hover: #f8fafc;
 
   /* ---- Text ---- */
-  --text-primary: #1a202c;
+  --text-primary: #233a32;
   --text-secondary: #4a5568;
-  --text-muted: #718096;
+  --text-muted: #758078;
   --text-disabled: #a0aec0;
   --text-inverse: #ffffff;
 
   /* ---- Border ---- */
-  --border: #e2e8f0;
+  --border: #e0e4da;
   --border-strong: #cbd5e0;
   --border-focus: var(--primary);
 
@@ -54,7 +54,7 @@
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
   --shadow-xl: 0 20px 48px rgba(0, 0, 0, 0.16);
-  --shadow-primary: 0 4px 16px rgba(65, 141, 191, 0.3);
+  --shadow-primary: 0 4px 16px rgba(34, 78, 67, 0.3);
 
   /* ---- Radius ---- */
   --radius-sm: 6px;

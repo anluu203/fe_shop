@@ -1,5 +1,6 @@
 "use client";
 
+import { USE_MOCK } from "../../../../lib/mock/config";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -38,7 +39,19 @@ export default function LoginPage() {
         password: form.password,
       });
       login(res.accessToken, res.user);
-      router.push(res.user.role === "ADMIN" ? "/admin" : "/client");
+      const requestedReturn = new URLSearchParams(window.location.search).get(
+        "returnTo",
+      );
+      let destination = res.user.role === "ADMIN" ? "/admin" : "/client";
+      if (requestedReturn?.startsWith("/client/borrowing")) {
+        const target = new URL(requestedReturn, window.location.origin);
+        if (
+          target.origin === window.location.origin &&
+          target.pathname === "/client/borrowing"
+        )
+          destination = target.pathname + target.search;
+      }
+      router.push(destination);
     } catch (err: any) {
       setApiError(err.message ?? "Đăng nhập thất bại");
     } finally {
@@ -48,12 +61,14 @@ export default function LoginPage() {
 
   return (
     <div
+      className="auth-view"
       style={{
         minHeight: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, var(--primary-bg) 0%, #fff 50%, var(--accent-bg) 100%)",
+        background:
+          "linear-gradient(135deg, var(--primary-bg) 0%, #fff 50%, var(--accent-bg) 100%)",
         padding: 16,
       }}
     >
@@ -71,7 +86,8 @@ export default function LoginPage() {
         {/* Header */}
         <div
           style={{
-            background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)",
+            background:
+              "linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)",
             padding: "32px 32px 28px",
             textAlign: "center",
           }}
@@ -108,7 +124,7 @@ export default function LoginPage() {
                   letterSpacing: "-0.5px",
                 }}
               >
-                TechParts
+                BookStore
               </span>
             </div>
           </Link>
@@ -130,6 +146,16 @@ export default function LoginPage() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} style={{ padding: "28px 32px 32px" }}>
+          {USE_MOCK && (
+            <aside className="demo-credentials">
+              <strong>Tài khoản trải nghiệm</strong>
+              <p>Khách: user@bookstore.vn</p>
+              <p>Admin: admin@bookstore.vn</p>
+              <p>
+                Mật khẩu: <code>BookStore@123</code>
+              </p>
+            </aside>
+          )}
           {apiError && (
             <div
               style={{
@@ -159,7 +185,12 @@ export default function LoginPage() {
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               error={errors.email}
-              icon={<i className="fa fa-envelope" style={{ color: "var(--text-muted)" }} />}
+              icon={
+                <i
+                  className="fa fa-envelope"
+                  style={{ color: "var(--text-muted)" }}
+                />
+              }
               autoComplete="email"
             />
             <Input
@@ -170,7 +201,12 @@ export default function LoginPage() {
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               error={errors.password}
-              icon={<i className="fa fa-lock" style={{ color: "var(--text-muted)" }} />}
+              icon={
+                <i
+                  className="fa fa-lock"
+                  style={{ color: "var(--text-muted)" }}
+                />
+              }
               autoComplete="current-password"
               rightElement={
                 <button

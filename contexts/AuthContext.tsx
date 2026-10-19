@@ -9,6 +9,7 @@ import {
 } from "react";
 import { authApi } from "../lib/api/auth";
 import type { User } from "../lib/types";
+import { AUTH_TOKEN_KEY } from "../lib/mock/config";
 
 interface AuthContextValue {
   user: User | null;
@@ -29,7 +30,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Khôi phục phiên khi load app
   useEffect(() => {
-    const savedToken = localStorage.getItem("accessToken");
+    let savedToken: string | null = null;
+    try {
+      savedToken = localStorage.getItem(AUTH_TOKEN_KEY);
+    } catch {
+      /* Browser may block persistent storage. */
+    }
     if (!savedToken) {
       setIsLoading(false);
       return;
@@ -40,20 +46,67 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .then((u) => setUser(u))
       .catch(() => {
         // Token hết hạn hoặc không hợp lệ
-        localStorage.removeItem("accessToken");
+        try {
+          localStorage.removeItem(AUTH_TOKEN_KEY);
+        } catch {}
         setToken(null);
       })
       .finally(() => setIsLoading(false));
   }, []);
 
+  // A browser shares its demo session across tabs; keep the visible account in sync.
+  useEffect(() => {
+    let revision = 0;
+    const syncSession = (event: StorageEvent) => {
+      if (event.key !== AUTH_TOKEN_KEY && event.key !== null) return;
+      const current = ++revision;
+      let saved: string | null = null;
+      try {
+        saved = localStorage.getItem(AUTH_TOKEN_KEY);
+      } catch {}
+      if (!saved) {
+        setUser(null);
+        setToken(null);
+        return;
+      }
+      authApi
+        .me()
+        .then((account) => {
+          if (current === revision) {
+            setToken(saved);
+            setUser(account);
+          }
+        })
+        .catch(() => {
+          if (current === revision) {
+            setToken(null);
+            setUser(null);
+          }
+        });
+    };
+    window.addEventListener("storage", syncSession);
+    return () => {
+      revision++;
+      window.removeEventListener("storage", syncSession);
+    };
+  }, []);
+
   const login = useCallback((newToken: string, newUser: User) => {
-    localStorage.setItem("accessToken", newToken);
+    try {
+      localStorage.setItem(AUTH_TOKEN_KEY, newToken);
+    } catch {
+      throw new Error(
+        "Trình duyệt không cho phép lưu phiên đăng nhập. Vui lòng bật lưu trữ cho website.",
+      );
+    }
     setToken(newToken);
     setUser(newUser);
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem("accessToken");
+    try {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+    } catch {}
     setToken(null);
     setUser(null);
   }, []);

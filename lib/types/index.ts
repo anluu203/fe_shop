@@ -1,5 +1,5 @@
 // =============================================
-// TypeScript Interfaces — E-commerce Linh Kiện Máy Tính
+// TypeScript Interfaces — BookStore / nhà sách trực tuyến
 // Dựa theo FE_API_HANDOFF.md
 // =============================================
 
@@ -71,6 +71,12 @@ export interface CategoryBody {
 
 // ---------- Product ----------
 export interface Product {
+  author?: string;
+  publisher?: string;
+  publicationYear?: number | null;
+  pageCount?: number | null;
+  language?: string;
+  coverType?: string;
   id: string;
   name: string;
   description: string | null;
@@ -96,6 +102,12 @@ export interface Product {
 }
 
 export interface ProductBody {
+  author?: string;
+  publisher?: string;
+  publicationYear?: number | null;
+  pageCount?: number | null;
+  language?: string;
+  coverType?: string;
   name: string;
   description?: string;
   imageUrl?: string;
@@ -104,6 +116,8 @@ export interface ProductBody {
 }
 
 export interface ProductQuery {
+  includeInactive?: boolean;
+  parentId?: string;
   page?: number;
   pageSize?: number;
   search?: string;

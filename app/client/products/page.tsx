@@ -1,403 +1,223 @@
 "use client";
-
-import { useEffect, useState, useCallback, Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { productApi } from "../../../lib/api/products";
 import { categoryApi } from "../../../lib/api/categories";
-import type { Category, CategoryParent, Page, Product } from "../../../lib/types";
+import { subscribeMockData, USE_MOCK } from "../../../lib/mock/config";
+import type {
+  Category,
+  CategoryParent,
+  Page,
+  Product,
+} from "../../../lib/types";
 import ProductCard from "../../../components/client/ProductCard";
 import Pagination from "../../../components/ui/Pagination";
 import { PageSpinner } from "../../../components/ui/Spinner";
-
-function ProductsContent() {
-  const searchParams = useSearchParams();
+function Catalog() {
+  const params = useSearchParams();
   const router = useRouter();
-
-  const searchQuery = searchParams.get("search") ?? "";
-  const categoryId = searchParams.get("categoryId") ?? "";
-  const parentId = searchParams.get("parentId") ?? "";
-  const pageParam = parseInt(searchParams.get("page") ?? "1", 10);
-
-  const [products, setProducts] = useState<Page<Product> | null>(null);
+  const parentId = params.get("parentId") ?? "";
+  const categoryId = params.get("categoryId") ?? "";
+  const keyword = params.get("search") ?? "";
+  const page = Math.max(1, Number(params.get("page")) || 1);
+  const [search, setSearch] = useState(keyword);
   const [parents, setParents] = useState<CategoryParent[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [data, setData] = useState<Page<Product> | null>(null);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState(searchQuery);
-
-  // Load danh mục
+  const [error, setError] = useState("");
+  useEffect(() => setSearch(keyword), [keyword]);
   useEffect(() => {
-    Promise.all([
-      categoryApi.getParents(),
-      categoryApi.getAll(),
-    ]).then(([p, c]) => {
-      setParents(p);
-      setCategories(c);
-    });
-  }, []);
-
-  // Load sản phẩm khi params thay đổi
-  useEffect(() => {
+    let active = true;
+    const load = () =>
+      Promise.all([
+        categoryApi.getParents(),
+        categoryApi.getAll(),
+        productApi.getAll({
+          page,
+          pageSize: 16,
+          parentId: parentId || undefined,
+          categoryId: categoryId || undefined,
+          search: keyword || undefined,
+        }),
+      ])
+        .then(([p, c, books]) => {
+          if (active) {
+            setParents(p);
+            setCategories(c);
+            setData(books);
+            setError("");
+          }
+        })
+        .catch((caught) => {
+          if (active)
+            setError(
+              caught instanceof Error
+                ? caught.message
+                : "Không tải được kệ sách.",
+            );
+        })
+        .finally(() => {
+          if (active) setLoading(false);
+        });
     setLoading(true);
-    productApi
-      .getAll({
-        page: pageParam,
-        pageSize: 20,
-        search: searchQuery || undefined,
-        categoryId: categoryId || undefined,
-      })
-      .then(setProducts)
-      .finally(() => setLoading(false));
-  }, [searchQuery, categoryId, pageParam]);
-
-  const updateParam = useCallback(
-    (updates: Record<string, string | undefined>) => {
-      const params = new URLSearchParams(searchParams.toString());
-      Object.entries(updates).forEach(([k, v]) => {
-        if (v) params.set(k, v);
-        else params.delete(k);
-      });
-      params.delete("page");
-      router.push(`/client/products?${params.toString()}`);
-    },
-    [searchParams, router]
-  );
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateParam({ search: search || undefined });
-  };
-
-  // Categories for selected parent
-  const filteredCats = parentId
-    ? categories.filter((c) => c.parentId === parentId)
-    : categories;
-
+    void load();
+    const off = USE_MOCK
+      ? subscribeMockData(() => {
+          void load();
+        })
+      : () => {};
+    return () => {
+      active = false;
+      off();
+    };
+  }, [page, parentId, categoryId, keyword]);
+  function update(values: Record<string, string>) {
+    const next = new URLSearchParams(params.toString());
+    for (const [key, value] of Object.entries(values)) {
+      if (value) next.set(key, value);
+      else next.delete(key);
+    }
+    next.delete("page");
+    router.push(`/client/products?${next.toString()}`);
+  }
   return (
-    <div style={{ background: "var(--bg-page)", minHeight: "100vh" }}>
-      {/* Page header */}
-      <div
-        style={{
-          background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)",
-          padding: "28px 0 20px",
-        }}
-      >
-        <div className="container">
-          <h1
-            style={{
-              fontSize: 24,
-              fontWeight: 900,
-              color: "#fff",
-              marginBottom: 16,
-              letterSpacing: "-0.3px",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <i className="fa fa-shopping-bag" style={{ marginRight: 8 }} /> Tất cả sản phẩm
+    <div className="container catalog-page">
+      <header className="catalog-editorial-heading">
+        <div>
+          <span className="eyebrow">BOOKSTORE / KHÁM PHÁ SÁCH</span>
+          <h1>
+            Một kệ sách.
+            <br />
+            <em>Vô vàn cuộc gặp gỡ.</em>
           </h1>
-          {/* Search bar */}
-          <form onSubmit={handleSearch} style={{ maxWidth: 560 }}>
-            <div style={{ display: "flex", gap: 8 }}>
-              <input
-                id="products-search"
-                type="search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Tìm kiếm linh kiện..."
-                style={{
-                  flex: 1,
-                  padding: "11px 18px",
-                  borderRadius: "var(--radius-full)",
-                  border: "none",
-                  fontSize: 14,
-                  background: "rgba(255,255,255,0.95)",
-                  outline: "none",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                }}
-              />
-              <button
-                type="submit"
-                id="products-search-btn"
-                style={{
-                  padding: "11px 20px",
-                  background: "var(--accent)",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "var(--radius-full)",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  fontSize: 14,
-                  fontFamily: "var(--font-sans)",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                <i className="fa fa-search" style={{ marginRight: 4 }} /> Tìm
-              </button>
-            </div>
-          </form>
         </div>
-      </div>
-
-      <div className="container" style={{ padding: "24px 32px" }}>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "220px 1fr",
-            gap: 24,
-            alignItems: "start",
-          }}
-        >
-          {/* Sidebar filters */}
-          <aside>
-            <div
-              style={{
-                background: "var(--bg-card)",
-                borderRadius: "var(--radius-md)",
-                border: "1px solid var(--border)",
-                overflow: "hidden",
-                position: "sticky",
-                top: "calc(var(--header-height) + 16px)",
-              }}
-            >
-              {/* Category parents */}
-              <div
-                style={{
-                  padding: "14px 16px",
-                  borderBottom: "1px solid var(--border)",
-                  background: "var(--primary-bg)",
-                }}
+        <p>
+          Cuốn sách bạn tìm có thể ở ngay đây.
+          <br />
+          Chọn theo điều bạn muốn khám phá hôm nay.
+        </p>
+      </header>
+      <div className="catalog-new-layout">
+        <aside className="catalog-facets">
+          <span className="eyebrow">NGĂN SÁCH CỦA BẠN</span>
+          <button
+            aria-pressed={!parentId && !categoryId}
+            onClick={() => update({ parentId: "", categoryId: "" })}
+          >
+            Tất cả thể loại <span>↗</span>
+          </button>
+          {parents.map((parent) => (
+            <div key={parent.id}>
+              <button
+                aria-pressed={parentId === parent.id}
+                onClick={() => update({ parentId: parent.id, categoryId: "" })}
               >
-                <h3
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 800,
-                    color: "var(--primary-dark)",
-                    letterSpacing: "0.5px",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Danh mục
-                </h3>
-              </div>
-              <div>
-                <FilterItem
-                  label="Tất cả sản phẩm"
-                  active={!parentId && !categoryId}
-                  onClick={() => router.push("/client/products")}
-                />
-                {parents.map((p) => (
-                  <div key={p.id}>
-                    <FilterItem
-                      label={p.name}
-                      active={parentId === p.id}
-                      onClick={() =>
-                        updateParam({ parentId: p.id, categoryId: undefined })
-                      }
-                      bold
-                    />
-                    {/* Sub-categories visible when parent selected */}
-                    {parentId === p.id &&
-                      filteredCats.map((c) => (
-                        <FilterItem
-                          key={c.id}
-                          label={c.name}
-                          active={categoryId === c.id}
-                          onClick={() =>
-                            updateParam({ categoryId: c.id })
-                          }
-                          indent
-                        />
-                      ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </aside>
-
-          {/* Products grid */}
-          <div>
-            {/* Active filters & count */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: 16,
-                flexWrap: "wrap",
-                gap: 8,
-              }}
-            >
-              <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                {loading ? (
-                  "Đang tải..."
-                ) : (
-                  <>
-                    Tìm thấy{" "}
-                    <strong style={{ color: "var(--text-primary)" }}>
-                      {products?.totalCount ?? 0}
-                    </strong>{" "}
-                    sản phẩm
-                    {searchQuery && (
-                      <span>
-                        {" "}
-                        cho &quot;
-                        <strong>{searchQuery}</strong>&quot;
-                      </span>
-                    )}
-                  </>
-                )}
-              </div>
-              {(searchQuery || categoryId || parentId) && (
-                <button
-                  id="clear-filters-btn"
-                  onClick={() => {
-                    setSearch("");
-                    router.push("/client/products");
-                  }}
-                  style={{
-                    fontSize: 12,
-                    color: "var(--danger)",
-                    background: "var(--danger-bg)",
-                    border: "none",
-                    borderRadius: "var(--radius-sm)",
-                    padding: "4px 12px",
-                    cursor: "pointer",
-                    fontWeight: 600,
-                    fontFamily: "var(--font-sans)",
-                  }}
-                >
-                  <i className="fa fa-times" style={{ marginRight: 4 }} /> Xóa bộ lọc
-                </button>
+                {parent.name}
+                <i className="fa fa-angle-right" aria-hidden="true" />
+              </button>
+              {parentId === parent.id && (
+                <div className="sub-facets">
+                  {categories
+                    .filter((c) => c.parentId === parent.id)
+                    .map((c) => (
+                      <button
+                        key={c.id}
+                        aria-pressed={categoryId === c.id}
+                        onClick={() =>
+                          update({
+                            categoryId: categoryId === c.id ? "" : c.id,
+                          })
+                        }
+                      >
+                        {c.name}
+                      </button>
+                    ))}
+                </div>
               )}
             </div>
-
-            {loading ? (
-              <PageSpinner />
-            ) : products && products.items.length > 0 ? (
-              <>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))",
-                    gap: 14,
-                  }}
-                >
-                  {products.items.map((p) => (
-                    <ProductCard key={p.id} product={p} />
-                  ))}
-                </div>
-                <Pagination
-                  page={products.pageNumber}
-                  totalPages={products.totalPages}
-                  onChange={(page) => {
-                    const params = new URLSearchParams(searchParams.toString());
-                    params.set("page", String(page));
-                    router.push(`/client/products?${params.toString()}`);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                />
-              </>
-            ) : (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "80px 0",
-                  color: "var(--text-muted)",
-                }}
+          ))}
+          <div className="catalog-borrow-note">
+            <i className="fa fa-bookmark-o" aria-hidden="true" />
+            <strong>Đọc, rồi chia sẻ.</strong>
+            <p>Chưa muốn mua? Ghé tủ sách cho mượn của BookStore.</p>
+            <a href="/client/borrowing">Khám phá tủ sách ↗</a>
+          </div>
+        </aside>
+        <section className="catalog-results" aria-label="Danh sách sách">
+          <form
+            className="catalog-search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              update({ search });
+            }}
+          >
+            <i className="fa fa-search" aria-hidden="true" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Tìm tên sách hoặc tác giả..."
+              aria-label="Tìm tên sách hoặc tác giả"
+            />
+            <button type="submit">
+              Tìm sách{" "}
+              <i className="fa fa-long-arrow-right" aria-hidden="true" />
+            </button>
+          </form>
+          <div className="catalog-results-heading">
+            <span>
+              {data?.totalCount ?? 0} cuốn sách{" "}
+              {keyword && <>cho “{keyword}”</>}
+            </span>
+            {(keyword || parentId || categoryId) && (
+              <button
+                id="clear-filters-btn"
+                className="text-button"
+                onClick={() => router.push("/client/products")}
               >
-                <div style={{ fontSize: 48, marginBottom: 16 }}><i className="fa fa-search" /></div>
-                <h3
-                  style={{
-                    fontSize: 18,
-                    fontWeight: 700,
-                    marginBottom: 8,
-                    color: "var(--text-secondary)",
-                  }}
-                >
-                  Không tìm thấy sản phẩm
-                </h3>
-                <p style={{ fontSize: 14 }}>
-                  Thử từ khóa khác hoặc xóa bộ lọc
-                </p>
-              </div>
+                Đặt lại bộ lọc
+              </button>
             )}
           </div>
-        </div>
+          {error && (
+            <p role="alert" className="feedback-error">
+              {error}
+            </p>
+          )}
+          {loading ? (
+            <PageSpinner />
+          ) : data?.items.length ? (
+            <>
+              <div className="catalog-book-grid">
+                {data.items.map((book) => (
+                  <ProductCard key={book.id} product={book} />
+                ))}
+              </div>
+              <Pagination
+                page={data.pageNumber}
+                totalPages={data.totalPages}
+                onChange={(value) => {
+                  const next = new URLSearchParams(params.toString());
+                  next.set("page", String(value));
+                  router.push(`/client/products?${next.toString()}`);
+                }}
+              />
+            </>
+          ) : (
+            <div className="workspace-empty">
+              <h2>Chưa tìm thấy cuộc gặp gỡ này.</h2>
+              <p>Thử tên sách, tác giả hoặc một thể loại khác nhé.</p>
+            </div>
+          )}
+        </section>
       </div>
-
-      {/* Responsive styles */}
-      <style>{`
-        @media (max-width: 768px) {
-          .products-grid { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </div>
   );
 }
-
 export default function ProductsPage() {
   return (
     <Suspense fallback={<PageSpinner />}>
-      <ProductsContent />
+      <Catalog />
     </Suspense>
-  );
-}
-
-function FilterItem({
-  label,
-  active,
-  onClick,
-  bold,
-  indent,
-}: {
-  label: string;
-  active?: boolean;
-  onClick: () => void;
-  bold?: boolean;
-  indent?: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        width: "100%",
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        padding: indent ? "8px 16px 8px 28px" : "10px 16px",
-        background: active ? "var(--primary-bg)" : "none",
-        border: "none",
-        borderLeft: active
-          ? "3px solid var(--primary)"
-          : "3px solid transparent",
-        color: active ? "var(--primary-dark)" : "var(--text-secondary)",
-        fontWeight: active ? 700 : bold ? 600 : 400,
-        fontSize: indent ? 12 : 13,
-        cursor: "pointer",
-        textAlign: "left",
-        transition: "all var(--transition)",
-        fontFamily: "var(--font-sans)",
-      }}
-      onMouseEnter={(e) => {
-        if (!active) {
-          (e.currentTarget as HTMLButtonElement).style.background =
-            "var(--bg-hover)";
-          (e.currentTarget as HTMLButtonElement).style.color =
-            "var(--text-primary)";
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!active) {
-          (e.currentTarget as HTMLButtonElement).style.background = "none";
-          (e.currentTarget as HTMLButtonElement).style.color =
-            "var(--text-secondary)";
-        }
-      }}
-    >
-      {active && (
-        <span style={{ color: "var(--primary)", fontSize: 10 }}>●</span>
-      )}
-      {label}
-    </button>
   );
 }

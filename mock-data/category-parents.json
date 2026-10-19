@@ -1,0 +1,66 @@
+[
+  {
+    "id": "literature",
+    "name": "Văn học",
+    "description": "Khám phá tủ sách văn học.",
+    "imageUrl": null,
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "business",
+    "name": "Kinh tế",
+    "description": "Khám phá tủ sách kinh tế.",
+    "imageUrl": null,
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "selfhelp",
+    "name": "Tâm lý – Kỹ năng sống",
+    "description": "Khám phá tủ sách tâm lý – kỹ năng sống.",
+    "imageUrl": null,
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "children",
+    "name": "Thiếu nhi",
+    "description": "Khám phá tủ sách thiếu nhi.",
+    "imageUrl": null,
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "manga",
+    "name": "Manga – Comic",
+    "description": "Khám phá tủ sách manga – comic.",
+    "imageUrl": null,
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "education",
+    "name": "Giáo khoa – Tham khảo",
+    "description": "Khám phá tủ sách giáo khoa – tham khảo.",
+    "imageUrl": null,
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "language",
+    "name": "Ngoại ngữ",
+    "description": "Khám phá tủ sách ngoại ngữ.",
+    "imageUrl": null,
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "history",
+    "name": "Lịch sử – Tiểu sử",
+    "description": "Khám phá tủ sách lịch sử – tiểu sử.",
+    "imageUrl": null,
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  }
+]

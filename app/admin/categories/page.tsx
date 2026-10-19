@@ -1,5 +1,6 @@
 "use client";
 
+import { subscribeMockData, USE_MOCK } from "../../../lib/mock/config";
 import { useEffect, useState } from "react";
 import { categoryApi } from "../../../lib/api/categories";
 import type { Category, CategoryBody, CategoryParent, CategoryParentBody } from "../../../lib/types";
@@ -37,7 +38,7 @@ export default function AdminCategoriesPage() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); return USE_MOCK ? subscribeMockData(() => { void load(); }) : undefined; }, []);
 
   const filteredCats = selectedParent
     ? categories.filter((c) => c.parentId === selectedParent)
@@ -145,7 +146,7 @@ export default function AdminCategoriesPage() {
 
   return (
     <div>
-      <div
+      <div className="admin-category-layout"
         style={{
           display: "grid",
           gridTemplateColumns: "280px 1fr",

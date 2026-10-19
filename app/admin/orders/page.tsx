@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { subscribeMockData, USE_MOCK } from "../../../lib/mock/config";
 import Link from "next/link";
 import { adminOrderApi } from "../../../lib/api/admin-orders";
 import type { Order, OrderStatus, Page } from "../../../lib/types";
@@ -47,11 +48,13 @@ function AdminOrdersContent() {
         pageSize: 20,
       })
       .then(setData)
+      .catch(() => setData(null))
       .finally(() => setLoading(false));
   }, [statusParam, pageParam]);
 
   useEffect(() => {
     load();
+    return USE_MOCK ? subscribeMockData(load) : undefined;
   }, [load]);
 
   const setStatus = (s: string) => {
@@ -102,7 +105,7 @@ function AdminOrdersContent() {
       </div>
 
       {/* Table */}
-      <div
+      <div className="admin-orders-table"
         style={{
           background: "var(--bg-card)",
           borderRadius: "var(--radius-lg)",

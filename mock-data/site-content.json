@@ -1,0 +1,57 @@
+{
+  "brand": "BookStore",
+  "tagline": "Đọc sách. Mở thế giới.",
+  "email": "hello@bookstore.vn",
+  "phone": "1900 1234",
+  "address": "123 Nguyễn Trãi, TP. Hồ Chí Minh",
+  "sections": [
+    {
+      "id": "featured",
+      "title": "Gợi ý dành cho bạn",
+      "subtitle": "Những cuốn sách đáng có trên kệ của bạn",
+      "icon": "fa-heart-o",
+      "bookIds": [
+        "book-01",
+        "book-09",
+        "book-13",
+        "book-05",
+        "book-12",
+        "book-29",
+        "book-17",
+        "book-15"
+      ]
+    },
+    {
+      "id": "new",
+      "title": "Sách mới trên kệ",
+      "subtitle": "Thêm một cuốn sách, thêm một góc nhìn",
+      "icon": "fa-book",
+      "bookIds": [
+        "book-03",
+        "book-07",
+        "book-11",
+        "book-16",
+        "book-18",
+        "book-21",
+        "book-25",
+        "book-32"
+      ]
+    },
+    {
+      "id": "bestsellers",
+      "title": "Sách được yêu thích",
+      "subtitle": "Những lựa chọn nổi bật của cộng đồng yêu sách",
+      "icon": "fa-fire",
+      "bookIds": [
+        "book-02",
+        "book-04",
+        "book-06",
+        "book-10",
+        "book-14",
+        "book-19",
+        "book-20",
+        "book-30"
+      ]
+    }
+  ]
+}

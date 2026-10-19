@@ -66,7 +66,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 : "var(--primary)";
               e.target.style.boxShadow = error
                 ? "0 0 0 3px rgba(239,68,68,0.15)"
-                : "0 0 0 3px rgba(65,141,191,0.15)";
+                : "0 0 0 3px rgba(34,78,67,0.15)";
               props.onFocus?.(e);
             }}
             onBlur={(e) => {

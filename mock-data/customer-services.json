@@ -1,0 +1,735 @@
+{
+  "usages": [
+    {
+      "id": "learning",
+      "label": "Học tập & phát triển",
+      "description": "Bồi dưỡng kiến thức, rèn luyện kỹ năng.",
+      "icon": "fa-graduation-cap"
+    },
+    {
+      "id": "relaxation",
+      "label": "Đọc để thư giãn",
+      "description": "Tìm niềm vui trong từng câu chuyện.",
+      "icon": "fa-coffee"
+    },
+    {
+      "id": "discovery",
+      "label": "Khám phá thế giới",
+      "description": "Mở rộng góc nhìn và trí tưởng tượng.",
+      "icon": "fa-compass"
+    }
+  ],
+  "components": [
+    {
+      "id": "literature",
+      "label": "Văn học",
+      "icon": "fa-book"
+    },
+    {
+      "id": "business",
+      "label": "Kinh tế",
+      "icon": "fa-line-chart"
+    },
+    {
+      "id": "selfhelp",
+      "label": "Tâm lý – Kỹ năng sống",
+      "icon": "fa-lightbulb-o"
+    },
+    {
+      "id": "children",
+      "label": "Thiếu nhi",
+      "icon": "fa-child"
+    },
+    {
+      "id": "manga",
+      "label": "Manga – Comic",
+      "icon": "fa-comments-o"
+    },
+    {
+      "id": "education",
+      "label": "Giáo khoa – Tham khảo",
+      "icon": "fa-graduation-cap"
+    },
+    {
+      "id": "language",
+      "label": "Ngoại ngữ",
+      "icon": "fa-language"
+    },
+    {
+      "id": "history",
+      "label": "Lịch sử – Tiểu sử",
+      "icon": "fa-university"
+    }
+  ],
+  "products": [
+    {
+      "id": "book-01",
+      "name": "Cây cam ngọt của tôi",
+      "component": "literature",
+      "price": 100000,
+      "usages": [
+        "relaxation",
+        "discovery"
+      ],
+      "specs": [
+        "José Mauro de Vasconcelos",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "relaxation": "Một câu chuyện để tận hưởng những giờ đọc thư thái.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-02",
+      "name": "Rừng Na Uy",
+      "component": "literature",
+      "price": 120000,
+      "usages": [
+        "relaxation",
+        "discovery"
+      ],
+      "specs": [
+        "Haruki Murakami",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "relaxation": "Một câu chuyện để tận hưởng những giờ đọc thư thái.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-03",
+      "name": "Đất rừng phương Nam",
+      "component": "literature",
+      "price": 72000,
+      "usages": [
+        "relaxation",
+        "discovery"
+      ],
+      "specs": [
+        "Đoàn Giỏi",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "relaxation": "Một câu chuyện để tận hưởng những giờ đọc thư thái.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-04",
+      "name": "Không gia đình",
+      "component": "literature",
+      "price": 135000,
+      "usages": [
+        "relaxation",
+        "discovery"
+      ],
+      "specs": [
+        "Hector Malot",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "relaxation": "Một câu chuyện để tận hưởng những giờ đọc thư thái.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-05",
+      "name": "Nhà đầu tư thông minh",
+      "component": "business",
+      "price": 199000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Benjamin Graham",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-06",
+      "name": "Marketing tinh gọn",
+      "component": "business",
+      "price": 194000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Allan Dib",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-07",
+      "name": "Chiến lược đại dương xanh",
+      "component": "business",
+      "price": 191000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "W.Chan Kim, Renée Mauborgne",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-08",
+      "name": "Khởi nghiệp phiêu lưu ký",
+      "component": "business",
+      "price": 151000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Tạ Minh Tuấn",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-09",
+      "name": "Tuổi trẻ đáng giá bao nhiêu?",
+      "component": "selfhelp",
+      "price": 145000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Rosie Nguyễn",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-10",
+      "name": "Ikigai – Bí mật sống trường thọ và hạnh phúc của người Nhật",
+      "component": "selfhelp",
+      "price": 105000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Ken Mogi",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-11",
+      "name": "Tư duy nhanh và chậm",
+      "component": "selfhelp",
+      "price": 143000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Daniel Kahneman",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-12",
+      "name": "Dám bị ghét",
+      "component": "selfhelp",
+      "price": 113000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Kishimi lchiro - Koga Fumitake",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-13",
+      "name": "Hoàng tử bé",
+      "component": "children",
+      "price": 144000,
+      "usages": [
+        "relaxation",
+        "discovery"
+      ],
+      "specs": [
+        "Antoine de Saint Exupéry",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "relaxation": "Một câu chuyện để tận hưởng những giờ đọc thư thái.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-14",
+      "name": "Dế Mèn phiêu lưu ký",
+      "component": "children",
+      "price": 135000,
+      "usages": [
+        "relaxation",
+        "discovery"
+      ],
+      "specs": [
+        "Tô Hoài",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "relaxation": "Một câu chuyện để tận hưởng những giờ đọc thư thái.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-15",
+      "name": "Chuyện con mèo dạy hải âu bay",
+      "component": "children",
+      "price": 70000,
+      "usages": [
+        "relaxation",
+        "discovery"
+      ],
+      "specs": [
+        "Luis Sepúlveda",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "relaxation": "Một câu chuyện để tận hưởng những giờ đọc thư thái.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-16",
+      "name": "Charlie và nhà máy sôcôla",
+      "component": "children",
+      "price": 54000,
+      "usages": [
+        "relaxation",
+        "discovery"
+      ],
+      "specs": [
+        "Roald Dahl",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "relaxation": "Một câu chuyện để tận hưởng những giờ đọc thư thái.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-17",
+      "name": "Doraemon hoạt hình màu – Tập 1",
+      "component": "manga",
+      "price": 31000,
+      "usages": [
+        "relaxation",
+        "discovery"
+      ],
+      "specs": [
+        "Fujiko F Fujio",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "relaxation": "Một câu chuyện để tận hưởng những giờ đọc thư thái.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-18",
+      "name": "Thám tử lừng danh Conan – Tập 107",
+      "component": "manga",
+      "price": 22000,
+      "usages": [
+        "relaxation",
+        "discovery"
+      ],
+      "specs": [
+        "Gosho Aoyama",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "relaxation": "Một câu chuyện để tận hưởng những giờ đọc thư thái.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-19",
+      "name": "One Piece – Tập 111",
+      "component": "manga",
+      "price": 22000,
+      "usages": [
+        "relaxation",
+        "discovery"
+      ],
+      "specs": [
+        "Eiichiro Oda",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "relaxation": "Một câu chuyện để tận hưởng những giờ đọc thư thái.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-20",
+      "name": "Dragon Ball Z – Cuộc chiến giữa các vị thần",
+      "component": "manga",
+      "price": 108000,
+      "usages": [
+        "relaxation",
+        "discovery"
+      ],
+      "specs": [
+        "Akira Toriyama",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "relaxation": "Một câu chuyện để tận hưởng những giờ đọc thư thái.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-21",
+      "name": "Học tập thông minh 1 – Kỹ thuật học tập đỉnh cao",
+      "component": "education",
+      "price": 139000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Viện Nghiên cứu độc giả tiểu học Dook Reads",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-22",
+      "name": "Học tập thông minh 2 – Thói quen tốt của học sinh giỏi",
+      "component": "education",
+      "price": 139000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Viện Nghiên cứu độc giả tiểu học Dook Reads",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-23",
+      "name": "Học tập thông minh 3 – Khơi dậy cảm hứng học tập",
+      "component": "education",
+      "price": 139000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Viện Nghiên cứu độc giả tiểu học Dook Reads",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-24",
+      "name": "Hành trang vào lớp 1 – Tập viết 3",
+      "component": "education",
+      "price": 15000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Tịnh Lâm",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-25",
+      "name": "Học tiếng Anh siêu thú vị – Sách học 3",
+      "component": "language",
+      "price": 36000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Sasbadi Group",
+        "Song ngữ Anh – Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-26",
+      "name": "Học tiếng Anh siêu thú vị – Sách học 5",
+      "component": "language",
+      "price": 36000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Sasbadi Group",
+        "Song ngữ Anh – Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-27",
+      "name": "Học tiếng Anh siêu thú vị – Sách luyện tập 2",
+      "component": "language",
+      "price": 24000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Sasbadi Group",
+        "Song ngữ Anh – Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-28",
+      "name": "Học tiếng Anh siêu thú vị – Sách luyện tập 5",
+      "component": "language",
+      "price": 24000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Sasbadi Group",
+        "Song ngữ Anh – Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-29",
+      "name": "Sapiens – Lược sử loài người",
+      "component": "history",
+      "price": 299000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Yuval Noah Harari",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-30",
+      "name": "Tiểu sử Steve Jobs",
+      "component": "history",
+      "price": 359000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Walter Isaacson",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-31",
+      "name": "Việt sử yếu",
+      "component": "history",
+      "price": 320000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Hoàng Cao Khải",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    },
+    {
+      "id": "book-32",
+      "name": "Lịch sử Việt Nam từ nguồn gốc đến giữa thế kỷ XX",
+      "component": "history",
+      "price": 200000,
+      "usages": [
+        "learning",
+        "discovery"
+      ],
+      "specs": [
+        "Lê Thành Khôi",
+        "Tiếng Việt"
+      ],
+      "reasons": {
+        "learning": "Phù hợp để học hỏi và trau dồi kiến thức.",
+        "discovery": "Thêm những góc nhìn mới qua từng trang sách."
+      }
+    }
+  ],
+  "warrantyProducts": [
+    {
+      "id": "return-book-1",
+      "name": "Cây cam ngọt của tôi",
+      "serial": "BS-COPY-0001",
+      "orderCode": "BS-2026-0001",
+      "purchasedAt": "2026-10-17",
+      "expiresAt": "2026-10-24"
+    },
+    {
+      "id": "return-book-2",
+      "name": "Hoàng tử bé",
+      "serial": "BS-COPY-0002",
+      "orderCode": "BS-2026-0002",
+      "purchasedAt": "2026-10-17",
+      "expiresAt": "2026-10-24"
+    },
+    {
+      "id": "return-book-3",
+      "name": "Tuổi trẻ đáng giá bao nhiêu?",
+      "serial": "BS-COPY-0003",
+      "orderCode": "BS-2026-0003",
+      "purchasedAt": "2026-10-17",
+      "expiresAt": "2026-10-24"
+    },
+    {
+      "id": "return-book-4",
+      "name": "Doraemon hoạt hình màu – Tập 1",
+      "serial": "BS-COPY-0004",
+      "orderCode": "BS-2026-0004",
+      "purchasedAt": "2026-09-01",
+      "expiresAt": "2026-09-08"
+    }
+  ],
+  "warrantyRequests": [
+    {
+      "id": "DT-MAU-001",
+      "productId": "return-book-2",
+      "contactName": "Khách hàng mẫu",
+      "phone": "0900000000",
+      "description": "Sách bị lỗi in, cần hỗ trợ đổi bản mới.",
+      "status": "repairing",
+      "createdAt": "2026-10-18T03:00:00Z",
+      "timeline": [
+        {
+          "status": "received",
+          "date": "2026-10-18T03:00:00Z",
+          "note": "Đã tiếp nhận yêu cầu đổi trả sách."
+        },
+        {
+          "status": "checking",
+          "date": "2026-10-18T04:00:00Z",
+          "note": "Đang kiểm tra tình trạng sách."
+        },
+        {
+          "status": "repairing",
+          "date": "2026-10-19T05:00:00Z",
+          "note": "Đang chuẩn bị sách thay thế."
+        }
+      ]
+    },
+    {
+      "id": "DT-MAU-002",
+      "productId": "return-book-3",
+      "contactName": "Khách hàng mẫu",
+      "phone": "0900000000",
+      "description": "Sách bị lỗi in, cần hỗ trợ đổi bản mới.",
+      "status": "completed",
+      "createdAt": "2026-10-18T03:00:00Z",
+      "timeline": [
+        {
+          "status": "received",
+          "date": "2026-10-18T03:00:00Z",
+          "note": "Đã tiếp nhận yêu cầu đổi trả sách."
+        },
+        {
+          "status": "checking",
+          "date": "2026-10-18T04:00:00Z",
+          "note": "Đang kiểm tra tình trạng sách."
+        },
+        {
+          "status": "repairing",
+          "date": "2026-10-19T05:00:00Z",
+          "note": "Đang chuẩn bị sách thay thế."
+        },
+        {
+          "status": "completed",
+          "date": "2026-10-19T06:00:00Z",
+          "note": "Đã hoàn tất đổi trả và bàn giao sách."
+        }
+      ]
+    }
+  ]
+}

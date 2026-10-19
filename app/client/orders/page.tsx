@@ -1,9 +1,11 @@
 "use client";
+import { imageSrc } from "../../../lib/utils/image";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../../contexts/AuthContext";
+import { subscribeMockData, USE_MOCK } from "../../../lib/mock/config";
 import { orderApi } from "../../../lib/api/orders";
 import type { Order } from "../../../lib/types";
 import { ORDER_STATUS_LABEL } from "../../../lib/types";
@@ -33,10 +35,13 @@ export default function OrdersPage() {
 
   useEffect(() => {
     if (user) {
-      orderApi
+      const loadOrders = () => orderApi
         .getHistory()
         .then(setOrders)
+        .catch(() => setOrders([]))
         .finally(() => setLoading(false));
+      void loadOrders();
+      return USE_MOCK ? subscribeMockData(() => { void loadOrders(); }) : undefined;
     }
   }, [user]);
 
@@ -95,7 +100,7 @@ export default function OrdersPage() {
               Chưa có đơn hàng nào
             </h2>
             <p style={{ color: "var(--text-muted)", marginBottom: 28, fontSize: 14 }}>
-              Đặt hàng ngay để trải nghiệm dịch vụ của TechParts!
+              Đặt hàng ngay để trải nghiệm dịch vụ của BookStore!
             </p>
             <Link
               href="/client/products"
@@ -213,7 +218,7 @@ export default function OrdersPage() {
                         >
                           {item.product?.imageUrl ? (
                             <img
-                              src={item.product.imageUrl}
+                              src={imageSrc(item.product.imageUrl)}
                               alt={item.product.name}
                               style={{
                                 width: "100%",
@@ -227,7 +232,7 @@ export default function OrdersPage() {
                               }}
                             />
                           ) : (
-                            <span style={{ fontSize: 20, opacity: 0.3 }}><i className="fa fa-desktop" /></span>
+                            <span style={{ fontSize: 20, opacity: 0.3 }}><i className="fa fa-book" /></span>
                           )}
                         </div>
                         <div>
@@ -261,7 +266,7 @@ export default function OrdersPage() {
                           fontWeight: 600,
                         }}
                       >
-                        +{order.items.length - 3} sản phẩm khác
+                        +{order.items.length - 3} sách khác
                       </span>
                     )}
                     <Link

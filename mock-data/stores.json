@@ -1,0 +1,20 @@
+[
+  {
+    "id": "store-1",
+    "name": "BookStore Nguyễn Trãi",
+    "description": "Không gian sách và những cuộc gặp gỡ cùng tri thức.",
+    "address": "123 Nguyễn Trãi, Phường Bến Thành, TP. Hồ Chí Minh",
+    "imageUrl": "/images/bookstore.svg",
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "store-2",
+    "name": "BookStore Cầu Giấy",
+    "description": "Tìm cuốn sách dành riêng cho bạn giữa lòng Hà Nội.",
+    "address": "45 Cầu Giấy, Phường Cầu Giấy, Hà Nội",
+    "imageUrl": "/images/bookstore.svg",
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  }
+]

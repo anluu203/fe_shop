@@ -1,3 +1,5 @@
+> **BookStore frontend:** mặc định chạy mock qua `lib/mock/request.ts`, dùng JSON trong `mock-data/` và localStorage. Đặt `NEXT_PUBLIC_USE_MOCK=false` để dùng hợp đồng HTTP bên dưới. `Product` bổ sung các trường tùy chọn: `author`, `publisher`, `publicationYear`, `pageCount`, `language`, `coverType`; truy vấn danh sách bổ sung `parentId`, `includeInactive=1` cho admin. Thông tin triển khai trong README.md.
+
 # Tài liệu bàn giao API cho Frontend
 
 Tài liệu này mô tả **API đang có trong mã nguồn**. Các đường dẫn bên dưới đã bao gồm prefix `/api/v1`. Mặc định local: `http://localhost:8080/api/v1`; Swagger UI: `http://localhost:8080/api-docs`.
@@ -63,7 +65,7 @@ Sai email hoặc mật khẩu trả `401`. Response của cả đăng ký và đ
 **CategoryParentBody**
 
 ```json
-{ "name": "Linh kiện máy tính", "description": "Nhóm linh kiện" }
+{ "name": "Sách", "description": "Nhóm sách" }
 ```
 
 `name` bắt buộc, 1–150 ký tự và duy nhất; `description` tùy chọn. Response gồm `id`, `name`, `description` (`string | null`), `createdAt`, `updatedAt`. Danh sách sắp theo tên tăng dần. Xóa danh mục cha đang chứa danh mục con trả `409`.
@@ -81,7 +83,7 @@ Sai email hoặc mật khẩu trả `401`. Response của cả đăng ký và đ
 **CategoryBody**
 
 ```json
-{ "name": "CPU", "description": "Bộ xử lý", "parentId": "<uuid danh mục cha>" }
+{ "name": "Văn học nước ngoài", "description": "Tiểu thuyết và truyện dịch", "parentId": "<uuid danh mục cha>" }
 ```
 
 `name` bắt buộc, 1–150 ký tự; `parentId` bắt buộc khi tạo và phải tồn tại; `description` tùy chọn. Response danh sách/chi tiết gồm `id`, `name`, `description`, `parentId`, `parent` (object danh mục cha), `createdAt`, `updatedAt`. Danh sách sắp theo tên tăng dần. Tên trùng trong cùng danh mục cha hoặc xóa danh mục đang có sản phẩm trả `409`.
@@ -100,10 +102,10 @@ Sai email hoặc mật khẩu trả `401`. Response của cả đăng ký và đ
 
 ```json
 {
-  "name": "AMD Ryzen 7 7800X3D",
-  "description": "CPU 8 nhân",
+  "name": "Cây cam ngọt của tôi",
+  "description": "Tiểu thuyết của José Mauro de Vasconcelos",
   "imageUrl": "https://example.com/product.jpg",
-  "price": "8000000",
+  "price": "100000",
   "categoryId": "<uuid danh mục con>"
 }
 ```
@@ -113,10 +115,10 @@ Sai email hoặc mật khẩu trả `401`. Response của cả đăng ký và đ
 ```json
 {
   "items": [{
-    "id": "<uuid>", "name": "AMD Ryzen 7 7800X3D", "description": "CPU 8 nhân",
-    "imageUrl": "https://example.com/product.jpg", "price": "8000000",
+    "id": "<uuid>", "name": "Cây cam ngọt của tôi", "description": "Tiểu thuyết của José Mauro de Vasconcelos",
+    "imageUrl": "https://example.com/product.jpg", "price": "100000",
     "categoryId": "<uuid>", "isActive": true,
-    "category": { "id": "<uuid>", "name": "CPU", "parentId": "<uuid>", "parent": { "id": "<uuid>", "name": "Linh kiện máy tính" } },
+    "category": { "id": "<uuid>", "name": "Văn học nước ngoài", "parentId": "<uuid>", "parent": { "id": "<uuid>", "name": "Sách" } },
     "createdAt": "<ISO date>", "updatedAt": "<ISO date>"
   }],
   "totalCount": 1, "pageNumber": 1, "pageSize": 20, "totalPages": 1,
@@ -151,8 +153,8 @@ Ví dụ giỏ/đơn có dữ liệu (object `product` còn có các field khác
   "totalPrice": "16000000",
   "items": [{
     "id": "<uuid item>", "orderId": "<uuid order>", "productId": "<uuid product>",
-    "quantity": 2, "unitPrice": "8000000",
-    "product": { "id": "<uuid product>", "name": "AMD Ryzen 7 7800X3D", "price": "8000000", "isActive": true },
+    "quantity": 2, "unitPrice": "100000",
+    "product": { "id": "<uuid product>", "name": "Cây cam ngọt của tôi", "price": "100000", "isActive": true },
     "createdAt": "<ISO date>", "updatedAt": "<ISO date>"
   }],
   "createdAt": "<ISO date>", "updatedAt": "<ISO date>"

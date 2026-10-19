@@ -8,6 +8,8 @@ import { categoryApi } from "../../../../lib/api/categories";
 import type { Category, CategoryParent } from "../../../../lib/types";
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
+import BookFields, { emptyBookFields, bookFieldBody, validateBookFields } from "../../../../components/admin/BookFields";
+import { USE_MOCK } from "../../../../lib/mock/config";
 import ImageUpload from "../../../../components/ui/ImageUpload";
 
 export default function NewProductPage() {
@@ -15,6 +17,7 @@ export default function NewProductPage() {
   const [parents, setParents] = useState<CategoryParent[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedParent, setSelectedParent] = useState("");
+  const [bookFields, setBookFields] = useState(emptyBookFields);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -46,10 +49,13 @@ export default function NewProductPage() {
     if (
       form.imageUrl &&
       !/^\/images\//.test(form.imageUrl) &&
-      !/^https?:\/\/.+/.test(form.imageUrl)
+      !/^https?:\/\/.+/.test(form.imageUrl) &&
+      !(USE_MOCK && /^data:image\/(jpeg|png|gif|webp);base64,/.test(form.imageUrl))
     ) {
       e.imageUrl = "URL ảnh không hợp lệ";
     }
+    const bookError = validateBookFields(bookFields);
+    if (bookError) e.name = bookError;
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -63,13 +69,14 @@ export default function NewProductPage() {
       await productApi.create({
         name: form.name.trim(),
         description: form.description.trim() || undefined,
-        imageUrl: form.imageUrl.trim() || undefined,
+        imageUrl: form.imageUrl.trim(),
         price: form.price,
         categoryId: form.categoryId,
+        ...bookFieldBody(bookFields),
       });
       router.push("/admin/products");
     } catch (err: any) {
-      setApiError(err.message ?? "Tạo sản phẩm thất bại");
+      setApiError(err.message ?? "Tạo sách thất bại");
     } finally {
       setSaving(false);
     }
@@ -83,7 +90,7 @@ export default function NewProductPage() {
       {/* Breadcrumb */}
       <div style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 20, display: "flex", gap: 8 }}>
         <Link href="/admin/products" style={{ color: "var(--primary)", textDecoration: "none" }}>
-          Sản phẩm
+          Sách
         </Link>
         <span>›</span>
         <span>Thêm mới</span>
@@ -105,11 +112,12 @@ export default function NewProductPage() {
           }}
         >
           <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--primary-dark)" }}>
-            <i className="fa fa-plus" style={{ marginRight: 6 }} /> Thêm sản phẩm mới
+            <i className="fa fa-plus" style={{ marginRight: 6 }} /> Thêm sách mới
           </h2>
         </div>
 
         <form onSubmit={handleSubmit} style={{ padding: "28px 24px" }}>
+          <BookFields values={bookFields} onChange={(key, value) => setBookFields({ ...bookFields, [key]: value })} />
           {apiError && (
             <div
               style={{
@@ -129,8 +137,8 @@ export default function NewProductPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             <Input
               id="product-name"
-              label="Tên sản phẩm *"
-              placeholder="AMD Ryzen 7 7800X3D"
+              label="Tên sách *"
+              placeholder="Ví dụ: Cây cam ngọt của tôi"
               value={form.name}
               onChange={set("name")}
               error={errors.name}
@@ -152,7 +160,7 @@ export default function NewProductPage() {
                 id="product-description"
                 value={form.description}
                 onChange={set("description")}
-                placeholder="Mô tả chi tiết sản phẩm..."
+                placeholder="Mô tả chi tiết sách..."
                 rows={4}
                 style={{
                   width: "100%",
@@ -175,7 +183,7 @@ export default function NewProductPage() {
             <ImageUpload
               id="product-imageUrl"
               target="products"
-              label="Ảnh sản phẩm"
+              label="Ảnh sách"
               placeholder="https://example.com/product.jpg"
               value={form.imageUrl}
               onChange={(url) => setForm({ ...form, imageUrl: url })}
@@ -307,7 +315,7 @@ export default function NewProductPage() {
               size="lg"
               loading={saving}
             >
-              <i className="fa fa-floppy-o" style={{ marginRight: 6 }} /> Tạo sản phẩm
+              <i className="fa fa-floppy-o" style={{ marginRight: 6 }} /> Tạo sách
             </Button>
             <Button
               type="button"

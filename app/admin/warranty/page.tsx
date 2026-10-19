@@ -32,12 +32,12 @@ export default function AdminWarrantyPage() {
   function update(request: AdminWarrantyRequest, nextStatus: WarrantyStatus, note: string) {
     const result = adminCustomerServices.updateWarrantyRequest(request.ownerId, request.id, nextStatus, note);
     setSnapshot(result);
-    setSuccess(`Đã cập nhật phiếu ${request.id}.`);
+    setSuccess(result.warning ? "" : `Đã cập nhật phiếu ${request.id}.`);
   }
 
   return (
     <div>
-      <ServiceAdminIntro title="Quản lý bảo hành" description="Tiếp nhận, kiểm tra và cập nhật tiến độ bảo hành. Hiển thị phiếu mẫu và phiếu user đã tạo trên cùng trình duyệt; thay đổi sẽ được phản ánh ở trang khách hàng.">
+      <ServiceAdminIntro title="Quản lý đổi trả" description="Tiếp nhận, kiểm tra và cập nhật tiến độ đổi trả. Hiển thị phiếu mẫu và phiếu user đã tạo trên cùng trình duyệt; thay đổi sẽ được phản ánh ở trang khách hàng.">
         <button type="button" className={ui.secondary} onClick={() => setSnapshot(adminCustomerServices.loadWarrantyRequests())}><i className="fa fa-refresh" aria-hidden="true" /> Làm mới</button>
       </ServiceAdminIntro>
       <ServiceFeedback warning={snapshot.warning} success={success} />
@@ -51,8 +51,8 @@ export default function AdminWarrantyPage() {
         ))}
       </div>
       <div className={`${ui.panel} mb-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px]`}>
-        <label className={ui.label} htmlFor="admin-warranty-search">Tìm phiếu bảo hành
-          <input id="admin-warranty-search" type="search" className={ui.control} value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Mã phiếu, tên khách, điện thoại, serial..." />
+        <label className={ui.label} htmlFor="admin-warranty-search">Tìm phiếu đổi trả
+          <input id="admin-warranty-search" type="search" className={ui.control} value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Mã phiếu, tên khách, điện thoại, mã bản sách..." />
         </label>
         <label className={ui.label} htmlFor="admin-warranty-status">Trạng thái
           <select id="admin-warranty-status" className={ui.control} value={status} onChange={(event) => setStatus(event.target.value)}>
@@ -62,9 +62,9 @@ export default function AdminWarrantyPage() {
         </label>
       </div>
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <section className={ui.panel} aria-label="Danh sách phiếu bảo hành">
+        <section className={ui.panel} aria-label="Danh sách phiếu đổi trả">
           <h3 className="mb-4 text-lg font-bold">Danh sách phiếu ({filtered.length})</h3>
-          {filtered.length === 0 ? <p className={`${ui.muted} py-8 text-center`}>Không tìm thấy phiếu bảo hành phù hợp.</p> :
+          {filtered.length === 0 ? <p className={`${ui.muted} py-8 text-center`}>Không tìm thấy phiếu đổi trả phù hợp.</p> :
             <div className="space-y-3">{filtered.map((request) => {
               const product = products.find((item) => item.id === request.productId);
               return <button key={requestKey(request)} type="button" onClick={() => { setSelectedKey(requestKey(request)); setSuccess(""); }}
@@ -78,7 +78,7 @@ export default function AdminWarrantyPage() {
             })}</div>}
         </section>
         {selected ? <WarrantyDetails key={`${requestKey(selected)}-${selected.timeline.length}`} request={selected} onUpdate={update} /> :
-          <div className={`${ui.panel} py-16 text-center`}><i className="fa fa-shield mb-4 text-4xl text-primary-light" aria-hidden="true" /><h3 className="font-bold">Chọn phiếu để xem và xử lý</h3><p className={`${ui.muted} mt-2`}>Thông tin sản phẩm, liên hệ và lịch sử xử lý sẽ hiển thị tại đây.</p></div>}
+          <div className={`${ui.panel} py-16 text-center`}><i className="fa fa-shield mb-4 text-4xl text-primary-light" aria-hidden="true" /><h3 className="font-bold">Chọn phiếu để xem và xử lý</h3><p className={`${ui.muted} mt-2`}>Thông tin sách, liên hệ và lịch sử xử lý sẽ hiển thị tại đây.</p></div>}
       </div>
     </div>
   );
@@ -97,12 +97,12 @@ function WarrantyDetails({ request, onUpdate }: { request: AdminWarrantyRequest;
     try { onUpdate(request, status, note); } catch (caught) { setError(caught instanceof Error ? caught.message : "Không thể cập nhật phiếu."); }
   }
 
-  return <section className={ui.panel} aria-label="Chi tiết phiếu bảo hành">
+  return <section className={ui.panel} aria-label="Chi tiết phiếu đổi trả">
     <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h3 className="text-lg font-bold">Chi tiết phiếu</h3><WarrantyStatusBadge status={request.status} /></div>
     <p className="text-sm font-semibold [overflow-wrap:anywhere]">{request.id}</p>
     <dl className="my-5 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 [&_dt]:text-[var(--text-muted)] [&_dd]:font-medium [&_dd]:[overflow-wrap:anywhere]">
-      <div><dt>Sản phẩm</dt><dd>{product.name}</dd></div><div><dt>Serial</dt><dd>{product.serial}</dd></div>
-      <div><dt>Mã đơn mẫu</dt><dd>{product.orderCode}</dd></div><div><dt>Bảo hành đến</dt><dd>{formatDateOnly(product.expiresAt)}</dd></div>
+      <div><dt>Sách</dt><dd>{product.name}</dd></div><div><dt>Mã bản sách</dt><dd>{product.serial}</dd></div>
+      <div><dt>Mã đơn mẫu</dt><dd>{product.orderCode}</dd></div><div><dt>Đổi trả đến</dt><dd>{formatDateOnly(product.expiresAt)}</dd></div>
       <div><dt>Tên liên hệ</dt><dd>{request.contactName}</dd></div><div><dt>Điện thoại</dt><dd>{request.phone}</dd></div>
     </dl>
     <h4 className="text-sm font-bold">Mô tả lỗi</h4><p className="mt-2 text-sm whitespace-pre-wrap [overflow-wrap:anywhere]">{request.description}</p>

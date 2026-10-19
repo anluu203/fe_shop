@@ -1,41 +1,51 @@
-﻿"use client";
-
-import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "../../contexts/AuthContext";
-import { imageSrc } from "../../lib/utils/image";
-
-const BREADCRUMB_MAP: Record<string, string> = {
-  "/admin": "Dashboard",
-  "/admin/orders": "Quản lý đơn hàng",
-  "/admin/products": "Quản lý sản phẩm",
-  "/admin/products/new": "Thêm sản phẩm mới",
-  "/admin/categories": "Quản lý danh mục",
-  "/admin/stores": "Quản lý cửa hàng",
-  "/admin/warranty": "Quản lý bảo hành",
-  "/admin/consultation": "Quản lý tư vấn sản phẩm",
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+const TITLES: Record<string, string> = {
+  "/admin": "Tổng quan hoạt động",
+  "/admin/borrowing": "Mượn & trả sách",
+  "/admin/orders": "Đơn mua sách",
+  "/admin/products": "Quản lý đầu sách",
+  "/admin/products/new": "Thêm một đầu sách",
+  "/admin/categories": "Thể loại & bộ sưu tập",
+  "/admin/stores": "Hệ thống nhà sách",
+  "/admin/warranty": "Hỗ trợ đổi trả",
+  "/admin/consultation": "Gợi ý dành cho người đọc",
 };
-
 export default function Topbar() {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
-  const router = useRouter();
-  const avatar = imageSrc(user?.avatarUrl);
-
+  const title =
+    TITLES[pathname] ??
+    (pathname.startsWith("/admin/products/")
+      ? "Biên tập đầu sách"
+      : pathname.startsWith("/admin/orders/")
+        ? "Chi tiết đơn mua sách"
+        : "Không gian quản trị");
   return (
-    <header className="sticky top-0 z-50 flex min-h-[var(--header-height)] shrink-0 items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--bg-card)] px-4 py-3 shadow-[var(--shadow-sm)] lg:px-6">
-      <h1 className="min-w-0 text-base font-extrabold tracking-[-0.3px] text-[var(--text-primary)] sm:text-lg">{BREADCRUMB_MAP[pathname] ?? "Admin"}</h1>
-      <div className="flex shrink-0 items-center gap-3">
-        <div className="hidden items-center gap-2.5 rounded-full border border-[var(--primary-border)] bg-[var(--primary-bg)] px-3.5 py-2 sm:flex">
-          <div className="flex size-[30px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-[13px] font-extrabold text-white">
-            {avatar ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatar} alt={user?.username ?? ""} className="size-full object-cover" onError={(event) => { event.currentTarget.hidden = true; }} />
-            ) : user?.username?.charAt(0).toUpperCase() ?? "A"}
-          </div>
-          <div><div className="text-[13px] leading-tight font-bold text-[var(--text-primary)]">{user?.username}</div><div className="text-[11px] font-semibold text-primary"><i className="fa fa-shield mr-1" aria-hidden="true" />Admin</div></div>
+    <div className="workspace-page-heading">
+      <div>
+        <div className="workspace-breadcrumb">
+          <Link href="/admin">Không gian quản trị</Link>
+          <span>/</span>
+          <span>{pathname === "/admin" ? "Tổng quan" : title}</span>
         </div>
-        <button id="admin-logout-btn" onClick={() => { logout(); router.push("/client/auth/login"); }} className="rounded-[var(--radius-md)] border border-[var(--danger)] bg-[var(--danger-bg)] px-3.5 py-2 text-[13px] font-bold text-[var(--danger)] transition-colors hover:bg-[var(--danger)] hover:text-white">Đăng xuất</button>
+        <h1>
+          {title}
+          <span>.</span>
+        </h1>
       </div>
-    </header>
+      <div className="workspace-heading-actions">
+        <Link className="outline-button" href="/admin/borrowing">
+          <i className="fa fa-exchange" aria-hidden="true" /> Xử lý phiếu mượn
+        </Link>
+        <Link
+          className="solid-button"
+          id="admin-add-product-btn"
+          href="/admin/products/new"
+        >
+          <i className="fa fa-plus" aria-hidden="true" /> Thêm sách
+        </Link>
+      </div>
+    </div>
   );
 }

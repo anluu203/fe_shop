@@ -57,7 +57,7 @@ export default function RegisterPage() {
     setForm({ ...form, [field]: e.target.value });
 
   return (
-    <div
+    <div className="auth-view"
       style={{
         minHeight: "100vh",
         display: "flex",
@@ -118,7 +118,7 @@ export default function RegisterPage() {
                   letterSpacing: "-0.5px",
                 }}
               >
-                TechParts
+                BookStore
               </span>
             </div>
           </Link>
@@ -134,7 +134,7 @@ export default function RegisterPage() {
               marginTop: 6,
             }}
           >
-            Tham gia TechParts để mua sắm dễ dàng hơn!
+            Tham gia BookStore để mua sắm dễ dàng hơn!
           </p>
         </div>
 

@@ -5,9 +5,10 @@
   "scripts": {
     "dev": "next dev -p 5173",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 5173",
     "lint": "eslint",
-    "test:customer-services": "node --test tests/customer-services.test.mjs"
+    "test:customer-services": "node --test tests/customer-services.test.mjs",
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "font-awesome": "^4.7.0",

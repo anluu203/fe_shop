@@ -2,6 +2,8 @@
 // API Client — fetch wrapper với auto auth header
 // =============================================
 
+import { AUTH_TOKEN_KEY, USE_MOCK } from "../mock/config";
+
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api/v1";
 
@@ -13,7 +15,6 @@ function buildUrl(
   path: string,
   params?: Record<string, string | number | undefined>
 ): string {
-  const url = new URL(path, BASE_URL + "/");
   // path có thể bắt đầu bằng /api/v1/... hoặc chỉ /products
   const fullUrl = path.startsWith("http")
     ? new URL(path)
@@ -31,7 +32,7 @@ function buildUrl(
 
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("accessToken");
+  try { return localStorage.getItem(AUTH_TOKEN_KEY); } catch { return null; }
 }
 
 export async function apiRequest<T>(
@@ -39,6 +40,11 @@ export async function apiRequest<T>(
   options: RequestOptions = {}
 ): Promise<T> {
   const { params, headers, ...rest } = options;
+
+  if (USE_MOCK) {
+    const { mockRequest } = await import("../mock/request");
+    return mockRequest<T>(path, options.method, options.body, params, getToken());
+  }
 
   const url = buildUrl(path, params);
   const token = getToken();

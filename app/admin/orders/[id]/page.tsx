@@ -1,4 +1,5 @@
 "use client";
+import { imageSrc } from "../../../../lib/utils/image";
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -310,7 +311,7 @@ export default function AdminOrderDetailPage() {
               }}
             >
               <h2 style={{ fontSize: 14, fontWeight: 800, color: "var(--text-secondary)" }}>
-                <i className="fa fa-cube" style={{ marginRight: 6 }} /> Sản phẩm ({order.items.length})
+                <i className="fa fa-cube" style={{ marginRight: 6 }} /> Sách ({order.items.length})
               </h2>
             </div>
             <div>
@@ -340,7 +341,7 @@ export default function AdminOrderDetailPage() {
                   >
                     {item.product?.imageUrl ? (
                       <img
-                        src={item.product.imageUrl}
+                        src={imageSrc(item.product.imageUrl)}
                         alt={item.product.name}
                         style={{ width: "100%", height: "100%", objectFit: "contain", padding: 4 }}
                         onError={(e) => {
@@ -348,7 +349,7 @@ export default function AdminOrderDetailPage() {
                         }}
                       />
                     ) : (
-                      <span style={{ fontSize: 22, opacity: 0.3 }}><i className="fa fa-desktop" /></span>
+                      <span style={{ fontSize: 22, opacity: 0.3 }}><i className="fa fa-book" /></span>
                     )}
                   </div>
                   <div style={{ flex: 1 }}>
@@ -393,7 +394,7 @@ export default function AdminOrderDetailPage() {
           <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: 12 }}>
             {[
               { label: "Mã đơn", value: shortId(order.id!) },
-              { label: "Số sản phẩm", value: `${order.items.reduce((s, i) => s + i.quantity, 0)}` },
+              { label: "Số sách", value: `${order.items.reduce((s, i) => s + i.quantity, 0)}` },
               { label: "Ngày đặt", value: order.createdAt ? formatDate(order.createdAt) : "—" },
             ].map((row) => (
               <div

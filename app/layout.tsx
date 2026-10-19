@@ -1,21 +1,23 @@
 import type { Metadata } from "next";
+import MockNotice from "../components/client/MockNotice";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "./bookstore.css";
 import { AuthProvider } from "../contexts/AuthContext";
 import { CartProvider } from "../contexts/CartContext";
 
 const inter = Inter({
-  subsets: ["latin"],
+  subsets: ["latin", "vietnamese"],
   variable: "--inter-font",
   display: "swap",
   weight: ["300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
-  title: "TechParts — Linh Kiện Máy Tính Chính Hãng",
+  title: "BookStore — Nhà Sách Trực Tuyến",
   description:
-    "Mua sắm linh kiện máy tính chính hãng: CPU, GPU, RAM, SSD, Mainboard với giá tốt nhất.",
-  keywords: "linh kiện máy tính, cpu, gpu, ram, ssd, mainboard",
+    "Khám phá sách văn học, kinh tế, kỹ năng sống, thiếu nhi và ngoại ngữ tại BookStore.",
+  keywords: "sách, nhà sách, văn học, thiếu nhi, sách kinh tế",
 };
 
 export default function RootLayout({
@@ -40,7 +42,7 @@ export default function RootLayout({
         }}
       >
         <AuthProvider>
-          <CartProvider>{children}</CartProvider>
+          <CartProvider><MockNotice />{children}</CartProvider>
         </AuthProvider>
       </body>
     </html>

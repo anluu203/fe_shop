@@ -8,30 +8,7 @@ interface CategoryNavProps {
   parents: CategoryParent[];
 }
 
-const CATEGORY_ICONS: Record<string, string> = {
-  default: "fa-wrench",
-  cpu: "fa-microchip",
-  gpu: "fa-gamepad",
-  ram: "fa-database",
-  ssd: "fa-hdd-o",
-  mainboard: "fa-server",
-  nguồn: "fa-bolt",
-  tản: "fa-snowflake-o",
-  case: "fa-desktop",
-  màn: "fa-desktop",
-  bàn: "fa-keyboard-o",
-  chuột: "fa-mouse-pointer",
-  tai: "fa-headphones",
-  mạng: "fa-wifi",
-};
-
-function getCategoryIcon(name: string): string {
-  const lower = name.toLowerCase();
-  for (const [key, icon] of Object.entries(CATEGORY_ICONS)) {
-    if (lower.includes(key)) return icon;
-  }
-  return CATEGORY_ICONS.default;
-}
+import { CATEGORY_ICONS } from "./HomeInteractive";
 
 export default function CategoryNav({ parents }: CategoryNavProps) {
   const searchParams = useSearchParams();
@@ -67,7 +44,7 @@ export default function CategoryNav({ parents }: CategoryNavProps) {
             <NavItem
               key={p.id}
               href={`/client/products?parentId=${p.id}`}
-              icon={getCategoryIcon(p.name)}
+              icon={CATEGORY_ICONS[p.id] ?? "fa-book"}
               label={p.name}
               active={selectedParentId === p.id}
             />

@@ -1,5 +1,5 @@
-export type Usage = "office" | "gaming" | "creative";
-export type ComponentType = "cpu" | "gpu" | "ram" | "ssd" | "mainboard" | "psu";
+export type Usage = "learning" | "relaxation" | "discovery";
+export type ComponentType = "literature" | "business" | "selfhelp" | "children" | "manga" | "education" | "language" | "history";
 export type WarrantyStatus = "received" | "checking" | "repairing" | "completed";
 
 export interface ConsultationProduct {

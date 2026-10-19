@@ -1,0 +1,44 @@
+[
+  {
+    "id": "reading",
+    "eyebrow": "THÁNG CỦA NHỮNG TRANG SÁCH",
+    "title": "Mở một cuốn sách.\nMở cả thế giới.",
+    "description": "Từ câu chuyện đầu tiên đến những ý tưởng đổi thay cuộc sống. Tìm người bạn đồng hành trên kệ sách của bạn.",
+    "cta": "Khám phá ngay",
+    "href": "/client/products",
+    "bookIds": [
+      "book-01",
+      "book-13",
+      "book-05"
+    ],
+    "theme": "red"
+  },
+  {
+    "id": "children",
+    "eyebrow": "NUÔI DƯỠNG TÌNH YÊU ĐỌC SÁCH",
+    "title": "Tuổi thơ lớn lên\ncùng những câu chuyện.",
+    "description": "Những chuyến phiêu lưu nhỏ, những giấc mơ thật lớn. Khám phá tủ sách dành cho độc giả nhí.",
+    "cta": "Ghé tủ sách thiếu nhi",
+    "href": "/client/products?parentId=children",
+    "bookIds": [
+      "book-14",
+      "book-15",
+      "book-16"
+    ],
+    "theme": "green"
+  },
+  {
+    "id": "growth",
+    "eyebrow": "MỖI NGÀY MỘT TRANG SÁCH",
+    "title": "Một trang mới.\nMột phiên bản tốt hơn.",
+    "description": "Bắt đầu hành trình phát triển bản thân bằng những cuốn sách bạn sẽ muốn đọc lại nhiều lần.",
+    "cta": "Chọn sách cho mình",
+    "href": "/client/products?parentId=selfhelp",
+    "bookIds": [
+      "book-09",
+      "book-10",
+      "book-12"
+    ],
+    "theme": "blue"
+  }
+]

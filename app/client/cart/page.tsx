@@ -1,4 +1,5 @@
 "use client";
+import { imageSrc } from "../../../lib/utils/image";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -16,6 +17,7 @@ export default function CartPage() {
   const router = useRouter();
   const [checkingOut, setCheckingOut] = useState(false);
   const [clearConfirm, setClearConfirm] = useState(false);
+  const [cartError, setCartError] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -70,6 +72,7 @@ export default function CartPage() {
       </div>
 
       <div className="container" style={{ padding: "28px 32px" }}>
+        {cartError && <p role="alert" className="catalog-error">{cartError}</p>}
         {isEmpty ? (
           <div
             style={{
@@ -100,7 +103,7 @@ export default function CartPage() {
                 marginBottom: 28,
               }}
             >
-              Hãy khám phá các sản phẩm linh kiện tuyệt vời của chúng tôi!
+              Hãy khám phá các sách sách tuyệt vời của chúng tôi!
             </p>
             <Link
               href="/client/products"
@@ -122,7 +125,7 @@ export default function CartPage() {
             </Link>
           </div>
         ) : (
-          <div
+          <div className="cart-layout"
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 340px",
@@ -133,7 +136,7 @@ export default function CartPage() {
             {/* Cart items */}
             <div>
               {/* Header row */}
-              <div
+              <div className="cart-row"
                 style={{
                   display: "grid",
                   gridTemplateColumns: "1fr 120px 130px 40px",
@@ -149,7 +152,7 @@ export default function CartPage() {
                   marginBottom: 12,
                 }}
               >
-                <span>Sản phẩm</span>
+                <span>Sách</span>
                 <span style={{ textAlign: "center" }}>Số lượng</span>
                 <span style={{ textAlign: "right" }}>Thành tiền</span>
                 <span />
@@ -178,8 +181,9 @@ export default function CartPage() {
                     <button
                       id="confirm-clear-cart"
                       onClick={async () => {
-                        await clearCart();
-                        setClearConfirm(false);
+                        setCartError("");
+                        try { await clearCart(); setClearConfirm(false); }
+                        catch (error) { setCartError(error instanceof Error ? error.message : "Không thể xóa giỏ hàng."); }
                       }}
                       style={{
                         padding: "6px 14px",
@@ -279,7 +283,7 @@ export default function CartPage() {
                       color: "var(--text-secondary)",
                     }}
                   >
-                    <span>Tạm tính ({cart.items.reduce((s, i) => s + i.quantity, 0)} sản phẩm)</span>
+                    <span>Tạm tính ({cart.items.reduce((s, i) => s + i.quantity, 0)} sách)</span>
                     <span style={{ fontWeight: 600 }}>
                       {formatPrice(cart.totalPrice)}
                     </span>
@@ -406,20 +410,26 @@ function CartItemRow({
   const [qty, setQty] = useState(item.quantity);
   const [updating, setUpdating] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [rowError, setRowError] = useState("");
+  useEffect(() => { setQty(item.quantity); }, [item.quantity]);
 
   const handleQtyChange = async (newQty: number) => {
     if (newQty < 1 || newQty > 999) return;
     setQty(newQty);
     setUpdating(true);
+    setRowError("");
     try {
       await onUpdate(newQty);
+    } catch (error) {
+      setQty(item.quantity);
+      setRowError(error instanceof Error ? error.message : "Không thể cập nhật số lượng.");
     } finally {
       setUpdating(false);
     }
   };
 
   return (
-    <div
+    <div className="cart-row"
       style={{
         display: "grid",
         gridTemplateColumns: "1fr 120px 130px 40px",
@@ -449,7 +459,7 @@ function CartItemRow({
         >
           {item.product?.imageUrl && !imgError ? (
             <img
-              src={item.product.imageUrl}
+              src={imageSrc(item.product.imageUrl)}
               alt={item.product.name}
               onError={() => setImgError(true)}
               style={{
@@ -460,7 +470,7 @@ function CartItemRow({
               }}
             />
           ) : (
-            <span style={{ fontSize: 24, opacity: 0.3 }}><i className="fa fa-desktop" /></span>
+            <span style={{ fontSize: 24, opacity: 0.3 }}><i className="fa fa-book" /></span>
           )}
         </div>
         <div>
@@ -562,9 +572,13 @@ function CartItemRow({
       {/* Remove */}
       <button
         id={`remove-item-${item.id}`}
-        onClick={onRemove}
-        disabled={loading}
-        aria-label="Xóa sản phẩm"
+        disabled={updating || loading}
+        onClick={async () => {
+          setRowError("");
+          try { await onRemove(); }
+          catch (error) { setRowError(error instanceof Error ? error.message : "Không thể xóa sách."); }
+        }}
+        aria-label="Xóa sách"
         style={{
           width: 32,
           height: 32,
@@ -591,6 +605,7 @@ function CartItemRow({
       >
         <i className="fa fa-trash" />
       </button>
+      {rowError && <p role="alert" className="catalog-error" style={{ gridColumn: "1 / -1" }}>{rowError}</p>}
     </div>
   );
 }

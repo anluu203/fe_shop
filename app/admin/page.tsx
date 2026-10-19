@@ -1,327 +1,291 @@
 "use client";
-
 import { useEffect, useState } from "react";
-import { adminOrderApi } from "../../lib/api/admin-orders";
-import type { OrderStatus } from "../../lib/types";
-import { ORDER_STATUS_LABEL } from "../../lib/types";
-import { PageSpinner } from "../../components/ui/Spinner";
 import Link from "next/link";
-
-interface StatItem {
-  status: Exclude<OrderStatus, "AddingItem">;
-  count: number;
-  icon: string;
-  color: string;
-  bg: string;
-}
-
+import { productApi } from "../../lib/api/products";
+import { adminOrderApi } from "../../lib/api/admin-orders";
+import { adminBorrowingApi } from "../../lib/api/borrowing";
+import { subscribeMockData, USE_MOCK } from "../../lib/mock/config";
+import type { Order } from "../../lib/types";
+import type { Loan } from "../../lib/types/borrowing";
+import { isLoanOverdue } from "../../lib/types/borrowing";
+import { ORDER_STATUS_LABEL } from "../../lib/types";
+import { formatPrice } from "../../lib/utils/format";
+import { imageSrc } from "../../lib/utils/image";
+import { LoanBadge, loanDate } from "../../components/borrowing/LoanDetails";
+import { PageSpinner } from "../../components/ui/Spinner";
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<StatItem[]>([]);
-  const [total, setTotal] = useState(0);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loans, setLoans] = useState<Loan[]>([]);
+  const [books, setBooks] = useState(0);
   const [loading, setLoading] = useState(true);
-
+  const [error, setError] = useState("");
   useEffect(() => {
-    const statuses: Exclude<OrderStatus, "AddingItem">[] = [
-      "Processing",
-      "Preparing",
-      "Shipping",
-      "Done",
-    ];
-
-    Promise.all(
-      statuses.map((status) =>
-        adminOrderApi.getAll({ status, pageSize: 1 }).then((r) => ({
-          status,
-          count: r.totalCount,
-        }))
-      )
-    )
-      .then((results) => {
-        const totalOrders = results.reduce((s, r) => s + r.count, 0);
-        setTotal(totalOrders);
-        setStats([
-          {
-            ...results[0],
-            icon: "fa-refresh",
-            color: "#1d4ed8",
-            bg: "var(--info-bg)",
-          },
-          {
-            ...results[1],
-            icon: "fa-cube",
-            color: "#b45309",
-            bg: "var(--warning-bg)",
-          },
-          {
-            ...results[2],
-            icon: "fa-truck",
-            color: "var(--primary-dark)",
-            bg: "var(--primary-bg)",
-          },
-          {
-            ...results[3],
-            icon: "fa-check-circle",
-            color: "#15803d",
-            bg: "var(--success-bg)",
-          },
+    let active = true;
+    async function load() {
+      try {
+        const [orderPage, requests, bookPage] = await Promise.all([
+          adminOrderApi.getAll({ pageSize: 100 }),
+          adminBorrowingApi.getAll(),
+          productApi.getAll({ pageSize: 1 }),
         ]);
-      })
-      .finally(() => setLoading(false));
+        let allOrders = orderPage.items;
+        for (let page = 2; page <= orderPage.totalPages; page++) {
+          const next = await adminOrderApi.getAll({ pageSize: 100, page });
+          allOrders = [...allOrders, ...next.items];
+        }
+        if (active) {
+          setOrders(allOrders);
+          setLoans(requests);
+          setBooks(bookPage.totalCount);
+          setError("");
+        }
+      } catch (caught) {
+        if (active)
+          setError(
+            caught instanceof Error
+              ? caught.message
+              : "Không tải được tổng quan.",
+          );
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+    void load();
+    const unsub = USE_MOCK
+      ? subscribeMockData(() => {
+          void load();
+        })
+      : () => {};
+    return () => {
+      active = false;
+      unsub();
+    };
   }, []);
-
   if (loading) return <PageSpinner />;
-
+  const pending = loans.filter((l) => l.status === "pending");
+  const activeLoans = loans.filter((l) =>
+    ["approved", "borrowed"].includes(l.status),
+  );
+  const overdue = loans.filter((l) => isLoanOverdue(l));
+  const revenue = orders
+    .filter((o) => o.status === "Done")
+    .reduce((sum, o) => sum + Number(o.totalPrice), 0);
+  const statuses = ["Processing", "Preparing", "Shipping", "Done"] as const;
+  const max = Math.max(
+    1,
+    ...statuses.map((s) => orders.filter((o) => o.status === s).length),
+  );
   return (
-    <div>
-      {/* Welcome */}
-      <div
-        style={{
-          background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)",
-          borderRadius: "var(--radius-lg)",
-          padding: "28px 32px",
-          marginBottom: 24,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: 16,
-        }}
-      >
+    <div className="overview-page">
+      {error && (
+        <p role="alert" className="feedback-error">
+          {error}
+        </p>
+      )}
+      <section className="overview-welcome">
         <div>
-          <h2
-            style={{
-              fontSize: 22,
-              fontWeight: 900,
-              color: "#fff",
-              marginBottom: 6,
-            }}
-          >
-            Chào mừng, Admin!
+          <span className="eyebrow">MỘT GÓC NHÌN, MỌI HOẠT ĐỘNG</span>
+          <h2>
+            Chào ngày mới,
+            <br />
+            người giữ những trang sách.
           </h2>
-          <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 14 }}>
-            Tổng cộng <strong style={{ color: "#fff" }}>{total}</strong> đơn hàng cần quản lý
-          </p>
+          <p>Từ kệ sách đến tay người đọc — cùng chăm chút từng hành trình.</p>
         </div>
-        <div style={{ display: "flex", gap: 10 }}>
-          <Link
-            href="/admin/products/new"
-            id="admin-add-product-btn"
-            style={{
-              padding: "10px 20px",
-              background: "#fff",
-              color: "var(--primary-dark)",
-              borderRadius: "var(--radius-md)",
-              fontWeight: 700,
-              fontSize: 13,
-              textDecoration: "none",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <i className="fa fa-plus" /> Thêm sản phẩm
-          </Link>
-          <Link
-            href="/admin/orders"
-            id="admin-view-orders-btn"
-            style={{
-              padding: "10px 20px",
-              background: "rgba(255,255,255,0.15)",
-              color: "#fff",
-              border: "1px solid rgba(255,255,255,0.3)",
-              borderRadius: "var(--radius-md)",
-              fontWeight: 700,
-              fontSize: 13,
-              textDecoration: "none",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <i className="fa fa-archive" /> Xem đơn hàng
-          </Link>
+        <div className="welcome-stamp">
+          <i className="fa fa-book" aria-hidden="true" />
+          <span>
+            READ.
+            <br />
+            SHARE.
+            <br />
+            REPEAT.
+          </span>
         </div>
-      </div>
-
-      {/* Stats cards */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-          gap: 16,
-          marginBottom: 32,
-        }}
-      >
-        {/* Total */}
-        <div
-          style={{
-            background: "var(--bg-card)",
-            borderRadius: "var(--radius-lg)",
-            border: "1px solid var(--border)",
-            padding: "22px 24px",
-            display: "flex",
-            alignItems: "center",
-            gap: 16,
-          }}
-        >
-          <div
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: "var(--radius-md)",
-              background: "var(--primary-bg)",
-              color: "var(--primary)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 24,
-              flexShrink: 0,
-            }}
-          >
-            <i className="fa fa-tachometer" />
-          </div>
-          <div>
-            <div
-              style={{
-                fontSize: 28,
-                fontWeight: 900,
-                color: "var(--primary)",
-                lineHeight: 1,
-              }}
-            >
-              {total}
-            </div>
-            <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>
-              Tổng đơn hàng
-            </div>
-          </div>
-        </div>
-
-        {stats.map((s) => (
-          <Link
-            key={s.status}
-            href={`/admin/orders?status=${s.status}`}
-            id={`admin-stat-${s.status}`}
-            style={{
-              background: "var(--bg-card)",
-              borderRadius: "var(--radius-lg)",
-              border: "1px solid var(--border)",
-              padding: "22px 24px",
-              display: "flex",
-              alignItems: "center",
-              gap: 16,
-              textDecoration: "none",
-              transition: "all var(--transition)",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.boxShadow =
-                "var(--shadow-md)";
-              (e.currentTarget as HTMLAnchorElement).style.transform =
-                "translateY(-2px)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none";
-              (e.currentTarget as HTMLAnchorElement).style.transform = "none";
-            }}
-          >
-            <div
-              style={{
-                width: 52,
-                height: 52,
-                borderRadius: "var(--radius-md)",
-                background: s.bg,
-                color: s.color,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 24,
-                flexShrink: 0,
-              }}
-            >
-              <i className={`fa ${s.icon}`} />
-            </div>
-            <div>
-              <div
-                style={{
-                  fontSize: 28,
-                  fontWeight: 900,
-                  color: s.color,
-                  lineHeight: 1,
-                }}
-              >
-                {s.count}
-              </div>
-              <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>
-                {ORDER_STATUS_LABEL[s.status]}
-              </div>
-            </div>
+      </section>
+      <div className="workspace-stats overview-stats">
+        {[
+          {
+            label: "Đầu sách đang mở bán",
+            value: String(books),
+            detail: "Trong catalog khách hàng",
+            icon: "fa-book",
+            href: "/admin/products",
+          },
+          {
+            label: "Đơn mua sách",
+            value: String(orders.length),
+            detail: `${orders.filter((o) => o.status === "Processing").length} đơn cần xử lý`,
+            icon: "fa-shopping-bag",
+            href: "/admin/orders",
+          },
+          {
+            label: "Phiếu mượn cần duyệt",
+            value: String(pending.length),
+            detail: "Chờ xác nhận từ nhà sách",
+            icon: "fa-inbox",
+            href: "/admin/borrowing",
+          },
+          {
+            label: "Đang giữ chỗ / mượn",
+            value: String(activeLoans.length),
+            detail: `${overdue.length} phiếu quá hạn trả`,
+            icon: "fa-exchange",
+            href: "/admin/borrowing",
+          },
+        ].map((stat) => (
+          <Link href={stat.href} key={stat.label}>
+            <span>
+              {stat.label}
+              <i className={`fa ${stat.icon}`} aria-hidden="true" />
+            </span>
+            <strong>{stat.value.padStart(2, "0")}</strong>
+            <small>
+              {stat.detail}{" "}
+              <i className="fa fa-arrow-right" aria-hidden="true" />
+            </small>
           </Link>
         ))}
       </div>
-
-      {/* Quick actions */}
-      <div
-        style={{
-          background: "var(--bg-card)",
-          borderRadius: "var(--radius-lg)",
-          border: "1px solid var(--border)",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            padding: "16px 24px",
-            borderBottom: "1px solid var(--border)",
-            background: "var(--bg-section)",
-          }}
-        >
-          <h3 style={{ fontSize: 14, fontWeight: 800, color: "var(--text-secondary)" }}>
-            <i className="fa fa-bolt" style={{ marginRight: 6 }} /> Thao tác nhanh
+      <div className="overview-bento">
+        <section className="workspace-panel sales-panel">
+          <div className="panel-heading">
+            <div>
+              <span className="eyebrow">HOẠT ĐỘNG BÁN SÁCH</span>
+              <h3>Đơn hàng đang ở đâu?</h3>
+            </div>
+            <Link href="/admin/orders">Xem tất cả ↗</Link>
+          </div>
+          <div className="order-distribution">
+            {statuses.map((status) => {
+              const count = orders.filter((o) => o.status === status).length;
+              return (
+                <div key={status}>
+                  <div>
+                    <span>{ORDER_STATUS_LABEL[status]}</span>
+                    <strong>{count} đơn</strong>
+                  </div>
+                  <span className="distribution-track">
+                    <span style={{ width: `${(count / max) * 100}%` }} />
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="revenue-total">
+            <span>Doanh thu từ đơn hoàn thành</span>
+            <strong>{formatPrice(String(revenue))}</strong>
+          </div>
+        </section>
+        <section className="workspace-panel library-overview">
+          <span className="eyebrow">THƯ VIỆN CHIA SẺ</span>
+          <h3>
+            Những câu chuyện
+            <br />
+            đang được chuyền tay.
           </h3>
-        </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-            gap: 1,
-            background: "var(--border)",
-          }}
-        >
+          <div className="library-big-number">
+            {loans
+              .filter((l) => l.status === "returned")
+              .length.toString()
+              .padStart(2, "0")}
+            <span>
+              lượt mượn
+              <br />
+              đã hoàn tất
+            </span>
+          </div>
+          <p>
+            Quản lý số bản, duyệt đăng ký và cập nhật việc trả sách tại cùng một
+            nơi.
+          </p>
+          <Link href="/admin/borrowing">
+            Mở bàn quản lý mượn sách{" "}
+            <i className="fa fa-long-arrow-right" aria-hidden="true" />
+          </Link>
+        </section>
+        <section className="workspace-panel recent-loans-panel">
+          <div className="panel-heading">
+            <div>
+              <span className="eyebrow">VỪA ĐƯỢC GỬI ĐẾN</span>
+              <h3>Phiếu mượn gần đây</h3>
+            </div>
+            <Link href="/admin/borrowing">Xem tất cả ↗</Link>
+          </div>
+          <div className="workspace-table-wrap">
+            <table className="workspace-table">
+              <thead>
+                <tr>
+                  <th>Cuốn sách</th>
+                  <th>Người nhận</th>
+                  <th>Ngày hẹn</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loans.slice(0, 5).map((loan) => (
+                  <tr key={loan.id}>
+                    <td>
+                      <Link className="loan-table-book" href="/admin/borrowing">
+                        <img src={imageSrc(loan.bookImage)} alt="" />
+                        <strong>{loan.bookName}</strong>
+                      </Link>
+                    </td>
+                    <td>{loan.contactName}</td>
+                    <td>{loanDate(loan.pickupDate)}</td>
+                    <td>
+                      <LoanBadge loan={loan} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {!loans.length && (
+              <p className="workspace-empty">
+                Chưa có phiếu mượn. Phiếu mới sẽ xuất hiện tại đây.
+              </p>
+            )}
+          </div>
+        </section>
+        <section className="workspace-panel quick-work">
+          <span className="eyebrow">SẮP XẾP KHÔNG GIAN SÁCH</span>
+          <h3>
+            Một chút chăm chút
+            <br />
+            cho ngày hôm nay.
+          </h3>
           {[
-            { label: "Xử lý đơn chờ", href: "/admin/orders?status=Processing", icon: "fa-refresh" },
-            { label: "Thêm sản phẩm mới", href: "/admin/products/new", icon: "fa-plus" },
-            { label: "Quản lý danh mục", href: "/admin/categories", icon: "fa-folder-open" },
-            { label: "Quản lý cửa hàng", href: "/admin/stores", icon: "fa-building" },
+            {
+              href: "/admin/products/new",
+              title: "Thêm một câu chuyện",
+              desc: "Đưa đầu sách mới lên kệ",
+              icon: "fa-plus",
+            },
+            {
+              href: "/admin/borrowing",
+              title: "Chào một người đọc",
+              desc: `${pending.length} phiếu đang chờ duyệt`,
+              icon: "fa-bookmark-o",
+            },
+            {
+              href: "/admin/categories",
+              title: "Sắp lại ngăn sách",
+              desc: "Quản lý thể loại & bộ sưu tập",
+              icon: "fa-th-large",
+            },
           ].map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "16px 20px",
-                background: "var(--bg-card)",
-                fontSize: 14,
-                fontWeight: 600,
-                color: "var(--text-primary)",
-                textDecoration: "none",
-                transition: "background var(--transition)",
-              }}
-              onMouseEnter={(e) =>
-                ((e.currentTarget as HTMLAnchorElement).style.background =
-                  "var(--primary-bg)")
-              }
-              onMouseLeave={(e) =>
-                ((e.currentTarget as HTMLAnchorElement).style.background =
-                  "var(--bg-card)")
-              }
-            >
-              <i className={`fa ${item.icon}`} style={{ fontSize: 18, width: 20, textAlign: "center", color: "var(--primary)" }} />
-              {item.label}
+            <Link key={item.href} href={item.href}>
+              <span>
+                <i className={`fa ${item.icon}`} aria-hidden="true" />
+              </span>
+              <div>
+                <strong>{item.title}</strong>
+                <small>{item.desc}</small>
+              </div>
+              <i className="fa fa-angle-right" aria-hidden="true" />
             </Link>
           ))}
-        </div>
+        </section>
       </div>
     </div>
   );

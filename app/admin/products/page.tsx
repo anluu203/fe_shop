@@ -1,348 +1,202 @@
 "use client";
-
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { productApi } from "../../../lib/api/products";
 import type { Page, Product } from "../../../lib/types";
-import { formatPrice, formatDate } from "../../../lib/utils/format";
-import { PageSpinner } from "../../../components/ui/Spinner";
+import { subscribeMockData, USE_MOCK } from "../../../lib/mock/config";
+import { formatPrice } from "../../../lib/utils/format";
+import { imageSrc } from "../../../lib/utils/image";
 import Pagination from "../../../components/ui/Pagination";
-import Badge from "../../../components/ui/Badge";
-
-export default function AdminProductsPage() {
+import { PageSpinner } from "../../../components/ui/Spinner";
+export default function AdminProducts() {
   const [data, setData] = useState<Page<Product> | null>(null);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [searchInput, setSearchInput] = useState("");
-  const [hidingId, setHidingId] = useState<string | null>(null);
-  const [confirmHide, setConfirmHide] = useState<string | null>(null);
-
-  const load = useCallback(() => {
-    setLoading(true);
-    productApi
-      .getAll({ page, pageSize: 20, search: search || undefined })
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, [page, search]);
-
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [busy, setBusy] = useState("");
+  const load = useCallback(
+    () =>
+      productApi
+        .getAll({
+          page,
+          pageSize: 16,
+          search: search || undefined,
+          includeInactive: true,
+        })
+        .then(setData)
+        .catch((caught) =>
+          setError(
+            caught instanceof Error
+              ? caught.message
+              : "Không tải được danh sách sách.",
+          ),
+        )
+        .finally(() => setLoading(false)),
+    [page, search],
+  );
   useEffect(() => {
-    load();
+    setLoading(true);
+    void load();
+    return USE_MOCK
+      ? subscribeMockData(() => {
+          void load();
+        })
+      : undefined;
   }, [load]);
-
-  const handleHide = async (id: string) => {
-    setHidingId(id);
+  async function hide(id: string) {
+    setBusy(id);
+    setError("");
     try {
       await productApi.hide(id);
-      load();
+      setConfirm("");
+      await load();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Không thể ẩn sách.");
     } finally {
-      setHidingId(null);
-      setConfirmHide(null);
+      setBusy("");
     }
-  };
-
+  }
   return (
     <div>
-      {/* Header bar */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 20,
-          flexWrap: "wrap",
-          gap: 12,
-        }}
-      >
-        <div style={{ display: "flex", gap: 10 }}>
-          <input
-            type="search"
-            id="admin-products-search"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                setSearch(searchInput);
-                setPage(1);
-              }
-            }}
-            placeholder="Tìm kiếm sản phẩm..."
-            style={{
-              padding: "9px 16px",
-              border: "1.5px solid var(--border)",
-              borderRadius: "var(--radius-md)",
-              fontSize: 13,
-              background: "var(--bg-card)",
-              color: "var(--text-primary)",
-              outline: "none",
-              width: 260,
-              fontFamily: "var(--font-sans)",
-            }}
-          />
-          <button
-            onClick={() => {
-              setSearch(searchInput);
-              setPage(1);
-            }}
-            style={{
-              padding: "9px 18px",
-              background: "var(--primary)",
-              color: "#fff",
-              border: "none",
-              borderRadius: "var(--radius-md)",
-              fontWeight: 700,
-              fontSize: 13,
-              cursor: "pointer",
-              fontFamily: "var(--font-sans)",
-            }}
-          >
-            <i className="fa fa-search" />
-          </button>
+      <section className="admin-section-intro">
+        <div>
+          <span className="eyebrow">BIÊN TẬP KỆ SÁCH</span>
+          <h2>Mọi đầu sách, cùng một nơi.</h2>
+          <p>
+            Chăm chút thông tin xuất bản, hình ảnh và giá bán cho từng cuốn
+            sách.
+          </p>
         </div>
-        <Link
-          href="/admin/products/new"
-          id="add-product-link"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "10px 18px",
-            background: "var(--primary)",
-            color: "#fff",
-            borderRadius: "var(--radius-md)",
-            fontWeight: 700,
-            fontSize: 13,
-            textDecoration: "none",
-          }}
-        >
-          <i className="fa fa-plus" /> Thêm sản phẩm
+        <Link className="outline-button" href="/admin/borrowing">
+          Quản lý kho mượn{" "}
+          <i className="fa fa-long-arrow-right" aria-hidden="true" />
         </Link>
-      </div>
-
-      {/* Table */}
-      <div
-        style={{
-          background: "var(--bg-card)",
-          borderRadius: "var(--radius-lg)",
-          border: "1px solid var(--border)",
-          overflow: "hidden",
+      </section>
+      <form
+        className="lending-toolbar"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setPage(1);
+          setSearch(input);
         }}
       >
-        {/* Table header */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "60px 1fr 160px 130px 100px 140px",
-            gap: 12,
-            padding: "10px 20px",
-            background: "var(--bg-section)",
-            borderBottom: "1px solid var(--border)",
-            fontSize: 11,
-            fontWeight: 700,
-            color: "var(--text-muted)",
-            textTransform: "uppercase",
-            letterSpacing: "0.5px",
-          }}
-        >
-          <span>Ảnh</span>
-          <span>Tên sản phẩm</span>
-          <span>Danh mục</span>
-          <span style={{ textAlign: "right" }}>Giá</span>
-          <span style={{ textAlign: "center" }}>Trạng thái</span>
-          <span style={{ textAlign: "center" }}>Thao tác</span>
+        <label className="search-control">
+          <i className="fa fa-search" aria-hidden="true" />
+          <input
+            id="admin-products-search"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Tìm sách, tác giả..."
+            aria-label="Tìm sách trong quản trị"
+          />
+        </label>
+        <button className="outline-button" type="submit">
+          Tìm sách
+        </button>
+        <span className="muted-count">
+          {data?.totalCount ?? 0} đầu sách trong catalog
+        </span>
+      </form>
+      {error && (
+        <p role="alert" className="feedback-error">
+          {error}
+        </p>
+      )}
+      {loading ? (
+        <PageSpinner />
+      ) : (
+        <div className="workspace-table-wrap">
+          <table className="workspace-table admin-catalog-table">
+            <thead>
+              <tr>
+                <th>Đầu sách / Tác giả</th>
+                <th>Ngăn sách</th>
+                <th>Giá bán</th>
+                <th>Hiển thị</th>
+                <th>Biên tập</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data?.items.map((book) => (
+                <tr key={book.id}>
+                  <td>
+                    <Link
+                      className="loan-table-book"
+                      href={`/admin/products/${book.id}`}
+                    >
+                      <img src={imageSrc(book.imageUrl)} alt="" />
+                      <span>
+                        <strong>{book.name}</strong>
+                        <small>{book.author ?? "Chưa có tác giả"}</small>
+                      </span>
+                    </Link>
+                  </td>
+                  <td>
+                    {book.category.parent.name}
+                    <small>{book.category.name}</small>
+                  </td>
+                  <td>
+                    <strong>{formatPrice(book.price)}</strong>
+                  </td>
+                  <td>
+                    <span
+                      className={`loan-badge ${book.isActive ? "status-approved" : "status-cancelled"}`}
+                    >
+                      {book.isActive ? "Đang hiển thị" : "Đã ẩn"}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="admin-book-actions">
+                      <Link
+                        id={`edit-product-${book.id}`}
+                        href={`/admin/products/${book.id}`}
+                      >
+                        Biên tập{" "}
+                        <i className="fa fa-pencil" aria-hidden="true" />
+                      </Link>
+                      {book.isActive &&
+                        (confirm === book.id ? (
+                          <>
+                            <button
+                              id={`confirm-hide-${book.id}`}
+                              disabled={busy === book.id}
+                              onClick={() => {
+                                void hide(book.id);
+                              }}
+                            >
+                              Xác nhận ẩn
+                            </button>
+                            <button onClick={() => setConfirm("")}>
+                              Bỏ qua
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            id={`hide-product-${book.id}`}
+                            onClick={() => setConfirm(book.id)}
+                          >
+                            Ẩn sách
+                          </button>
+                        ))}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {!data?.items.length && (
+            <div className="workspace-empty">Chưa có đầu sách phù hợp.</div>
+          )}
         </div>
-
-        {loading ? (
-          <PageSpinner />
-        ) : (
-          <>
-            {data?.items.map((product) => (
-              <div
-                key={product.id}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "60px 1fr 160px 130px 100px 140px",
-                  gap: 12,
-                  padding: "12px 20px",
-                  borderBottom: "1px solid var(--border)",
-                  alignItems: "center",
-                  transition: "background var(--transition)",
-                  opacity: product.isActive ? 1 : 0.55,
-                }}
-                onMouseEnter={(e) =>
-                  ((e.currentTarget as HTMLDivElement).style.background =
-                    "var(--bg-hover)")
-                }
-                onMouseLeave={(e) =>
-                  ((e.currentTarget as HTMLDivElement).style.background = "none")
-                }
-              >
-                {/* Image */}
-                <div
-                  style={{
-                    width: 48,
-                    height: 48,
-                    background: "var(--bg-section)",
-                    borderRadius: "var(--radius-sm)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    overflow: "hidden",
-                  }}
-                >
-                  {product.imageUrl ? (
-                    <img
-                      src={product.imageUrl}
-                      alt={product.name}
-                      style={{ width: "100%", height: "100%", objectFit: "contain", padding: 4 }}
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.display = "none";
-                      }}
-                    />
-                  ) : (
-                    <span style={{ fontSize: 20, opacity: 0.3 }}><i className="fa fa-desktop" /></span>
-                  )}
-                </div>
-
-                {/* Name */}
-                <div>
-                  <div
-                    className="line-clamp-2"
-                    style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}
-                  >
-                    {product.name}
-                  </div>
-                </div>
-
-                {/* Category */}
-                <div
-                  style={{ fontSize: 12, color: "var(--text-muted)" }}
-                  className="line-clamp-1"
-                >
-                  {product.category?.parent?.name} › {product.category?.name}
-                </div>
-
-                {/* Price */}
-                <div
-                  style={{
-                    textAlign: "right",
-                    fontWeight: 700,
-                    fontSize: 13,
-                    color: "var(--accent)",
-                  }}
-                >
-                  {formatPrice(product.price)}
-                </div>
-
-                {/* Status */}
-                <div style={{ textAlign: "center" }}>
-                  <Badge variant={product.isActive ? "success" : "neutral"} dot>
-                    {product.isActive ? "Hiện" : "Ẩn"}
-                  </Badge>
-                </div>
-
-                {/* Actions */}
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 6,
-                    justifyContent: "center",
-                  }}
-                >
-                  <Link
-                    href={`/admin/products/${product.id}`}
-                    id={`edit-product-${product.id}`}
-                    style={{
-                      padding: "5px 10px",
-                      background: "var(--primary-bg)",
-                      color: "var(--primary-dark)",
-                      borderRadius: "var(--radius-sm)",
-                      fontSize: 12,
-                      fontWeight: 700,
-                      textDecoration: "none",
-                      border: "1px solid var(--primary-border)",
-                    }}
-                  >
-                    <i className="fa fa-pencil" /> Sửa
-                  </Link>
-                  {product.isActive && (
-                    <>
-                      {confirmHide === product.id ? (
-                        <div style={{ display: "flex", gap: 4 }}>
-                          <button
-                            id={`confirm-hide-${product.id}`}
-                            onClick={() => handleHide(product.id)}
-                            disabled={hidingId === product.id}
-                            style={{
-                              padding: "5px 8px",
-                              background: "var(--danger)",
-                              color: "#fff",
-                              border: "none",
-                              borderRadius: "var(--radius-sm)",
-                              fontSize: 11,
-                              cursor: "pointer",
-                              fontFamily: "var(--font-sans)",
-                              fontWeight: 700,
-                            }}
-                          >
-                            Ẩn
-                          </button>
-                          <button
-                            onClick={() => setConfirmHide(null)}
-                            style={{
-                              padding: "5px 8px",
-                              background: "var(--bg-section)",
-                              color: "var(--text-secondary)",
-                              border: "none",
-                              borderRadius: "var(--radius-sm)",
-                              fontSize: 11,
-                              cursor: "pointer",
-                              fontFamily: "var(--font-sans)",
-                            }}
-                          >
-                            Hủy
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          id={`hide-product-${product.id}`}
-                          onClick={() => setConfirmHide(product.id)}
-                          style={{
-                            padding: "5px 10px",
-                            background: "var(--danger-bg)",
-                            color: "var(--danger)",
-                            border: "1px solid var(--danger)",
-                            borderRadius: "var(--radius-sm)",
-                            fontSize: 12,
-                            fontWeight: 700,
-                            cursor: "pointer",
-                            fontFamily: "var(--font-sans)",
-                          }}
-                        >
-                          <i className="fa fa-eye-slash" /> Ẩn
-                        </button>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-            ))}
-
-            {data?.items.length === 0 && (
-              <div style={{ textAlign: "center", padding: "60px 0", color: "var(--text-muted)" }}>
-                <div style={{ fontSize: 48, marginBottom: 12 }}><i className="fa fa-cube" /></div>
-                <p>Không có sản phẩm nào</p>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
+      )}
       {data && (
         <Pagination
           page={data.pageNumber}
           totalPages={data.totalPages}
-          onChange={(p) => setPage(p)}
+          onChange={setPage}
         />
       )}
     </div>

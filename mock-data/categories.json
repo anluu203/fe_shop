@@ -1,0 +1,274 @@
+[
+  {
+    "id": "literature-1",
+    "name": "Văn học Việt Nam",
+    "description": "Những cuốn sách dành cho văn học việt nam.",
+    "imageUrl": null,
+    "parentId": "literature",
+    "parent": {
+      "id": "literature",
+      "name": "Văn học",
+      "description": "Khám phá tủ sách văn học.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "literature-2",
+    "name": "Văn học nước ngoài",
+    "description": "Những cuốn sách dành cho văn học nước ngoài.",
+    "imageUrl": null,
+    "parentId": "literature",
+    "parent": {
+      "id": "literature",
+      "name": "Văn học",
+      "description": "Khám phá tủ sách văn học.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "business-1",
+    "name": "Kinh doanh – Quản trị",
+    "description": "Những cuốn sách dành cho kinh doanh – quản trị.",
+    "imageUrl": null,
+    "parentId": "business",
+    "parent": {
+      "id": "business",
+      "name": "Kinh tế",
+      "description": "Khám phá tủ sách kinh tế.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "business-2",
+    "name": "Tài chính – Đầu tư",
+    "description": "Những cuốn sách dành cho tài chính – đầu tư.",
+    "imageUrl": null,
+    "parentId": "business",
+    "parent": {
+      "id": "business",
+      "name": "Kinh tế",
+      "description": "Khám phá tủ sách kinh tế.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "selfhelp-1",
+    "name": "Phát triển bản thân",
+    "description": "Những cuốn sách dành cho phát triển bản thân.",
+    "imageUrl": null,
+    "parentId": "selfhelp",
+    "parent": {
+      "id": "selfhelp",
+      "name": "Tâm lý – Kỹ năng sống",
+      "description": "Khám phá tủ sách tâm lý – kỹ năng sống.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "selfhelp-2",
+    "name": "Tâm lý – Tư duy",
+    "description": "Những cuốn sách dành cho tâm lý – tư duy.",
+    "imageUrl": null,
+    "parentId": "selfhelp",
+    "parent": {
+      "id": "selfhelp",
+      "name": "Tâm lý – Kỹ năng sống",
+      "description": "Khám phá tủ sách tâm lý – kỹ năng sống.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "children-1",
+    "name": "Truyện đọc thiếu nhi",
+    "description": "Những cuốn sách dành cho truyện đọc thiếu nhi.",
+    "imageUrl": null,
+    "parentId": "children",
+    "parent": {
+      "id": "children",
+      "name": "Thiếu nhi",
+      "description": "Khám phá tủ sách thiếu nhi.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "children-2",
+    "name": "Sách tranh – Khám phá",
+    "description": "Những cuốn sách dành cho sách tranh – khám phá.",
+    "imageUrl": null,
+    "parentId": "children",
+    "parent": {
+      "id": "children",
+      "name": "Thiếu nhi",
+      "description": "Khám phá tủ sách thiếu nhi.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "manga-1",
+    "name": "Manga Nhật Bản",
+    "description": "Những cuốn sách dành cho manga nhật bản.",
+    "imageUrl": null,
+    "parentId": "manga",
+    "parent": {
+      "id": "manga",
+      "name": "Manga – Comic",
+      "description": "Khám phá tủ sách manga – comic.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "manga-2",
+    "name": "Truyện tranh màu",
+    "description": "Những cuốn sách dành cho truyện tranh màu.",
+    "imageUrl": null,
+    "parentId": "manga",
+    "parent": {
+      "id": "manga",
+      "name": "Manga – Comic",
+      "description": "Khám phá tủ sách manga – comic.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "education-1",
+    "name": "Phương pháp học tập",
+    "description": "Những cuốn sách dành cho phương pháp học tập.",
+    "imageUrl": null,
+    "parentId": "education",
+    "parent": {
+      "id": "education",
+      "name": "Giáo khoa – Tham khảo",
+      "description": "Khám phá tủ sách giáo khoa – tham khảo.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "education-2",
+    "name": "Hành trang đến trường",
+    "description": "Những cuốn sách dành cho hành trang đến trường.",
+    "imageUrl": null,
+    "parentId": "education",
+    "parent": {
+      "id": "education",
+      "name": "Giáo khoa – Tham khảo",
+      "description": "Khám phá tủ sách giáo khoa – tham khảo.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "language-1",
+    "name": "Tiếng Anh",
+    "description": "Những cuốn sách dành cho tiếng anh.",
+    "imageUrl": null,
+    "parentId": "language",
+    "parent": {
+      "id": "language",
+      "name": "Ngoại ngữ",
+      "description": "Khám phá tủ sách ngoại ngữ.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "language-2",
+    "name": "Sách luyện tập",
+    "description": "Những cuốn sách dành cho sách luyện tập.",
+    "imageUrl": null,
+    "parentId": "language",
+    "parent": {
+      "id": "language",
+      "name": "Ngoại ngữ",
+      "description": "Khám phá tủ sách ngoại ngữ.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "history-1",
+    "name": "Lịch sử – Văn hóa",
+    "description": "Những cuốn sách dành cho lịch sử – văn hóa.",
+    "imageUrl": null,
+    "parentId": "history",
+    "parent": {
+      "id": "history",
+      "name": "Lịch sử – Tiểu sử",
+      "description": "Khám phá tủ sách lịch sử – tiểu sử.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "history-2",
+    "name": "Tiểu sử – Hồi ký",
+    "description": "Những cuốn sách dành cho tiểu sử – hồi ký.",
+    "imageUrl": null,
+    "parentId": "history",
+    "parent": {
+      "id": "history",
+      "name": "Lịch sử – Tiểu sử",
+      "description": "Khám phá tủ sách lịch sử – tiểu sử.",
+      "imageUrl": null,
+      "createdAt": "2026-10-19T00:00:00.000Z",
+      "updatedAt": "2026-10-19T00:00:00.000Z"
+    },
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  }
+]

@@ -1,9 +1,11 @@
 "use client";
+import { imageSrc } from "../../../../lib/utils/image";
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../../../contexts/AuthContext";
+import { subscribeMockData, USE_MOCK } from "../../../../lib/mock/config";
 import { orderApi } from "../../../../lib/api/orders";
 import type { Order } from "../../../../lib/types";
 import { ORDER_STATUS_LABEL, ORDER_STATUS_FLOW } from "../../../../lib/types";
@@ -34,11 +36,13 @@ export default function OrderDetailPage() {
 
   useEffect(() => {
     if (!id || !user) return;
-    orderApi
+    const loadOrder = () => orderApi
       .getOne(id)
       .then(setOrder)
       .catch(() => router.push("/client/orders"))
       .finally(() => setLoading(false));
+    void loadOrder();
+    return USE_MOCK ? subscribeMockData(() => { void loadOrder(); }) : undefined;
   }, [id, user]);
 
   if (authLoading || loading) return <PageSpinner />;
@@ -87,7 +91,7 @@ export default function OrderDetailPage() {
       </div>
 
       <div className="container" style={{ padding: "28px 32px" }}>
-        <div
+        <div className="order-layout"
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 320px",
@@ -202,7 +206,7 @@ export default function OrderDetailPage() {
                 }}
               >
                 <h2 style={{ fontSize: 14, fontWeight: 800, color: "var(--text-secondary)" }}>
-                  <i className="fa fa-cube" style={{ marginRight: 6 }} /> Sản phẩm ({order.items.length})
+                  <i className="fa fa-cube" style={{ marginRight: 6 }} /> Sách ({order.items.length})
                 </h2>
               </div>
               <div>
@@ -235,7 +239,7 @@ export default function OrderDetailPage() {
                     >
                       {item.product?.imageUrl ? (
                         <img
-                          src={item.product.imageUrl}
+                          src={imageSrc(item.product.imageUrl)}
                           alt={item.product.name}
                           style={{
                             width: "100%",
@@ -248,7 +252,7 @@ export default function OrderDetailPage() {
                           }}
                         />
                       ) : (
-                        <i className="fa fa-desktop" style={{ fontSize: 24, opacity: 0.3, color: "var(--text-muted)" }} />
+                        <i className="fa fa-book" style={{ fontSize: 24, opacity: 0.3, color: "var(--text-muted)" }} />
                       )}
                     </div>
                     <div style={{ flex: 1 }}>
@@ -314,8 +318,8 @@ export default function OrderDetailPage() {
                     </Badge>
                   </SummaryRow>
                   <SummaryRow
-                    label="Số sản phẩm"
-                    value={`${order.items.reduce((s, i) => s + i.quantity, 0)} sản phẩm`}
+                    label="Số sách"
+                    value={`${order.items.reduce((s, i) => s + i.quantity, 0)} sách`}
                   />
                   {order.createdAt && (
                     <SummaryRow label="Ngày đặt" value={formatDate(order.createdAt)} />

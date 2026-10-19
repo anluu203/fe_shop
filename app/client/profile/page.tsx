@@ -135,7 +135,7 @@ export default function ProfilePage() {
       </div>
 
       <div
-        className="container"
+        className="container profile-layout"
         style={{
           padding: "32px 32px",
           display: "grid",
@@ -404,6 +404,7 @@ export default function ProfilePage() {
             </div>
             <div style={{ padding: "12px 8px" }}>
               {[
+                { icon: "fa-bookmark-o", label: "Phiếu mượn của tôi", href: "/client/borrowing?tab=mine" },
                 { icon: "fa-archive", label: "Đơn hàng của tôi", href: "/client/orders" },
                 { icon: "fa-shopping-cart", label: "Giỏ hàng", href: "/client/cart" },
                 ...(user.role === "ADMIN"

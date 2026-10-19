@@ -1,0 +1,32 @@
+[
+  {
+    "id": "user-admin",
+    "username": "Quản trị BookStore",
+    "email": "admin@bookstore.vn",
+    "role": "ADMIN",
+    "password": "BookStore@123",
+    "avatarUrl": null,
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "user-reader",
+    "username": "Nguyễn An",
+    "email": "user@bookstore.vn",
+    "role": "USER",
+    "password": "BookStore@123",
+    "avatarUrl": null,
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  },
+  {
+    "id": "user-reader-2",
+    "username": "Trần Minh",
+    "email": "minh@bookstore.vn",
+    "role": "USER",
+    "password": "BookStore@123",
+    "avatarUrl": null,
+    "createdAt": "2026-10-19T00:00:00.000Z",
+    "updatedAt": "2026-10-19T00:00:00.000Z"
+  }
+]

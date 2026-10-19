@@ -1,121 +1,158 @@
-﻿"use client";
-
+"use client";
 import Link from "next/link";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
-
 export default function Header() {
   const { user, isAdmin, logout } = useAuth();
   const { itemCount } = useCart();
   const router = useRouter();
+  const pathname = usePathname();
   const [search, setSearch] = useState("");
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const userMenuRef = useRef<HTMLDivElement>(null);
-
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    const handler = (event: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
-        setUserMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const handleSearch = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (search.trim()) {
-      router.push(`/client/products?search=${encodeURIComponent(search.trim())}`);
+    function close(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     }
-  };
-
+    function escape(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", close);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("keydown", escape);
+    };
+  }, []);
+  useEffect(() => setOpen(false), [pathname]);
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (search.trim())
+      router.push(
+        `/client/products?search=${encodeURIComponent(search.trim())}`,
+      );
+  }
   return (
-    <header className={`sticky top-0 z-100 bg-primary transition-shadow duration-200 ${scrolled ? "shadow-[0_2px_16px_rgba(65,141,191,0.3)]" : "shadow-none"}`}>
-      <div className="mx-auto flex min-h-[var(--header-height)] w-full max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8 max-[640px]:flex-wrap max-[640px]:justify-between max-[640px]:gap-3 max-[640px]:py-2.5">
-        <Link href="/client" aria-label="Tech Store — Trang chủ" className="flex shrink-0 items-center gap-2 no-underline">
-          <Image src="/images/Logo_Tech_Store_RGB.jpg" alt="Logo Tech Store" width={44} height={44}
-            className="size-11 rounded-[var(--radius-sm)] object-contain" />
+    <header className="book-site-header">
+      <div className="container masthead">
+        <Link
+          href="/client"
+          className="brand-lockup"
+          aria-label="BookStore — Trang chủ"
+        >
+          <img src="/images/bookstore-logo.svg" alt="" width="38" height="38" />
+          <strong>
+            BookStore<span>NHÀ CỦA NHỮNG NGƯỜI ĐỌC</span>
+          </strong>
         </Link>
-        <form onSubmit={handleSearch} className="relative min-w-0 max-w-[600px] flex-1 max-[640px]:order-3 max-[640px]:max-w-none max-[640px]:basis-full">
-          <input type="search" id="header-search" aria-label="Tìm kiếm sản phẩm" value={search}
-            onChange={(event) => setSearch(event.target.value)} placeholder="Tìm kiếm linh kiện máy tính..."
-            className="w-full rounded-full border-0 bg-white py-2.5 pr-[52px] pl-[18px] text-sm text-[var(--text-primary)] shadow-[0_2px_8px_rgba(0,0,0,0.1)] outline-none" />
-          <button type="submit" id="header-search-btn" aria-label="Tìm kiếm"
-            className="absolute top-1/2 right-1 flex size-[38px] -translate-y-1/2 items-center justify-center rounded-full border-0 bg-accent text-base text-white">
-            <i className="fa fa-search" aria-hidden="true" />
-          </button>
-        </form>
-        <div className="flex shrink-0 items-center gap-2">
-          <Link href="/client/cart" id="cart-link"
-            className="relative flex flex-col items-center gap-0.5 rounded-[var(--radius-md)] px-2.5 py-1.5 text-white no-underline transition-colors duration-200 hover:bg-white/15">
-            <i className="fa fa-shopping-cart text-xl" aria-hidden="true" />
-            <span className="text-[11px] font-semibold">Giỏ hàng</span>
-            {itemCount > 0 && (
-              <span className="absolute top-0.5 right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold text-white">
-                {itemCount > 99 ? "99+" : itemCount}
-              </span>
-            )}
+        <nav className="main-navigation" aria-label="Điều hướng chính">
+          {[
+            { href: "/client", label: "Trang chủ", exact: true },
+            { href: "/client/products", label: "Khám phá sách" },
+            { href: "/client/borrowing", label: "Mượn sách" },
+            { href: "/client/consultation", label: "Gợi ý cho bạn" },
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={
+                (
+                  item.exact
+                    ? pathname === item.href
+                    : pathname.startsWith(item.href)
+                )
+                  ? "page"
+                  : undefined
+              }
+            >
+              {item.label}
+              {item.href === "/client/borrowing" && (
+                <span className="nav-new">MỚI</span>
+              )}
+            </Link>
+          ))}
+        </nav>
+        <div className="header-tools">
+          <Link
+            href="/client/cart"
+            id="cart-link"
+            className="header-cart"
+            aria-label={`Giỏ hàng, ${itemCount} cuốn sách`}
+          >
+            <i className="fa fa-shopping-bag" aria-hidden="true" />
+            <span>{itemCount.toString().padStart(2, "0")}</span>
           </Link>
           {user ? (
-            <div className="relative" ref={userMenuRef}>
-              <button id="user-menu-btn" onClick={() => setUserMenuOpen(!userMenuOpen)} aria-expanded={userMenuOpen}
-                className={`flex flex-col items-center gap-0.5 rounded-[var(--radius-md)] border-0 px-2.5 py-1.5 text-white transition-colors duration-200 hover:bg-white/15 ${userMenuOpen ? "bg-white/15" : "bg-transparent"}`}>
-                <i className="fa fa-user text-xl" aria-hidden="true" />
-                <span className="max-w-20 overflow-hidden text-[11px] font-semibold text-ellipsis whitespace-nowrap">{user.username}</span>
+            <div className="account-menu" ref={ref}>
+              <button
+                id="user-menu-btn"
+                aria-expanded={open}
+                aria-controls="account-dropdown"
+                onClick={() => setOpen(!open)}
+              >
+                <span className="account-initial">
+                  {user.username.charAt(0)}
+                </span>
+                <span className="account-name">{user.username}</span>
+                <i className="fa fa-angle-down" aria-hidden="true" />
               </button>
-              {userMenuOpen && (
-                <div className="absolute top-[calc(100%+8px)] right-0 min-w-[200px] overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-card)] shadow-[var(--shadow-lg)]">
-                  <div className="border-b border-[var(--border)] bg-[var(--primary-bg)] px-4 py-3">
-                    <div className="text-sm font-bold text-[var(--text-primary)]">{user.username}</div>
-                    <div className="text-xs text-[var(--text-muted)]">{user.email}</div>
-                  </div>
-                  <DropdownItem href="/client/profile" icon="fa-user" onClick={() => setUserMenuOpen(false)}>Tài khoản của tôi</DropdownItem>
-                  <DropdownItem href="/client/orders" icon="fa-archive" onClick={() => setUserMenuOpen(false)}>Đơn hàng</DropdownItem>
-                  <DropdownItem href="/client/warranty" icon="fa-shield" onClick={() => setUserMenuOpen(false)}>Bảo hành của tôi</DropdownItem>
-                  {isAdmin && <DropdownItem href="/admin" icon="fa-cog" onClick={() => setUserMenuOpen(false)}>Quản trị</DropdownItem>}
-                  <div className="mt-1 border-t border-[var(--border)]" />
-                  <button id="logout-btn" onClick={() => { logout(); setUserMenuOpen(false); router.push("/client"); }}
-                    className="flex w-full items-center gap-2.5 border-0 bg-transparent px-4 py-2.5 text-sm font-medium text-[var(--danger)] transition-colors duration-200 hover:bg-[var(--danger-bg)]">
-                    <i className="fa fa-sign-out" aria-hidden="true" /> Đăng xuất
+              {open && (
+                <div id="account-dropdown" className="account-dropdown">
+                  <small>{user.email}</small>
+                  <Link href="/client/borrowing?tab=mine">
+                    Phiếu mượn của tôi
+                  </Link>
+                  <Link href="/client/orders">Đơn mua sách</Link>
+                  <Link href="/client/profile">Thông tin cá nhân</Link>
+                  <Link href="/client/warranty">Yêu cầu đổi trả</Link>
+                  {isAdmin && <Link href="/admin">Không gian quản trị</Link>}
+                  <button
+                    id="logout-btn"
+                    onClick={() => {
+                      logout();
+                      setOpen(false);
+                      router.push("/client");
+                    }}
+                  >
+                    Đăng xuất <i className="fa fa-sign-out" />
                   </button>
                 </div>
               )}
             </div>
           ) : (
-            <div className="flex gap-1.5">
-              <Link href="/client/auth/login" id="login-link" className="rounded-[var(--radius-md)] border-[1.5px] border-white/40 bg-white/15 px-4 py-2 text-[13px] font-semibold text-white no-underline transition-colors max-[640px]:px-2.5">Đăng nhập</Link>
-              <Link href="/client/auth/register" id="register-link" className="rounded-[var(--radius-md)] border-[1.5px] border-white bg-white px-4 py-2 text-[13px] font-bold text-primary no-underline transition-colors max-[640px]:px-2.5">Đăng ký</Link>
-            </div>
+            <Link
+              id="login-link"
+              className="header-login"
+              href="/client/auth/login"
+            >
+              Đăng nhập <i className="fa fa-arrow-right" aria-hidden="true" />
+            </Link>
           )}
         </div>
       </div>
-      <nav className="mx-auto flex w-full max-w-7xl gap-6 px-4 pt-2 pb-2.5 text-[13px] font-semibold text-white sm:px-6 lg:px-8 max-[640px]:flex-wrap max-[640px]:gap-[18px]" aria-label="Dịch vụ khách hàng">
-        <Link href="/client/warranty" className="hover:underline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-white"><i className="fa fa-shield" aria-hidden="true" /> Bảo hành</Link>
-        <Link href="/client/consultation" className="hover:underline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-white"><i className="fa fa-lightbulb-o" aria-hidden="true" /> Tư vấn chọn sản phẩm</Link>
-      </nav>
+      <div className="container masthead-search">
+        <span>ĐỌC. KHÁM PHÁ. CHIA SẺ.</span>
+        <form onSubmit={submit}>
+          <i className="fa fa-search" aria-hidden="true" />
+          <input
+            id="header-search"
+            aria-label="Tìm kiếm sách"
+            placeholder="Một tựa sách, một tác giả, một hành trình..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <button id="header-search-btn" type="submit">
+            Tìm sách <i className="fa fa-long-arrow-right" aria-hidden="true" />
+          </button>
+        </form>
+        <Link href="/client/borrowing">
+          Một cuốn sách, nhiều người bạn{" "}
+          <i className="fa fa-arrow-right" aria-hidden="true" />
+        </Link>
+      </div>
     </header>
-  );
-}
-
-function DropdownItem({ href, icon, children, onClick }: {
-  href: string;
-  icon: string;
-  children: React.ReactNode;
-  onClick?: () => void;
-}) {
-  return (
-    <Link href={href} onClick={onClick} className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-[var(--text-primary)] no-underline transition-colors duration-200 hover:bg-[var(--primary-bg)]">
-      <i className={`fa ${icon} w-4 text-center`} aria-hidden="true" />{children}
-    </Link>
   );
 }

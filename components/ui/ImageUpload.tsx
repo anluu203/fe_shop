@@ -11,6 +11,7 @@
  * để component cha gắn vào form và submit.
  */
 
+import { USE_MOCK } from "../../lib/mock/config";
 import { useRef, useState } from "react";
 import { uploadImage, type ImageTarget } from "../../lib/api/images";
 import { imageSrc } from "../../lib/utils/image";
@@ -54,8 +55,8 @@ export default function ImageUpload({
       return;
     }
     // Kiểm tra dung lượng (5 MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError("File không được vượt 5 MB");
+    if (file.size > (USE_MOCK ? 2 : 5) * 1024 * 1024) {
+      setUploadError(`File không được vượt ${USE_MOCK ? 2 : 5} MB`);
       return;
     }
 
@@ -176,7 +177,7 @@ export default function ImageUpload({
               Kéo thả hoặc <span style={{ color: "var(--primary)" }}>chọn file</span>
             </div>
             <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
-              JPEG, PNG, GIF, WebP — tối đa 5 MB
+              JPEG, PNG, GIF, WebP — tối đa {USE_MOCK ? 2 : 5} MB
             </div>
           </div>
         )}
@@ -213,7 +214,8 @@ export default function ImageUpload({
         </span>
         <input
           id={id}
-          type="url"
+          type="text"
+          inputMode="url"
           value={value}
           onChange={(e) => {
             setPreviewError(false);

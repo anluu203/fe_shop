@@ -1,0 +1,210 @@
+[
+  {
+    "id": "BS-2026-0001",
+    "userId": "user-reader",
+    "status": "Processing",
+    "totalPrice": "100000",
+    "items": [
+      {
+        "id": "item-sample-1",
+        "orderId": "BS-2026-0001",
+        "productId": "book-01",
+        "quantity": 1,
+        "unitPrice": "100000",
+        "product": {
+          "id": "book-01",
+          "name": "Cây cam ngọt của tôi",
+          "price": "100000",
+          "imageUrl": "/images/books/book-01.webp",
+          "isActive": true
+        },
+        "createdAt": "2026-10-18T08:30:00.000Z",
+        "updatedAt": "2026-10-18T08:30:00.000Z"
+      }
+    ],
+    "createdAt": "2026-10-18T08:30:00.000Z",
+    "updatedAt": "2026-10-18T08:30:00.000Z"
+  },
+  {
+    "id": "BS-2026-0002",
+    "userId": "user-reader-2",
+    "status": "Preparing",
+    "totalPrice": "270000",
+    "items": [
+      {
+        "id": "item-sample-2",
+        "orderId": "BS-2026-0002",
+        "productId": "book-04",
+        "quantity": 2,
+        "unitPrice": "135000",
+        "product": {
+          "id": "book-04",
+          "name": "Không gia đình",
+          "price": "135000",
+          "imageUrl": "/images/books/book-04.jpg",
+          "isActive": true
+        },
+        "createdAt": "2026-10-17T08:30:00.000Z",
+        "updatedAt": "2026-10-17T08:30:00.000Z"
+      }
+    ],
+    "createdAt": "2026-10-17T08:30:00.000Z",
+    "updatedAt": "2026-10-17T08:30:00.000Z"
+  },
+  {
+    "id": "BS-2026-0003",
+    "userId": "user-reader",
+    "status": "Shipping",
+    "totalPrice": "191000",
+    "items": [
+      {
+        "id": "item-sample-3",
+        "orderId": "BS-2026-0003",
+        "productId": "book-07",
+        "quantity": 1,
+        "unitPrice": "191000",
+        "product": {
+          "id": "book-07",
+          "name": "Chiến lược đại dương xanh",
+          "price": "191000",
+          "imageUrl": "/images/books/book-07.jpg",
+          "isActive": true
+        },
+        "createdAt": "2026-10-16T08:30:00.000Z",
+        "updatedAt": "2026-10-16T08:30:00.000Z"
+      }
+    ],
+    "createdAt": "2026-10-16T08:30:00.000Z",
+    "updatedAt": "2026-10-16T08:30:00.000Z"
+  },
+  {
+    "id": "BS-2026-0004",
+    "userId": "user-reader-2",
+    "status": "Done",
+    "totalPrice": "210000",
+    "items": [
+      {
+        "id": "item-sample-4",
+        "orderId": "BS-2026-0004",
+        "productId": "book-10",
+        "quantity": 2,
+        "unitPrice": "105000",
+        "product": {
+          "id": "book-10",
+          "name": "Ikigai – Bí mật sống trường thọ và hạnh phúc của người Nhật",
+          "price": "105000",
+          "imageUrl": "/images/books/book-10.webp",
+          "isActive": true
+        },
+        "createdAt": "2026-10-15T08:30:00.000Z",
+        "updatedAt": "2026-10-15T08:30:00.000Z"
+      }
+    ],
+    "createdAt": "2026-10-15T08:30:00.000Z",
+    "updatedAt": "2026-10-15T08:30:00.000Z"
+  },
+  {
+    "id": "BS-2026-0005",
+    "userId": "user-reader",
+    "status": "Processing",
+    "totalPrice": "144000",
+    "items": [
+      {
+        "id": "item-sample-5",
+        "orderId": "BS-2026-0005",
+        "productId": "book-13",
+        "quantity": 1,
+        "unitPrice": "144000",
+        "product": {
+          "id": "book-13",
+          "name": "Hoàng tử bé",
+          "price": "144000",
+          "imageUrl": "/images/books/book-13.jpg",
+          "isActive": true
+        },
+        "createdAt": "2026-10-14T08:30:00.000Z",
+        "updatedAt": "2026-10-14T08:30:00.000Z"
+      }
+    ],
+    "createdAt": "2026-10-14T08:30:00.000Z",
+    "updatedAt": "2026-10-14T08:30:00.000Z"
+  },
+  {
+    "id": "BS-2026-0006",
+    "userId": "user-reader-2",
+    "status": "Preparing",
+    "totalPrice": "108000",
+    "items": [
+      {
+        "id": "item-sample-6",
+        "orderId": "BS-2026-0006",
+        "productId": "book-16",
+        "quantity": 2,
+        "unitPrice": "54000",
+        "product": {
+          "id": "book-16",
+          "name": "Charlie và nhà máy sôcôla",
+          "price": "54000",
+          "imageUrl": "/images/books/book-16.jpg",
+          "isActive": true
+        },
+        "createdAt": "2026-10-13T08:30:00.000Z",
+        "updatedAt": "2026-10-13T08:30:00.000Z"
+      }
+    ],
+    "createdAt": "2026-10-13T08:30:00.000Z",
+    "updatedAt": "2026-10-13T08:30:00.000Z"
+  },
+  {
+    "id": "BS-2026-0007",
+    "userId": "user-reader",
+    "status": "Shipping",
+    "totalPrice": "22000",
+    "items": [
+      {
+        "id": "item-sample-7",
+        "orderId": "BS-2026-0007",
+        "productId": "book-19",
+        "quantity": 1,
+        "unitPrice": "22000",
+        "product": {
+          "id": "book-19",
+          "name": "One Piece – Tập 111",
+          "price": "22000",
+          "imageUrl": "/images/books/book-19.jpg",
+          "isActive": true
+        },
+        "createdAt": "2026-10-12T08:30:00.000Z",
+        "updatedAt": "2026-10-12T08:30:00.000Z"
+      }
+    ],
+    "createdAt": "2026-10-12T08:30:00.000Z",
+    "updatedAt": "2026-10-12T08:30:00.000Z"
+  },
+  {
+    "id": "BS-2026-0008",
+    "userId": "user-reader-2",
+    "status": "Done",
+    "totalPrice": "278000",
+    "items": [
+      {
+        "id": "item-sample-8",
+        "orderId": "BS-2026-0008",
+        "productId": "book-22",
+        "quantity": 2,
+        "unitPrice": "139000",
+        "product": {
+          "id": "book-22",
+          "name": "Học tập thông minh 2 – Thói quen tốt của học sinh giỏi",
+          "price": "139000",
+          "imageUrl": "/images/books/book-22.webp",
+          "isActive": true
+        },
+        "createdAt": "2026-10-11T08:30:00.000Z",
+        "updatedAt": "2026-10-11T08:30:00.000Z"
+      }
+    ],
+    "createdAt": "2026-10-11T08:30:00.000Z",
+    "updatedAt": "2026-10-11T08:30:00.000Z"
+  }
+]

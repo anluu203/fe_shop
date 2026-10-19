@@ -11,6 +11,7 @@ import { orderApi } from "../lib/api/orders";
 import type { Order } from "../lib/types";
 import { cartItemCount } from "../lib/utils/format";
 import { useAuth } from "./AuthContext";
+import { subscribeMockData, USE_MOCK } from "../lib/mock/config";
 
 interface CartContextValue {
   cart: Order | null;
@@ -57,6 +58,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       refreshCart();
     }
   }, [authLoading, refreshCart]);
+
+  useEffect(() => USE_MOCK ? subscribeMockData(() => { void refreshCart(); }) : undefined, [refreshCart]);
 
   const addItem = useCallback(
     async (productId: string, quantity: number) => {

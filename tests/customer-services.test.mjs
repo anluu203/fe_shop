@@ -1,38 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import fs from "node:fs";
-import vm from "node:vm";
-import { fileURLToPath } from "node:url";
-import { createRequire } from "node:module";
-import { randomUUID } from "node:crypto";
-import ts from "typescript";
+import { browserModules, memoryStorage } from "./helpers.mjs";
+function load(storage = memoryStorage()) { return browserModules(storage).load("lib/services/customer-services.ts"); }
 
-const filename = fileURLToPath(new URL("../lib/services/customer-services.ts", import.meta.url));
-const compiled = ts.transpileModule(fs.readFileSync(filename, "utf8"), {
-  compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true },
-}).outputText;
-
-function memoryStorage() {
-  const values = new Map();
-  return {
-    getItem: (key) => values.get(key) ?? null,
-    setItem: (key, value) => values.set(key, value),
-    key: (index) => [...values.keys()][index] ?? null,
-    get length() { return values.size; },
-  };
-}
-
-function load(storage = memoryStorage()) {
-  // Run the real service with isolated browser storage and a fixed demo date.
-  class DemoDate extends Date {
-    constructor(...args) { super(...(args.length ? args : ["2026-10-18T03:00:00Z"])); }
-  }
-  const context = { exports: {}, require: createRequire(filename), localStorage: storage, crypto: { randomUUID }, Date: DemoDate, Intl };
-  vm.runInNewContext(compiled, context, { filename });
-  return context.exports;
-}
-
-const input = { productId: "warranty-cpu", contactName: "  Nguyễn An  ", phone: "090 123 4567", description: "  Máy khởi động lại khi sử dụng.  " };
+const input = { productId: "return-book-1", contactName: "  Nguyễn An  ", phone: "090 123 4567", description: "  Sách bị thiếu trang và lỗi in.  " };
 
 test("consultation respects usage, category, budget boundary and price order", () => {
   const { customerServices: service } = load();
@@ -53,9 +24,9 @@ test("consultation respects usage, category, budget boundary and price order", (
       }
     }
   }
-  assert.equal(service.recommend({ usage: "office", component: "gpu", budget: 20000000 }).length, 0);
+  assert.equal(service.recommend({ usage: "learning", component: "manga", budget: 20000000 }).length, 0);
   for (const budget of [0, -1, 1.5, NaN, Infinity]) {
-    assert.equal(service.recommend({ usage: "office", component: "cpu", budget }).length, 0);
+    assert.equal(service.recommend({ usage: "learning", component: "literature", budget }).length, 0);
   }
 });
 
@@ -100,10 +71,10 @@ test("accounts share demo seeds but never share newly created requests", () => {
 
 test("expired, missing and in-progress products cannot submit; completed products can", () => {
   const { customerServices: service } = load();
-  assert.throws(() => service.createWarrantyRequest("user-a", { ...input, productId: "warranty-ram" }), /thời hạn/);
+  assert.throws(() => service.createWarrantyRequest("user-a", { ...input, productId: "return-book-4" }), /thời hạn/);
   assert.throws(() => service.createWarrantyRequest("user-a", { ...input, productId: "missing" }), /thời hạn/);
-  assert.throws(() => service.createWarrantyRequest("user-a", { ...input, productId: "warranty-gpu" }), /đang xử lý/);
-  assert.doesNotThrow(() => service.createWarrantyRequest("user-a", { ...input, productId: "warranty-ssd" }));
+  assert.throws(() => service.createWarrantyRequest("user-a", { ...input, productId: "return-book-2" }), /đang xử lý/);
+  assert.doesNotThrow(() => service.createWarrantyRequest("user-a", { ...input, productId: "return-book-3" }));
   assert.throws(() => service.createWarrantyRequest("", input), /đăng nhập/);
   assert.throws(() => service.createWarrantyRequest("user-a", { ...input, description: " " }), /mô tả/);
 });
@@ -133,14 +104,14 @@ test("admin sees account requests, updates only their owner, and preserves timel
   const requestB = client.createWarrantyRequest("user-b", input).request;
   assert.equal(admin.loadWarrantyRequests().requests.length, 4);
   assert.equal(admin.loadWarrantyRequests().requests.find((item) => item.id === requestA.id).ownerId, "user-a");
-  admin.updateWarrantyRequest("user-a", requestA.id, "checking", "  Đang kiểm tra máy.  ");
+  admin.updateWarrantyRequest("user-a", requestA.id, "checking", "  Đang kiểm tra sách.  ");
   assert.equal(client.loadWarrantyRequests("user-a").requests.find((item) => item.id === requestA.id).status, "checking");
   assert.equal(client.loadWarrantyRequests("user-b").requests.find((item) => item.id === requestB.id).status, "received");
   assert.ok(!client.loadWarrantyRequests("user-b").requests.some((item) => item.id === requestA.id));
   const fresh = load(storage);
   const restored = fresh.customerServices.loadWarrantyRequests("user-a").requests.find((item) => item.id === requestA.id);
   assert.equal(restored.timeline.length, 2);
-  assert.equal(restored.timeline[1].note, "Đang kiểm tra máy.");
+  assert.equal(restored.timeline[1].note, "Đang kiểm tra sách.");
   assert.equal(fresh.adminCustomerServices.loadWarrantyRequests().requests.length, 4);
 });
 
@@ -162,29 +133,29 @@ test("admin enforces sequential processing and completion unlocks a new user req
 test("sample progress updates apply to shared samples for every account and survive reload", () => {
   const storage = memoryStorage();
   const { customerServices: client, adminCustomerServices: admin } = load(storage);
-  admin.updateWarrantyRequest(null, "BH-MAU-001", "completed", "Đã hoàn tất bảo hành mẫu.");
+  admin.updateWarrantyRequest(null, "DT-MAU-001", "completed", "Đã hoàn tất đổi trả mẫu.");
   for (const owner of ["user-a", "user-b"]) {
-    assert.equal(client.loadWarrantyRequests(owner).requests.find((item) => item.id === "BH-MAU-001").status, "completed");
-    assert.equal(load(storage).customerServices.loadWarrantyRequests(owner).requests.find((item) => item.id === "BH-MAU-001").timeline.length, 4);
+    assert.equal(client.loadWarrantyRequests(owner).requests.find((item) => item.id === "DT-MAU-001").status, "completed");
+    assert.equal(load(storage).customerServices.loadWarrantyRequests(owner).requests.find((item) => item.id === "DT-MAU-001").timeline.length, 4);
   }
 });
 
 const catalogInput = {
-  name: "  CPU thử nghiệm  ", component: "cpu", price: 1500000,
-  usages: ["office"], specs: ["  4 nhân  "], reasons: { office: "  Phù hợp học tập.  " }, isActive: true,
+  name: "  Sách thử nghiệm  ", component: "literature", price: 1500000,
+  usages: ["learning"], specs: ["  240 trang  "], reasons: { learning: "  Phù hợp học tập.  " }, isActive: true,
 };
 
 test("admin creates and edits consultation products; hiding updates user recommendations immediately", () => {
   const storage = memoryStorage();
   const { customerServices: client, adminCustomerServices: admin } = load(storage);
-  const query = { usage: "office", component: "cpu", budget: 2000000 };
+  const query = { usage: "learning", component: "literature", budget: 2000000 };
   assert.equal(client.recommend(query).length, 0);
-  const created = admin.saveConsultationProduct(catalogInput).products.find((item) => item.name === "CPU thử nghiệm");
+  const created = admin.saveConsultationProduct(catalogInput).products.find((item) => item.name === "Sách thử nghiệm");
   assert.ok(created);
-  assert.equal(created.specs[0], "4 nhân");
+  assert.equal(created.specs[0], "240 trang");
   assert.equal(client.recommend(query)[0].id, created.id);
-  admin.saveConsultationProduct({ ...catalogInput, name: "CPU đã chỉnh sửa", price: 1800000 }, created.id);
-  assert.equal(load(storage).customerServices.recommend(query)[0].name, "CPU đã chỉnh sửa");
+  admin.saveConsultationProduct({ ...catalogInput, name: "Sách đã chỉnh sửa", price: 1800000 }, created.id);
+  assert.equal(load(storage).customerServices.recommend(query)[0].name, "Sách đã chỉnh sửa");
   admin.setConsultationProductActive(created.id, false);
   assert.equal(client.recommend(query).length, 0);
   assert.equal(load(storage).customerServices.recommend(query).length, 0);
@@ -195,7 +166,7 @@ test("admin creates and edits consultation products; hiding updates user recomme
 test("invalid catalog edits do not change the persisted catalog", () => {
   const { adminCustomerServices: admin } = load();
   const before = JSON.stringify(admin.loadConsultationProducts().products);
-  for (const patch of [{ name: " " }, { price: 0 }, { price: 1.5 }, { usages: [] }, { reasons: { office: " " } }, { specs: [] }, { component: "unknown" }]) {
+  for (const patch of [{ name: " " }, { price: 0 }, { price: 1.5 }, { usages: [] }, { reasons: { learning: " " } }, { specs: [] }, { component: "unknown" }]) {
     assert.throws(() => admin.saveConsultationProduct({ ...catalogInput, ...patch }));
   }
   assert.throws(() => admin.saveConsultationProduct(catalogInput, "missing"), /Không tìm thấy/);
@@ -209,5 +180,5 @@ test("admin changes remain visible in the session with clear warnings when stora
   assert.ok(admin.updateWarrantyRequest("user-a", request.id, "checking", "Đã kiểm tra.").warning);
   assert.equal(client.loadWarrantyRequests("user-a").requests.find((item) => item.id === request.id).status, "checking");
   assert.ok(admin.saveConsultationProduct(catalogInput).warning);
-  assert.equal(client.recommend({ usage: "office", component: "cpu", budget: 2000000 }).length, 1);
+  assert.equal(client.recommend({ usage: "learning", component: "literature", budget: 2000000 }).length, 1);
 });

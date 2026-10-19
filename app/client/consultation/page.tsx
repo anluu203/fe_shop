@@ -13,9 +13,9 @@ const options = customerServices.getConsultationOptions();
 export default function ConsultationPage() {
   const [, refreshCatalog] = useState(0);
   useEffect(() => subscribeCustomerServices(() => refreshCatalog((revision) => revision + 1)), []);
-  const [usage, setUsage] = useState<Usage>("office");
-  const [component, setComponent] = useState<ComponentType>("cpu");
-  const [budget, setBudget] = useState("5000000");
+  const [usage, setUsage] = useState<Usage>("relaxation");
+  const [component, setComponent] = useState<ComponentType>("literature");
+  const [budget, setBudget] = useState("200000");
   const [query, setQuery] = useState<ConsultationQuery | null>(null);
   const [error, setError] = useState("");
   const products = query ? customerServices.recommend(query) : [];
@@ -32,9 +32,9 @@ export default function ConsultationPage() {
   }
 
   function reset() {
-    setUsage("office");
-    setComponent("cpu");
-    setBudget("5000000");
+    setUsage("relaxation");
+    setComponent("literature");
+    setBudget("200000");
     setQuery(null);
     setError("");
   }
@@ -44,13 +44,13 @@ export default function ConsultationPage() {
       <section className={ui.hero}>
         <div className={ui.container}>
           <span className={ui.demo}>Dữ liệu minh họa</span>
-          <h1 className={ui.title}><i className="fa fa-lightbulb-o" aria-hidden="true" /> Tư vấn chọn sản phẩm</h1>
-          <p className={ui.subtitle}>Chọn linh kiện phù hợp với nhu cầu và ngân sách của bạn.</p>
+          <h1 className={ui.title}><i className="fa fa-lightbulb-o" aria-hidden="true" /> Tư vấn chọn sách</h1>
+          <p className={ui.subtitle}>Chọn sách phù hợp với nhu cầu và ngân sách của bạn.</p>
         </div>
       </section>
       <div className={`${ui.container} ${ui.content}`}>
         <div className={ui.notice}>
-          Giá và sản phẩm dưới đây dùng để trải nghiệm tính năng. Gợi ý áp dụng cho từng linh kiện; hãy kiểm tra tương thích với cấu hình hiện có trước khi mua.
+          Giá và sách dưới đây dùng để trải nghiệm tính năng. Gợi ý áp dụng cho từng sách; hãy xem thông tin tác giả và giới thiệu sách trước khi lựa chọn.
         </div>
         <div className={ui.layout}>
           <form className={ui.panel} onSubmit={handleSubmit} noValidate>
@@ -66,19 +66,19 @@ export default function ConsultationPage() {
               ))}
             </fieldset>
             <label className={ui.field} htmlFor="consultation-component">
-              Loại linh kiện
+              Loại sách
               <select id="consultation-component" className={ui.control} value={component}
                 onChange={(event) => setComponent(event.target.value as ComponentType)}>
                 {options.components.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
               </select>
             </label>
             <label className={ui.field} htmlFor="consultation-budget">
-              Ngân sách tối đa cho một linh kiện (VNĐ)
+              Ngân sách tối đa cho một cuốn sách (VNĐ)
               <input id="consultation-budget" type="number" inputMode="numeric" min="1" step="1"
                 className={ui.control} value={budget} onChange={(event) => setBudget(event.target.value)}
                 aria-invalid={!!error} aria-describedby={error ? "budget-error" : "budget-hint"} />
               {error ? <span id="budget-error" className={ui.error} role="alert">{error}</span> :
-                <span id="budget-hint" className={ui.muted}>Ví dụ: 5000000 = 5.000.000 ₫</span>}
+                <span id="budget-hint" className={ui.muted}>Ví dụ: 200000 = 200.000 ₫</span>}
             </label>
             <div className={ui.actions}>
               <Button type="submit" icon={<i className="fa fa-search" aria-hidden="true" />}>Xem gợi ý</Button>
@@ -89,13 +89,13 @@ export default function ConsultationPage() {
             {!query ? (
               <div className={ui.emptyPanel}>
                 <i className={`fa fa-sliders ${ui.emptyIcon}`} aria-hidden="true" />
-                <h2 className={ui.emptyTitle}>Tìm linh kiện phù hợp với bạn</h2>
-                <p className={ui.muted}>Chọn nhu cầu, loại linh kiện và ngân sách, sau đó bấm “Xem gợi ý”.</p>
+                <h2 className={ui.emptyTitle}>Tìm sách phù hợp với bạn</h2>
+                <p className={ui.muted}>Chọn nhu cầu, loại sách và ngân sách, sau đó bấm “Xem gợi ý”.</p>
               </div>
             ) : (
               <>
                 <div className={`${ui.row} mb-[18px]`}>
-                  <h2 className="text-xl font-extrabold">{products.length} sản phẩm phù hợp</h2>
+                  <h2 className="text-xl font-extrabold">{products.length} sách phù hợp</h2>
                   <span className={ui.muted}>Giá từ thấp đến cao</span>
                 </div>
                 <p className={`${ui.muted} mb-[18px]`}>
@@ -105,7 +105,7 @@ export default function ConsultationPage() {
                   <div className={ui.emptyPanel}>
                     <i className={`fa fa-search ${ui.emptyIcon}`} aria-hidden="true" />
                     <h2 className={ui.emptyTitle}>Chưa có gợi ý phù hợp</h2>
-                    <p className={ui.muted}>Thử tăng ngân sách hoặc chọn nhu cầu, loại linh kiện khác trong bộ dữ liệu mẫu.</p>
+                    <p className={ui.muted}>Thử tăng ngân sách hoặc chọn nhu cầu, loại sách khác trong bộ dữ liệu mẫu.</p>
                   </div>
                 ) : (
                   <div className={ui.grid}>

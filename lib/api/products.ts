@@ -8,6 +8,8 @@ export const productApi = {
       pageSize: query?.pageSize,
       search: query?.search,
       categoryId: query?.categoryId,
+      parentId: query?.parentId,
+      includeInactive: query?.includeInactive ? 1 : undefined,
     }),
 
   getOne: (id: string) => api.get<Product>(`/products/${id}`),
@@ -17,6 +19,6 @@ export const productApi = {
   update: (id: string, body: Partial<ProductBody>) =>
     api.patch<Product>(`/products/${id}`, body),
 
-  /** Ẩn sản phẩm (isActive = false) — không xóa vật lý */
+  /** Ẩn sách (isActive = false) — không xóa vật lý */
   hide: (id: string) => api.delete(`/products/${id}`),
 };

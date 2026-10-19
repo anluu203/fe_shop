@@ -1,0 +1,312 @@
+{
+  "inventory": [
+    {
+      "productId": "book-01",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-02",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-03",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-04",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-05",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-06",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-07",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-08",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-09",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-10",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-11",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-12",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-13",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-14",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-15",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-16",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-17",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-18",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-19",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-20",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-21",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-22",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-23",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-24",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-25",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-26",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-27",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-28",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-29",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-30",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-31",
+      "totalCopies": 3,
+      "borrowable": true
+    },
+    {
+      "productId": "book-32",
+      "totalCopies": 3,
+      "borrowable": true
+    }
+  ],
+  "loans": [
+    {
+      "id": "MUON-MAU-001",
+      "userId": "user-reader",
+      "productId": "book-01",
+      "storeId": "store-1",
+      "bookName": "Cây cam ngọt của tôi",
+      "bookImage": "/images/books/book-01.webp",
+      "author": "José Mauro de Vasconcelos",
+      "storeName": "BookStore Nguyễn Trãi",
+      "storeAddress": "123 Nguyễn Trãi, Phường Bến Thành, TP. Hồ Chí Minh",
+      "contactName": "Nguyễn An",
+      "phone": "0901234567",
+      "pickupDate": "2026-10-20",
+      "durationDays": 14,
+      "customerNote": "Phiếu mẫu để trải nghiệm dịch vụ mượn sách.",
+      "status": "pending",
+      "createdAt": "2026-10-20T02:00:00.000Z",
+      "updatedAt": "2026-10-20T02:00:00.000Z",
+      "borrowedAt": null,
+      "dueDate": null,
+      "returnedAt": null,
+      "timeline": [
+        {
+          "status": "pending",
+          "at": "2026-10-20T02:00:00.000Z",
+          "note": "Đã gửi đăng ký mượn sách."
+        }
+      ]
+    },
+    {
+      "id": "MUON-MAU-002",
+      "userId": "user-reader-2",
+      "productId": "book-05",
+      "storeId": "store-2",
+      "bookName": "Nhà đầu tư thông minh",
+      "bookImage": "/images/books/book-05.jpg",
+      "author": "Benjamin Graham",
+      "storeName": "BookStore Cầu Giấy",
+      "storeAddress": "45 Cầu Giấy, Phường Cầu Giấy, Hà Nội",
+      "contactName": "Trần Minh",
+      "phone": "0901234567",
+      "pickupDate": "2026-10-19",
+      "durationDays": 14,
+      "customerNote": "Phiếu mẫu để trải nghiệm dịch vụ mượn sách.",
+      "status": "approved",
+      "createdAt": "2026-10-19T02:00:00.000Z",
+      "updatedAt": "2026-10-19T02:00:00.000Z",
+      "borrowedAt": null,
+      "dueDate": null,
+      "returnedAt": null,
+      "timeline": [
+        {
+          "status": "pending",
+          "at": "2026-10-19T02:00:00.000Z",
+          "note": "Đã gửi đăng ký mượn sách."
+        },
+        {
+          "status": "approved",
+          "at": "2026-10-19T02:00:00.000Z",
+          "note": "Nhà sách đã giữ một bản, mời bạn đến nhận."
+        }
+      ]
+    },
+    {
+      "id": "MUON-MAU-003",
+      "userId": "user-reader",
+      "productId": "book-09",
+      "storeId": "store-1",
+      "bookName": "Tuổi trẻ đáng giá bao nhiêu?",
+      "bookImage": "/images/books/book-09.webp",
+      "author": "Rosie Nguyễn",
+      "storeName": "BookStore Nguyễn Trãi",
+      "storeAddress": "123 Nguyễn Trãi, Phường Bến Thành, TP. Hồ Chí Minh",
+      "contactName": "Nguyễn An",
+      "phone": "0901234567",
+      "pickupDate": "2026-10-18",
+      "durationDays": 14,
+      "customerNote": "Phiếu mẫu để trải nghiệm dịch vụ mượn sách.",
+      "status": "borrowed",
+      "createdAt": "2026-10-18T02:00:00.000Z",
+      "updatedAt": "2026-10-18T02:00:00.000Z",
+      "borrowedAt": "2026-10-18T02:00:00.000Z",
+      "dueDate": "2026-11-01",
+      "returnedAt": null,
+      "timeline": [
+        {
+          "status": "pending",
+          "at": "2026-10-18T02:00:00.000Z",
+          "note": "Đã gửi đăng ký mượn sách."
+        },
+        {
+          "status": "approved",
+          "at": "2026-10-18T02:00:00.000Z",
+          "note": "Nhà sách đã giữ một bản, mời bạn đến nhận."
+        },
+        {
+          "status": "borrowed",
+          "at": "2026-10-18T02:00:00.000Z",
+          "note": "Đã bàn giao sách cho người đọc."
+        }
+      ]
+    },
+    {
+      "id": "MUON-MAU-004",
+      "userId": "user-reader-2",
+      "productId": "book-13",
+      "storeId": "store-2",
+      "bookName": "Hoàng tử bé",
+      "bookImage": "/images/books/book-13.jpg",
+      "author": "Antoine de Saint Exupéry",
+      "storeName": "BookStore Cầu Giấy",
+      "storeAddress": "45 Cầu Giấy, Phường Cầu Giấy, Hà Nội",
+      "contactName": "Trần Minh",
+      "phone": "0901234567",
+      "pickupDate": "2026-10-17",
+      "durationDays": 14,
+      "customerNote": "Phiếu mẫu để trải nghiệm dịch vụ mượn sách.",
+      "status": "returned",
+      "createdAt": "2026-10-17T02:00:00.000Z",
+      "updatedAt": "2026-10-17T02:00:00.000Z",
+      "borrowedAt": "2026-10-17T02:00:00.000Z",
+      "dueDate": "2026-11-01",
+      "returnedAt": "2026-10-17T02:00:00.000Z",
+      "timeline": [
+        {
+          "status": "pending",
+          "at": "2026-10-17T02:00:00.000Z",
+          "note": "Đã gửi đăng ký mượn sách."
+        },
+        {
+          "status": "approved",
+          "at": "2026-10-17T02:00:00.000Z",
+          "note": "Nhà sách đã giữ một bản, mời bạn đến nhận."
+        },
+        {
+          "status": "borrowed",
+          "at": "2026-10-17T02:00:00.000Z",
+          "note": "Đã bàn giao sách cho người đọc."
+        },
+        {
+          "status": "returned",
+          "at": "2026-10-17T02:00:00.000Z",
+          "note": "Đã nhận lại sách, cảm ơn bạn đã giữ gìn."
+        }
+      ]
+    }
+  ]
+}

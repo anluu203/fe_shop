@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BookStore
 
-## Getting Started
+Nhà sách trực tuyến và thư viện chia sẻ sử dụng Next.js App Router, React và TypeScript. Client mang phong cách tạp chí đọc sách với nền giấy, xanh rêu và tiêu đề serif. Admin sử dụng điều hướng ngang, dashboard tổng quan bán/mượn sách và bảng quản lý riêng. Giữ lớp API, contexts và các luồng mua hàng hiện có.
 
-First, run the development server:
+## Chạy dự án
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Truy cập **http://localhost:5173**. Mặc định dùng mock, không cần khởi động backend. Có thể sao chép `.env.example` thành `.env.local` để cấu hình rõ ràng.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm test
+npx tsc --noEmit --incremental false
+npm run build
+npm run start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`dev` và `start` đều chạy ở cổng 5173; dừng dev trước khi chạy bản production. `npm run test:customer-services` chạy riêng các kiểm thử tư vấn/đổi trả.
 
-## Learn More
+## Tài khoản trải nghiệm
 
-To learn more about Next.js, take a look at the following resources:
+| Vai trò | Email | Mật khẩu |
+| --- | --- | --- |
+| Quản trị | admin@bookstore.vn | BookStore@123 |
+| Khách hàng | user@bookstore.vn | BookStore@123 |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Có thể đăng ký tài khoản khách hàng mới. Tài khoản, phiên đăng nhập và phân quyền trong chế độ mock được mô phỏng tại trình duyệt.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Khách hàng: `/client`, `/client/products`, `/client/borrowing`, `/client/cart`, `/client/orders`, `/client/profile`.
+- Quản trị: `/admin`, `/admin/borrowing`, quản lý sách, danh mục, nhà sách, đơn hàng, tư vấn và đổi trả.
+- Giữ các URL `/client/warranty` và `/admin/warranty` để tương thích, nội dung hiển thị là **đổi trả sách**.
 
-## Deploy on Vercel
+## Dữ liệu dùng chung
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Thư mục `mock-data/` chứa dữ liệu khởi tạo cho cả admin và client:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| File | Nội dung |
+| --- | --- |
+| `products.json` | 32 sách, giá demo, tác giả và thông tin xuất bản |
+| `category-parents.json`, `categories.json` | 8 nhóm sách và các danh mục con |
+| `users.json`, `orders.json` | Tài khoản, đơn hàng mẫu ở các trạng thái |
+| `stores.json` | Nhà sách, cũng hiển thị tại footer client |
+| `banners.json`, `site-content.json` | Banner, thông tin thương hiệu và nhóm sách trang chủ bằng ID |
+| `customer-services.json` | Nhu cầu đọc, gợi ý sách, hồ sơ và phiếu đổi trả mẫu |
+| `borrowing.json` | Số bản sách cho mượn và các phiếu mượn mẫu |
+| `sources.json` | URL nguồn thông tin và ảnh bìa từ Nhã Nam, Alpha Books, NXB Kim Đồng |
+
+Ảnh bìa tải sẵn tại `public/images/books/`, không cần truy cập CDN bên ngoài khi chạy demo. Giá và dữ liệu giao dịch là minh họa. Các trường xuất bản không xác minh được để trống và hiển thị “Đang cập nhật”.
+
+`lib/api/*` giữ các hàm API hiện có. Khi bật mock, `lib/api/client.ts` chuyển request sang `lib/mock/request.ts`. Store dùng JSON làm seed, lưu thay đổi vào `bookstore:database:v1`; phiên đăng nhập dùng `bookstore:access-token:v1`. Tư vấn tham chiếu catalog sách chung, còn các phiếu đổi trả mới được lưu theo tài khoản.
+
+- Admin thêm/sửa/ẩn sách, đổi tên danh mục hoặc cập nhật đơn hàng sẽ được phản ánh tại client trên cùng trình duyệt, kể cả tab đang mở.
+- Giỏ hàng và đơn hàng thuộc từng tài khoản. Checkout chuyển giỏ sang đơn đang xử lý; admin chỉ chuyển lần lượt: xử lý → đóng gói → giao hàng → hoàn thành.
+- Thay đổi được lưu trong trình duyệt, không ghi ngược JSON và không đồng bộ giữa thiết bị. Phiên đăng nhập được chia sẻ giữa các tab cùng trình duyệt.
+- Upload mock hỗ trợ JPEG, PNG, GIF, WebP, tối đa **2 MB/ảnh**, lưu dạng data URL. Nếu vượt dung lượng localStorage, thao tác lưu báo lỗi và giữ nguyên dữ liệu đã lưu trước đó.
+- Hồ sơ đổi trả mẫu dùng ngày minh họa trong JSON; các tài khoản cùng thấy phiếu mẫu, còn phiếu tự tạo được tách theo tài khoản. Thời hạn được tính theo ngày Việt Nam, gồm cả ngày kết thúc.
+
+## Đăng ký mượn sách
+
+- Khách mở **Mượn sách** ở điều hướng, hoặc chọn nút mượn trên thẻ/trang chi tiết sách. Tại `/client/borrowing`, chọn sách, điền tên và điện thoại, nhà sách nhận, ngày nhận và thời hạn **7 / 14 / 30 ngày** (mặc định 14 ngày).
+- Ngày nhận được chọn từ hôm nay đến 30 ngày tới. Mỗi phiếu một bản sách; mỗi tài khoản có tối đa **5 phiếu đang hoạt động**, không có hai phiếu hoạt động cho cùng một cuốn.
+- Khách xem trạng thái, lịch sử xử lý và hạn trả trong tab **Phiếu mượn của tôi**. Có thể hủy trước khi nhận sách.
+- Admin mở `/admin/borrowing`: tìm/lọc phiếu, duyệt hoặc từ chối với ghi chú. Luồng chính: **Chờ duyệt → Chờ nhận sách → Đang mượn → Đã trả**. Admin có thể hủy phiếu đã duyệt khi chưa bàn giao.
+- Số bản chỉ được giữ khi duyệt, không giữ lúc gửi đăng ký. Bàn giao bắt đầu vào hoặc sau ngày hẹn; hạn trả tính từ ngày bàn giao thực tế theo ngày Việt Nam. Quá hạn là nhãn tự tính cho phiếu đang mượn, không thay đổi lịch sử trạng thái.
+- Tab **Kho sách cho mượn** cho phép bật/tắt cho mượn và chỉnh số bản mỗi đầu sách (0–100). Không được giảm xuống dưới số bản đã giữ chỗ/đang mượn. Khi hủy phiếu đã duyệt hoặc trả sách, bản sách tự khả dụng trở lại. Kho mượn độc lập với đơn mua sách.
+- Các phiếu được tách theo tài khoản, admin xem toàn bộ; thay đổi đồng bộ giữa các tab cùng trình duyệt. Không thu phí mượn hoặc xử lý phạt trong demo.
+- Database v1 đã lưu từ phiên bản trước tự bổ sung collection mượn sách, giữ nguyên tài khoản, sách đã sửa, giỏ hàng và đơn mua. Không cần đặt lại dữ liệu khi nâng cấp.
+
+## Đặt lại dữ liệu demo
+
+Mở DevTools → Console ở website và chạy:
+
+```js
+Object.keys(localStorage)
+  .filter((key) => key.startsWith("bookstore:"))
+  .forEach((key) => localStorage.removeItem(key));
+location.reload();
+```
+
+Thao tác này đặt lại dữ liệu BookStore và đăng xuất; dữ liệu website khác được giữ nguyên. Sau khi chỉnh JSON, đặt lại dữ liệu để trình duyệt nạp seed mới.
+
+## Kết nối backend sau này
+
+Trong `.env.local`:
+
+```dotenv
+NEXT_PUBLIC_USE_MOCK=false
+NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
+```
+
+Khởi động lại dev server, hoặc build lại bản production sau khi đổi biến `NEXT_PUBLIC_*`. HTTP API và upload ảnh sẽ dùng backend đã cấu hình; dữ liệu mock vẫn giữ riêng trong trình duyệt. Tư vấn/đổi trả tiếp tục dùng service JSON hiện có cho đến khi có endpoint tương ứng.
+
+Model `Product`/`ProductBody` bổ sung các trường tùy chọn `author`, `publisher`, `publicationYear`, `pageCount`, `language`, `coverType`. Giá giữ dạng chuỗi VND. Truy vấn sách hỗ trợ thêm `parentId`; admin có thể truyền `includeInactive=1` để xem cả sách bị ẩn. Backend tương lai cần hỗ trợ những trường/truy vấn này.
+
+Các hợp đồng mượn sách nằm trong `lib/types/borrowing.ts` và `lib/api/borrowing.ts`: `GET /borrowing/books`, `GET/POST /borrowing/loans`, `PATCH /borrowing/loans/:id/cancel`, `GET /admin/borrowing/loans`, `PATCH /admin/borrowing/loans/:id`, `GET /admin/borrowing/inventory`, `PATCH /admin/borrowing/inventory/:productId`. Khi tắt mock, backend tương lai cần triển khai các endpoint này.
+
+## Kiểm thử
+
+`npm test` chạy các kiểm thử trực tiếp trên module TypeScript: phân quyền, đăng nhập/đăng ký, lọc trước phân trang, CRUD, giỏ hàng, checkout, cập nhật trạng thái, đồng bộ dữ liệu, lỗi lưu trữ, đường dẫn ảnh, tư vấn, đổi trả và mượn sách. Bộ mượn sách kiểm tra kho khả dụng, chống trùng, giới hạn phiếu, xác nhận/nhận/trả, ngày quá hạn và nâng cấp dữ liệu cũ. Bộ kiểm thử dùng bộ nhớ riêng, không thay đổi JSON hay dữ liệu trình duyệt của bạn.

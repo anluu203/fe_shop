@@ -1,76 +1,99 @@
-﻿"use client";
-
+"use client";
 import Link from "next/link";
-import Image from "next/image";
-
+import { useEffect, useState } from "react";
+import content from "../../mock-data/site-content.json";
+import { storeApi } from "../../lib/api/stores";
+import { categoryApi } from "../../lib/api/categories";
+import type { Store, CategoryParent } from "../../lib/types";
+import { subscribeMockData, USE_MOCK } from "../../lib/mock/config";
 export default function Footer() {
+  const [stores, setStores] = useState<Store[]>([]);
+  const [categories, setCategories] = useState<CategoryParent[]>([]);
+  useEffect(() => {
+    const load = () => {
+      void Promise.all([storeApi.getAll(), categoryApi.getParents()])
+        .then(([s, c]) => {
+          setStores(s);
+          setCategories(c);
+        })
+        .catch(() => {});
+    };
+    load();
+    return USE_MOCK ? subscribeMockData(load) : undefined;
+  }, []);
   return (
-    <footer className="mt-auto bg-[#1a202c] text-[#e2e8f0]">
-      <div className="mx-auto w-full max-w-7xl px-8 pt-12 pb-8">
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-10">
-          <div>
-            <Link href="/client" aria-label="Tech Store — Trang chủ" className="mb-4 inline-block">
-              <Image src="/images/Logo_Tech_Store_RGB.jpg" alt="Logo Tech Store" width={80} height={80}
-                className="size-20 rounded-[var(--radius-md)] object-contain" />
+    <footer className="book-footer">
+      <div className="container footer-quote">
+        <span>HẸN GẶP BẠN GIỮA NHỮNG TRANG SÁCH.</span>
+        <p>
+          Đọc để hiểu mình.<em> Chia sẻ để hiểu nhau.</em>
+        </p>
+      </div>
+      <div className="container footer-main">
+        <div className="footer-brand">
+          <Link href="/client" className="brand-lockup">
+            <img
+              src="/images/bookstore-logo.svg"
+              width="42"
+              height="42"
+              alt=""
+            />
+            <strong>
+              BookStore<span>Đọc sách. Mở thế giới.</span>
+            </strong>
+          </Link>
+          <p>
+            Mỗi cuốn sách là một cánh cửa.
+            <br />
+            Cùng bạn tìm câu chuyện của riêng mình.
+          </p>
+          <div className="footer-contact">
+            <a href={`mailto:${content.email}`}>
+              <i className="fa fa-envelope-o" aria-hidden="true" />{" "}
+              {content.email}
+            </a>
+            <a href={`tel:${content.phone.replace(/ /g, "")}`}>
+              <i className="fa fa-phone" aria-hidden="true" /> {content.phone}
+            </a>
+          </div>
+        </div>
+        <div>
+          <h3>Khám phá sách</h3>
+          {categories.slice(0, 5).map((c) => (
+            <Link key={c.id} href={`/client/products?parentId=${c.id}`}>
+              {c.name}
             </Link>
-            <p className="mb-4 text-[13px] leading-[1.7] text-[#a0aec0]">
-              Chuyên cung cấp linh kiện máy tính chính hãng với giá tốt nhất.
-              Uy tín — Chất lượng — Bảo hành.
-            </p>
-            <div className="flex gap-2.5">
-              {["fa-facebook", "fa-instagram", "fa-twitter", "fa-youtube-play"].map((icon) => (
-                <span key={icon} className="flex size-9 cursor-pointer items-center justify-center rounded-[var(--radius-sm)] bg-white/8 text-base transition-colors">
-                  <i className={`fa ${icon}`} />
-                </span>
-              ))}
-            </div>
-          </div>
-          <div>
-            <h4 className="mb-4 text-[15px] font-bold text-white">Sản phẩm</h4>
-            <ul className="flex list-none flex-col gap-2.5">
-              {[
-                { label: "CPU & Bộ xử lý", href: "/client/products" },
-                { label: "Card đồ hoạ (GPU)", href: "/client/products" },
-                { label: "RAM & Bộ nhớ", href: "/client/products" },
-                { label: "Ổ cứng SSD", href: "/client/products" },
-                { label: "Mainboard", href: "/client/products" },
-              ].map((item) => (
-                <li key={item.label}>
-                  <Link href={item.href} className="text-[13px] text-[#a0aec0] no-underline transition-colors duration-200 hover:text-primary-light">{item.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="mb-4 text-[15px] font-bold text-white">Hỗ trợ</h4>
-            <ul className="flex list-none flex-col gap-2.5">
-              <li><Link href="/client/warranty" className="text-[13px] text-[#a0aec0] hover:text-primary-light">Bảo hành</Link></li>
-              <li><Link href="/client/consultation" className="text-[13px] text-[#a0aec0] hover:text-primary-light">Tư vấn chọn sản phẩm</Link></li>
-              {["Hướng dẫn đặt hàng", "Chính sách đổi trả", "Câu hỏi thường gặp", "Liên hệ hỗ trợ"].map((item) => (
-                <li key={item}><span className="cursor-pointer text-[13px] text-[#a0aec0]">{item}</span></li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="mb-4 text-[15px] font-bold text-white">Liên hệ</h4>
-            <div className="flex flex-col gap-2.5 text-[13px] text-[#a0aec0]">
-              <div className="flex items-center gap-2"><i className="fa fa-map-marker w-4 text-center" /><span>123 Nguyễn Trãi, Q.1, TP.HCM</span></div>
-              <div className="flex items-center gap-2"><i className="fa fa-phone w-4 text-center" /><span>1900 1234</span></div>
-              <div className="flex items-center gap-2"><i className="fa fa-envelope w-4 text-center" /><span>support@techparts.vn</span></div>
-              <div className="flex items-center gap-2"><i className="fa fa-clock-o w-4 text-center" /><span>8:00 - 21:00 mỗi ngày</span></div>
-            </div>
-          </div>
+          ))}
+        </div>
+        <div>
+          <h3>Đồng hành cùng bạn</h3>
+          <Link href="/client/borrowing">Đăng ký mượn sách</Link>
+          <Link href="/client/consultation">Tư vấn chọn sách</Link>
+          <Link href="/client/warranty">Đổi trả sách</Link>
+          <Link href="/client/orders">Theo dõi đơn hàng</Link>
+          <Link href="/client/profile">Tài khoản của bạn</Link>
+          <Link href="/client/cart">Giỏ hàng</Link>
+        </div>
+        <div>
+          <h3>Hệ thống nhà sách</h3>
+          {stores.length ? (
+            stores.map((s) => (
+              <div className="footer-store" key={s.id}>
+                <strong>{s.name}</strong>
+                <p>{s.address}</p>
+              </div>
+            ))
+          ) : (
+            <p>{content.address}</p>
+          )}
+          <p>8:00 – 21:00 mỗi ngày</p>
         </div>
       </div>
-      <div className="border-t border-white/8 px-8 py-4">
-        <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-          <span className="text-xs text-[#718096]">© 2024 TechParts. Bảo lưu mọi quyền.</span>
-          <div className="flex gap-5">
-            {["Điều khoản sử dụng", "Bảo mật thông tin"].map((item) => (
-              <span key={item} className="cursor-pointer text-xs text-[#718096]">{item}</span>
-            ))}
-          </div>
-        </div>
+      <div className="container footer-bottom">
+        <span>© 2026 BookStore. Đọc hôm nay, khám phá ngày mai.</span>
+        <span>
+          <i className="fa fa-book" aria-hidden="true" /> {content.tagline}
+        </span>
       </div>
     </footer>
   );

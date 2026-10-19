@@ -3,9 +3,9 @@ import Footer from "../../components/client/Footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "TechParts — Linh Kiện Máy Tính Chính Hãng",
+  title: "BookStore — Nhà Sách Trực Tuyến",
   description:
-    "Mua sắm linh kiện máy tính chính hãng: CPU, GPU, RAM, SSD, Mainboard với giá tốt nhất.",
+    "Khám phá sách văn học, kinh tế, kỹ năng sống, thiếu nhi và ngoại ngữ tại BookStore.",
 };
 
 export default function ClientLayout({
@@ -14,7 +14,7 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div
+    <div className="client-app"
       style={{
         display: "flex",
         flexDirection: "column",

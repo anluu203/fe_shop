@@ -1,5 +1,7 @@
 "use client";
+import { imageSrc } from "../../../lib/utils/image";
 
+import { subscribeMockData, USE_MOCK } from "../../../lib/mock/config";
 import { useEffect, useState } from "react";
 import { storeApi } from "../../../lib/api/stores";
 import type { Store } from "../../../lib/types";
@@ -25,7 +27,7 @@ export default function AdminStoresPage() {
     storeApi.getAll().then(setStores).finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); return USE_MOCK ? subscribeMockData(() => { void load(); }) : undefined; }, []);
 
   const openCreate = () => {
     setForm(EMPTY_FORM);
@@ -41,7 +43,7 @@ export default function AdminStoresPage() {
   };
 
   const validate = () => {
-    if (!form.name.trim()) { setError("Tên cửa hàng không được để trống"); return false; }
+    if (!form.name.trim()) { setError("Tên nhà sách không được để trống"); return false; }
     return true;
   };
 
@@ -65,7 +67,7 @@ export default function AdminStoresPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Xóa cửa hàng này?")) return;
+    if (!confirm("Xóa nhà sách này?")) return;
     try {
       await storeApi.delete(id);
       load();
@@ -84,7 +86,7 @@ export default function AdminStoresPage() {
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 20 }}>
         <Button id="add-store-btn" onClick={openCreate} icon={<i className="fa fa-plus" />}>
-          Thêm cửa hàng
+          Thêm nhà sách
         </Button>
       </div>
 
@@ -101,7 +103,7 @@ export default function AdminStoresPage() {
           }}
         >
           <div style={{ fontSize: 48, marginBottom: 16 }}><i className="fa fa-building-o" /></div>
-          <p>Chưa có cửa hàng nào</p>
+          <p>Chưa có nhà sách nào</p>
         </div>
       ) : (
         <div
@@ -143,7 +145,7 @@ export default function AdminStoresPage() {
               >
                 {store.imageUrl ? (
                   <img
-                    src={store.imageUrl}
+                    src={imageSrc(store.imageUrl)}
                     alt={store.name}
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     onError={(e) => {
@@ -204,7 +206,7 @@ export default function AdminStoresPage() {
       <Modal
         open={!!modal}
         onClose={() => setModal(null)}
-        title={modal === "create" ? "Thêm cửa hàng" : "Sửa cửa hàng"}
+        title={modal === "create" ? "Thêm nhà sách" : "Sửa nhà sách"}
         footer={
           <>
             <Button variant="ghost" onClick={() => setModal(null)}>Hủy</Button>
@@ -220,7 +222,7 @@ export default function AdminStoresPage() {
           </div>
         )}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <Input id="store-name" label="Tên cửa hàng *" value={form.name} onChange={set("name")} />
+          <Input id="store-name" label="Tên nhà sách *" value={form.name} onChange={set("name")} />
           <Input id="store-description" label="Mô tả" value={form.description} onChange={set("description")} />
           <Input id="store-address" label="Địa chỉ" value={form.address} onChange={set("address")} icon={<i className="fa fa-map-marker" />} />
           <Input id="store-imageUrl" label="URL ảnh" value={form.imageUrl} onChange={set("imageUrl")} icon={<i className="fa fa-picture-o" />} />

@@ -51,37 +51,37 @@ function WarrantyDashboard({ user }: { user: User }) {
       <section className={ui.hero}>
         <div className={ui.container}>
           <span className={ui.demo}>Dữ liệu minh họa</span>
-          <h1 className={ui.title}><i className="fa fa-shield" aria-hidden="true" /> Bảo hành của tôi</h1>
-          <p className={ui.subtitle}>Tra cứu thời hạn bảo hành, gửi yêu cầu và theo dõi tiến độ xử lý.</p>
+          <h1 className={ui.title}><i className="fa fa-shield" aria-hidden="true" /> Đổi trả của tôi</h1>
+          <p className={ui.subtitle}>Tra cứu thời hạn đổi trả, gửi yêu cầu và theo dõi tiến độ xử lý.</p>
         </div>
       </section>
       <div className={`${ui.container} ${ui.content}`}>
         <div className={ui.notice}>
-          Đây là hồ sơ mẫu để trải nghiệm, không phải đơn hàng thực tế. Yêu cầu mới chỉ lưu trên trình duyệt này theo tài khoản của bạn, chưa được gửi đến cửa hàng.
+          Đây là hồ sơ mẫu để trải nghiệm, không phải đơn hàng thực tế. Yêu cầu mới chỉ lưu trên trình duyệt này theo tài khoản của bạn, chưa được gửi đến nhà sách.
         </div>
         {snapshot.warning && <div className={ui.noticeWarning} role="alert">{snapshot.warning}</div>}
         {success && <div className={ui.noticeSuccess} role="status">{success}</div>}
         <div className={ui.toolbar}>
           <label className={ui.field} htmlFor="warranty-search">
-            Tìm sản phẩm bảo hành
+            Tìm sách đổi trả
             <input id="warranty-search" className={ui.control} type="search" value={search}
-              onChange={(event) => setSearch(event.target.value)} placeholder="Tên sản phẩm, serial hoặc mã đơn..." />
+              onChange={(event) => setSearch(event.target.value)} placeholder="Tên sách, mã bản sách hoặc mã đơn..." />
           </label>
           <label className={ui.field} htmlFor="warranty-filter">
-            Thời hạn bảo hành
+            Thời hạn đổi trả
             <select id="warranty-filter" className={ui.control} value={filter} onChange={(event) => setFilter(event.target.value)}>
               <option value="all">Tất cả</option><option value="active">Còn hạn</option><option value="expired">Hết hạn</option>
             </select>
           </label>
         </div>
         <div className={`${ui.row} mb-[18px]`}>
-          <h2 className="text-xl font-extrabold">Sản phẩm của bạn</h2>
-          <span className={ui.muted} aria-live="polite">{filtered.length} / {products.length} sản phẩm</span>
+          <h2 className="text-xl font-extrabold">Sách của bạn</h2>
+          <span className={ui.muted} aria-live="polite">{filtered.length} / {products.length} sách</span>
         </div>
         {filtered.length === 0 ? (
           <div className={ui.emptyPanel}>
             <i className={`fa fa-search ${ui.emptyIcon}`} aria-hidden="true" />
-            <h2 className={ui.emptyTitle}>Không tìm thấy sản phẩm</h2><p className={ui.muted}>Thử từ khóa khác hoặc thay đổi bộ lọc.</p>
+            <h2 className={ui.emptyTitle}>Không tìm thấy sách</h2><p className={ui.muted}>Thử từ khóa khác hoặc thay đổi bộ lọc.</p>
           </div>
         ) : (
           <div className={ui.grid}>
@@ -127,20 +127,20 @@ function WarrantyCard({ product, user, requests, onSubmit }: {
 
   return (
     <article className={ui.panel}>
-      <Badge variant={active ? "success" : "danger"}>{active ? "Còn hạn bảo hành" : "Hết hạn bảo hành"}</Badge>
+      <Badge variant={active ? "success" : "danger"}>{active ? "Còn hạn đổi trả" : "Hết hạn đổi trả"}</Badge>
       <h3 className={ui.cardTitle}>{product.name}</h3>
       <dl className={ui.metadata}>
-        <div><dt>Serial</dt><dd>{product.serial}</dd></div>
+        <div><dt>Mã bản sách</dt><dd>{product.serial}</dd></div>
         <div><dt>Mã đơn mẫu</dt><dd>{product.orderCode}</dd></div>
         <div><dt>Ngày mua</dt><dd>{formatDateOnly(product.purchasedAt)}</dd></div>
-        <div><dt>Bảo hành đến hết ngày</dt><dd>{formatDateOnly(product.expiresAt)}</dd></div>
+        <div><dt>Đổi trả đến hết ngày</dt><dd>{formatDateOnly(product.expiresAt)}</dd></div>
       </dl>
       <Button type="button" variant="outline" disabled={!active || pending} onClick={() => setFormOpen(!formOpen)}
         aria-expanded={formOpen} aria-controls={`form-${product.id}`}>
-        {formOpen ? "Đóng biểu mẫu" : "Gửi yêu cầu bảo hành"}
+        {formOpen ? "Đóng biểu mẫu" : "Gửi yêu cầu đổi trả"}
       </Button>
       {(!active || pending) && <p className={`${ui.muted} mt-2`}>
-        {!active ? "Sản phẩm đã hết thời hạn bảo hành." : "Sản phẩm đang có phiếu xử lý. Bạn có thể xem tiến độ bên dưới."}
+        {!active ? "Sách đã hết thời hạn đổi trả." : "Sách đang có phiếu xử lý. Bạn có thể xem tiến độ bên dưới."}
       </p>}
       {formOpen && active && !pending && (
         <form id={`form-${product.id}`} className={ui.form} onSubmit={handleSubmit} noValidate>
@@ -170,8 +170,8 @@ function WarrantyCard({ product, user, requests, onSubmit }: {
         </form>
       )}
       <details className={ui.detail} open={pending || undefined}>
-        <summary className={ui.summary}>Chi tiết & lịch sử bảo hành ({requests.length} phiếu)</summary>
-        {requests.length === 0 ? <p className={`${ui.muted} mt-3`}>Chưa có yêu cầu bảo hành cho sản phẩm này.</p> :
+        <summary className={ui.summary}>Chi tiết & lịch sử đổi trả ({requests.length} phiếu)</summary>
+        {requests.length === 0 ? <p className={`${ui.muted} mt-3`}>Chưa có yêu cầu đổi trả cho sách này.</p> :
           requests.map((request) => (
             <section className={ui.request} key={request.id} aria-label={`Phiếu ${request.id}`}>
               <div className={ui.row}>
