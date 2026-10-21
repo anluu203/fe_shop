@@ -6,6 +6,7 @@ const TITLES: Record<string, string> = {
   "/admin/borrowing": "Mượn & trả sách",
   "/admin/orders": "Đơn mua sách",
   "/admin/products": "Quản lý đầu sách",
+  "/admin/reviews": "Quản lý đánh giá",
   "/admin/products/new": "Thêm một đầu sách",
   "/admin/categories": "Thể loại & bộ sưu tập",
   "/admin/stores": "Hệ thống nhà sách",

@@ -82,7 +82,70 @@ location.reload();
 
 Thao tác này đặt lại dữ liệu BookStore và đăng xuất; dữ liệu website khác được giữ nguyên. Sau khi chỉnh JSON, đặt lại dữ liệu để trình duyệt nạp seed mới.
 
-## Kết nối backend sau này
+## PostgreSQL và Prisma ORM
+
+Đã tích hợp Prisma ORM 7 và PostgreSQL cho phần server của Next.js. Cấu trúc database nằm tại `prisma/schema.prisma`, lịch sử tạo bảng và ràng buộc nằm tại `prisma/migrations/`. Yêu cầu Node.js 20.19+, 22.12+ hoặc 24+.
+
+Cấu hình kết nối trong `.env` (file này không được commit):
+
+```dotenv
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=your_postgres_password
+DB_DATABASE=book_shop
+```
+
+Có thể dùng `DATABASE_URL` thay cho `DB_*`; khi cùng tồn tại, `DATABASE_URL` được ưu tiên. Các lệnh Prisma và script database đọc `.env` tại thư mục gốc. Biến kết nối chỉ dùng ở server, không thêm tiền tố `NEXT_PUBLIC_`.
+
+```bash
+npm install
+npm run db:setup
+npm run db:check
+npm run test:db
+npm run db:studio
+```
+
+`db:setup` tạo database nếu chưa có, áp dụng migration và sinh Prisma Client. PostgreSQL phải đang chạy; tài khoản cần quyền tạo database (hoặc database đã được tạo trước) và quyền tạo bảng. Lệnh không xóa database hoặc dữ liệu hiện có. `db:check` kiểm tra kết nối thật bằng Prisma và đếm bản ghi trong các bảng; không thêm dữ liệu mẫu.
+
+`test:db` kiểm tra đọc/ghi, khóa ngoại, ràng buộc, xóa liên quan và lịch sử giá trên PostgreSQL thật; các bản ghi kiểm thử nằm trong transaction được rollback. Sequence ID vẫn có thể tăng sau kiểm thử. Lệnh này chạy riêng, không nằm trong `npm test`.
+
+| Bảng | Nội dung |
+| --- | --- |
+| `Users` | Tài khoản; email duy nhất; `Role`: 0 = khách hàng, 1 = admin |
+| `Categories` | Danh mục sách |
+| `Books` | Sách, danh mục, giá và tồn kho |
+| `Cart_Items` | Giỏ hàng; mỗi cặp người dùng/sách có một dòng |
+| `Orders` | Đơn hàng, địa chỉ giao, thanh toán và trạng thái |
+| `Order_Items` | Bổ sung chi tiết sách trong đơn: tên sách tại thời điểm mua, số lượng, đơn giá |
+| `Reviews` | Đánh giá từ 1 đến 5 sao và bình luận |
+
+Tên bảng/cột giữ theo thiết kế (`Users`, `UserID`, `FullName`...), các model/field Prisma dùng tên TypeScript như `User`, `id`, `fullName` thông qua `@map`/`@@map`. Khi truy vấn SQL trực tiếp cần đặt tên trong dấu nháy kép, ví dụ `SELECT * FROM "Books"`.
+
+Giá tiền dùng `Decimal(14,2)`, thời gian dùng `timestamptz`. Migration ràng buộc giá/tồn kho/tổng tiền không âm, số lượng mua lớn hơn 0, vai trò 0/1 và điểm 1–5. `PaymentMethod`: `COD`, `BANK_TRANSFER`, `E_WALLET`. `OrderStatus`: `PENDING` (chờ xác nhận), `SHIPPING` (đang giao), `DELIVERED` (đã giao), `CANCELLED` (đã hủy).
+
+Khóa ngoại ngăn xóa danh mục đang chứa sách, người dùng đã có đơn hoặc sách đã được mua. Xóa người dùng/sách sẽ xóa giỏ hàng và đánh giá liên quan; xóa đơn sẽ xóa chi tiết của đơn. Tên và đơn giá trong `Order_Items` được lưu riêng để giữ lịch sử khi sửa catalog. Tổng tiền phải được tính và lưu cùng chi tiết đơn trong transaction ở bước triển khai checkout.
+
+Chỉ import Prisma trong Server Components, Route Handlers hoặc Server Actions:
+
+```ts
+import { prisma } from "@/lib/prisma";
+
+const books = await prisma.book.findMany({
+  include: { category: true },
+  orderBy: { createdAt: "desc" },
+});
+```
+
+`lib/prisma.ts` bảo vệ bằng `server-only` và tái sử dụng connection pool khi hot reload. `PasswordHash` chỉ là cột lưu hash; API đăng ký sau này cần hash mật khẩu bằng thư viện phù hợp trước khi lưu, chuẩn hóa email, và không trả hash về trình duyệt.
+
+Khi đổi schema, dùng `npm run db:migrate -- --name ten_thay_doi`, rồi `npm run db:generate`; áp dụng migration đã commit ở môi trường khác bằng `npm run db:deploy`. Các CHECK constraint được viết trong SQL migration, cần giữ lại trong các migration tiếp theo; không dùng `db push` để thay thế lịch sử migration. Prisma Client được sinh tự động sau `npm install` và không commit thư mục `generated/prisma/`.
+
+Phần tích hợp hiện tại thiết lập database/ORM. Giao diện vẫn dùng mock như trước; chưa có API đăng nhập, CRUD hay checkout sử dụng PostgreSQL. Không tắt mock cho đến khi triển khai đủ endpoint bên dưới. Dữ liệu localStorage/JSON không tự chuyển vào PostgreSQL.
+
+Tài liệu tham khảo: [Prisma ORM 7 với PostgreSQL](https://www.prisma.io/docs/orm/v7/core-concepts/supported-databases/postgresql).
+
+## Kết nối giao diện với API backend
 
 Trong `.env.local`:
 

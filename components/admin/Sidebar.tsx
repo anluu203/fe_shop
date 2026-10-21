@@ -7,10 +7,11 @@ const NAV_ITEMS = [
   { href: "/admin/borrowing", label: "Mượn & trả sách", icon: "fa-exchange" },
   { href: "/admin/orders", label: "Đơn mua sách", icon: "fa-shopping-bag" },
   { href: "/admin/products", label: "Danh mục sách", icon: "fa-book" },
+  { href: "/admin/reviews", label: "Đánh giá", icon: "fa-star-o" },
   { href: "/admin/categories", label: "Thể loại", icon: "fa-folder-open-o" },
   { href: "/admin/stores", label: "Nhà sách", icon: "fa-building-o" },
-  { href: "/admin/warranty", label: "Đổi trả", icon: "fa-refresh" },
-  { href: "/admin/consultation", label: "Tư vấn", icon: "fa-lightbulb-o" },
+  // { href: "/admin/warranty", label: "Đổi trả", icon: "fa-refresh" },
+  // { href: "/admin/consultation", label: "Tư vấn", icon: "fa-lightbulb-o" },
 ];
 export default function Sidebar() {
   const pathname = usePathname();

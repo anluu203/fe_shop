@@ -1,0 +1,14 @@
+[
+  { "ReviewID": 1, "UserID": "user-reader", "BookID": "book-01", "Rating": 5, "Comment": "Một câu chuyện rất dịu dàng và xúc động. Đọc xong vẫn muốn quay lại những trang viết về Zezé. Sách in rõ, bìa đẹp.", "CreatedAt": "2026-10-18T08:30:00.000Z" },
+  { "ReviewID": 2, "UserID": "user-reader-2", "BookID": "book-01", "Rating": 4, "Comment": "Văn phong nhẹ nhàng, bản dịch dễ đọc. Phù hợp để đọc chậm vào cuối tuần.", "CreatedAt": "2026-10-17T13:15:00.000Z" },
+  { "ReviewID": 3, "UserID": "user-reader", "BookID": "book-01", "Rating": 5, "Comment": "Mình mua thêm một cuốn làm quà. Một cuốn sách khiến người lớn nhớ lại tuổi thơ và học cách lắng nghe trẻ nhỏ.", "CreatedAt": "2026-10-16T02:00:00.000Z" },
+  { "ReviewID": 4, "UserID": "user-reader-2", "BookID": "book-01", "Rating": 3, "Comment": "Câu chuyện hay nhưng nhịp kể ở phần đầu hơi chậm so với sở thích của mình.", "CreatedAt": "2026-10-15T09:00:00.000Z" },
+  { "ReviewID": 5, "UserID": "user-reader", "BookID": "book-01", "Rating": 5, "Comment": null, "CreatedAt": "2026-10-14T04:45:00.000Z" },
+  { "ReviewID": 6, "UserID": "user-reader-2", "BookID": "book-01", "Rating": 4, "Comment": "Những chi tiết nhỏ rất đáng nhớ. Mình sẽ giới thiệu cho bạn bè.", "CreatedAt": "2026-10-13T07:20:00.000Z" },
+  { "ReviewID": 7, "UserID": "user-reader", "BookID": "book-02", "Rating": 4, "Comment": "Không khí truyện rất riêng, nhiều đoạn khiến mình phải dừng lại suy nghĩ.", "CreatedAt": "2026-10-18T03:00:00.000Z" },
+  { "ReviewID": 8, "UserID": "user-reader-2", "BookID": "book-02", "Rating": 2, "Comment": "Chưa hợp gu đọc của mình, câu chuyện khá buồn và nhiều suy tư.", "CreatedAt": "2026-10-16T10:00:00.000Z" },
+  { "ReviewID": 9, "UserID": "user-reader", "BookID": "book-03", "Rating": 5, "Comment": "Nội dung cuốn hút, trình bày dễ đọc. Rất đáng có trên kệ sách.", "CreatedAt": "2026-10-17T08:00:00.000Z" },
+  { "ReviewID": 10, "UserID": "user-reader-2", "BookID": "book-03", "Rating": 4, "Comment": null, "CreatedAt": "2026-10-15T08:00:00.000Z" },
+  { "ReviewID": 11, "UserID": "user-reader", "BookID": "book-04", "Rating": 3, "Comment": "Nội dung ổn, mình cần đọc lại để hiểu thêm một vài phần.", "CreatedAt": "2026-10-16T06:00:00.000Z" },
+  { "ReviewID": 12, "UserID": "user-reader-2", "BookID": "book-05", "Rating": 1, "Comment": "Bản sách mình nhận bị gập góc và có vài trang in mờ. Mong nhà sách kiểm tra kỹ hơn.", "CreatedAt": "2026-10-17T12:00:00.000Z" }
+]

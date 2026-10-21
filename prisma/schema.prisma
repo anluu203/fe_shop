@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PaymentMethod {
+  COD
+  BANK_TRANSFER
+  E_WALLET
+}
+
+enum OrderStatus {
+  PENDING
+  SHIPPING
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id           Int        @id @default(autoincrement()) @map("UserID")
+  fullName     String     @map("FullName") @db.VarChar(150)
+  email        String     @unique @map("Email") @db.VarChar(254)
+  passwordHash String     @map("PasswordHash") @db.Text
+  phoneNumber  String?    @map("PhoneNumber") @db.VarChar(20)
+  address      String?    @map("Address") @db.Text
+  role         Int        @default(0) @map("Role") @db.SmallInt
+  createdAt    DateTime   @default(now()) @map("CreatedAt") @db.Timestamptz(3)
+  cartItems    CartItem[]
+  orders       Order[]
+  reviews      Review[]
+
+  @@map("Users")
+}
+
+model Category {
+  id          Int     @id @default(autoincrement()) @map("CategoryID")
+  name        String  @map("CategoryName") @db.VarChar(150)
+  description String? @map("Description") @db.Text
+  books       Book[]
+
+  @@map("Categories")
+}
+
+model Book {
+  id            Int         @id @default(autoincrement()) @map("BookID")
+  categoryId    Int         @map("CategoryID")
+  title         String      @map("Title") @db.VarChar(255)
+  author        String      @map("Author") @db.VarChar(255)
+  publisher     String?     @map("Publisher") @db.VarChar(255)
+  description   String?     @map("Description") @db.Text
+  originalPrice Decimal     @map("OriginalPrice") @db.Decimal(14, 2)
+  sellingPrice  Decimal     @map("SellingPrice") @db.Decimal(14, 2)
+  stockQuantity Int         @default(0) @map("StockQuantity")
+  coverImage    String?     @map("CoverImage") @db.Text
+  createdAt     DateTime    @default(now()) @map("CreatedAt") @db.Timestamptz(3)
+  category      Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  reviews       Review[]
+
+  @@index([categoryId])
+  @@map("Books")
+}
+
+model CartItem {
+  id       Int  @id @default(autoincrement()) @map("CartItemID")
+  userId   Int  @map("UserID")
+  bookId   Int  @map("BookID")
+  quantity Int  @default(1) @map("Quantity")
+  user     User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book     Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
+  @@index([bookId])
+  @@map("Cart_Items")
+}
+
+model Order {
+  id              Int           @id @default(autoincrement()) @map("OrderID")
+  userId          Int           @map("UserID")
+  orderDate       DateTime      @default(now()) @map("OrderDate") @db.Timestamptz(3)
+  totalAmount     Decimal       @map("TotalAmount") @db.Decimal(14, 2)
+  shippingAddress String        @map("ShippingAddress") @db.Text
+  paymentMethod   PaymentMethod @default(COD) @map("PaymentMethod")
+  status          OrderStatus   @default(PENDING) @map("OrderStatus")
+  user            User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  items           OrderItem[]
+
+  @@index([userId, orderDate])
+  @@index([status])
+  @@map("Orders")
+}
+
+// Snapshot the purchased title and price so later catalog edits do not change an order.
+model OrderItem {
+  id        Int     @id @default(autoincrement()) @map("OrderItemID")
+  orderId   Int     @map("OrderID")
+  bookId    Int     @map("BookID")
+  bookTitle String  @map("BookTitle") @db.VarChar(255)
+  quantity  Int     @map("Quantity")
+  unitPrice Decimal @map("UnitPrice") @db.Decimal(14, 2)
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  book      Book    @relation(fields: [bookId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, bookId])
+  @@index([bookId])
+  @@map("Order_Items")
+}
+
+model Review {
+  id        Int      @id @default(autoincrement()) @map("ReviewID")
+  userId    Int      @map("UserID")
+  bookId    Int      @map("BookID")
+  rating    Int      @map("Rating") @db.SmallInt
+  comment   String?  @map("Comment") @db.Text
+  createdAt DateTime @default(now()) @map("CreatedAt") @db.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([bookId, createdAt])
+  @@map("Reviews")
+}

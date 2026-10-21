@@ -10,6 +10,7 @@ import type {
   Store,
 } from "../types";
 import { ORDER_STATUS_FLOW } from "../types";
+import { hydrateReview, newestReviews } from "./reviews";
 import {
   borrowingBooks,
   changeLoanStatus,
@@ -145,6 +146,46 @@ export async function mockRequest<T>(
     return structuredClone(value) as T;
   };
   const result = (value: unknown): T => structuredClone(value) as T;
+
+  if (resource === "products" && entityId && action === "reviews" && !itemId) {
+    const book = state.products.find((item) => item.id === entityId);
+    if (!book || !book.isActive) throw new Error("Không tìm thấy sách.");
+    if (method === "GET")
+      return result(newestReviews(state.reviews.filter((review) => review.BookID === entityId))
+        .map((review) => hydrateReview(state, review)));
+    if (method === "POST") {
+      const user = requireUser(state, token);
+      if (!Number.isInteger(body.Rating) || body.Rating < 1 || body.Rating > 5)
+        throw new Error("Vui lòng chọn số sao từ 1 đến 5.");
+      if (body.Comment != null && typeof body.Comment !== "string")
+        throw new Error("Nội dung đánh giá không hợp lệ.");
+      if (typeof body.Comment === "string" && body.Comment.length > 2000)
+        throw new Error("Nội dung đánh giá tối đa 2.000 ký tự.");
+      const review = {
+        ReviewID: state.nextReviewId++,
+        UserID: user.id,
+        BookID: book.id,
+        Rating: body.Rating as number,
+        Comment: typeof body.Comment === "string" ? body.Comment.trim() || null : null,
+        CreatedAt: now(),
+      };
+      state.reviews.push(review);
+      return commit(hydrateReview(state, review));
+    }
+    throw new Error("Thao tác đánh giá không được hỗ trợ.");
+  }
+  if (resource === "admin" && entityId === "reviews") {
+    requireAdmin(state, token);
+    if (method === "GET" && !action)
+      return result(newestReviews(state.reviews).map((review) => hydrateReview(state, review)));
+    if (method === "DELETE" && action && !itemId) {
+      const index = state.reviews.findIndex((review) => String(review.ReviewID) === action);
+      if (index < 0) throw new Error("Đánh giá không còn tồn tại.");
+      state.reviews.splice(index, 1);
+      return commit(undefined);
+    }
+    throw new Error("Thao tác quản lý đánh giá không được hỗ trợ.");
+  }
 
   if (resource === "borrowing") {
     if (entityId === "books" && method === "GET") {

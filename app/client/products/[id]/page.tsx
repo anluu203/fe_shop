@@ -12,6 +12,7 @@ import { useCart } from "../../../../contexts/CartContext";
 import { imageSrc } from "../../../../lib/utils/image";
 import { formatPrice } from "../../../../lib/utils/format";
 import BookMetadata from "../../../../components/client/BookMetadata";
+import ProductReviews from "../../../../components/client/ProductReviews";
 import { PageSpinner } from "../../../../components/ui/Spinner";
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -219,6 +220,7 @@ export default function ProductDetail() {
           </Link>
         </div>
       </section>
+      <ProductReviews key={id} bookId={id} />
     </div>
   );
 }

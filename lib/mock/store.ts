@@ -6,6 +6,8 @@ import orderSeed from "../../mock-data/orders.json";
 import storeSeed from "../../mock-data/stores.json";
 import serviceSeed from "../../mock-data/customer-services.json";
 import borrowingSeed from "../../mock-data/borrowing.json";
+import reviewSeed from "../../mock-data/reviews.json";
+import type { Review } from "../types/reviews";
 import type { BorrowingData } from "../types/borrowing";
 import { LOAN_STATUS_LABEL } from "../types/borrowing";
 import type { ManagedConsultationProduct } from "../types/customer-services";
@@ -30,6 +32,8 @@ export interface MockState {
   stores: Store[];
   consultation: ManagedConsultationProduct[];
   borrowing: BorrowingData;
+  reviews: Review[];
+  nextReviewId: number;
 }
 
 const seed = {
@@ -42,6 +46,8 @@ const seed = {
   stores: storeSeed,
   consultation: serviceSeed.products.map((p) => ({ ...p, isActive: true })),
   borrowing: borrowingSeed,
+  reviews: reviewSeed,
+  nextReviewId: Math.max(0, ...reviewSeed.map((review) => review.ReviewID)) + 1,
 } as MockState;
 let warning = "";
 
@@ -132,8 +138,45 @@ function isValid(value: unknown): value is MockState {
         p.reasons &&
         typeof p.reasons === "object",
     ) &&
-    isValidBorrowing(state)
+    isValidBorrowing(state) &&
+    isValidReviews(state)
   );
+}
+
+function isValidReviews(state: MockState): boolean {
+  return (
+    Array.isArray(state.reviews) &&
+    Number.isSafeInteger(state.nextReviewId) &&
+    state.nextReviewId > 0 &&
+    new Set(state.reviews.map((review) => review?.ReviewID)).size === state.reviews.length &&
+    state.reviews.every((review) =>
+      review &&
+      Number.isSafeInteger(review.ReviewID) &&
+      review.ReviewID > 0 &&
+      review.ReviewID < state.nextReviewId &&
+      state.users.some((user) => user.id === review.UserID) &&
+      state.products.some((book) => book.id === review.BookID) &&
+      Number.isInteger(review.Rating) &&
+      review.Rating >= 1 && review.Rating <= 5 &&
+      (review.Comment === null || typeof review.Comment === "string") &&
+      typeof review.CreatedAt === "string" &&
+      Number.isFinite(Date.parse(review.CreatedAt)),
+    )
+  );
+}
+
+function migrateReviews(value: unknown): unknown {
+  if (!value || typeof value !== "object") return value;
+  const state = value as MockState;
+  if (state.version === 1 && state.reviews === undefined &&
+      Array.isArray(state.products) && Array.isArray(state.users)) {
+    state.reviews = structuredClone(seed.reviews).filter((review) =>
+      state.products.some((book) => book?.id === review.BookID) &&
+      state.users.some((user) => user?.id === review.UserID),
+    );
+    state.nextReviewId = seed.nextReviewId;
+  }
+  return state;
 }
 
 function isValidBorrowing(state: MockState): boolean {
@@ -214,7 +257,7 @@ export function readMockState(): MockState {
   try {
     const saved = localStorage.getItem(MOCK_STORAGE_KEY);
     if (!saved) return cloneSeed();
-    const parsed: unknown = migrateBorrowing(JSON.parse(saved));
+    const parsed: unknown = migrateReviews(migrateBorrowing(JSON.parse(saved)));
     if (!isValid(parsed)) throw new Error("Invalid database");
     return parsed;
   } catch {

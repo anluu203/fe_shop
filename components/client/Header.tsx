@@ -53,7 +53,7 @@ export default function Header() {
             { href: "/client", label: "Trang chủ", exact: true },
             { href: "/client/products", label: "Khám phá sách" },
             { href: "/client/borrowing", label: "Mượn sách" },
-            { href: "/client/consultation", label: "Gợi ý cho bạn" },
+            // { href: "/client/consultation", label: "Gợi ý cho bạn" },
           ].map((item) => (
             <Link
               key={item.href}
