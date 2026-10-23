@@ -3,13 +3,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 const TITLES: Record<string, string> = {
   "/admin": "Tổng quan hoạt động",
-  "/admin/borrowing": "Mượn & trả sách",
+  "/admin/chatbot": "Quản lý & cấu hình Chatbot AI",
+  "/admin/reports": "Báo cáo & thống kê doanh thu",
   "/admin/orders": "Đơn mua sách",
   "/admin/products": "Quản lý đầu sách",
   "/admin/reviews": "Quản lý đánh giá",
   "/admin/products/new": "Thêm một đầu sách",
   "/admin/categories": "Thể loại & bộ sưu tập",
-  "/admin/stores": "Hệ thống nhà sách",
   "/admin/warranty": "Hỗ trợ đổi trả",
   "/admin/consultation": "Gợi ý dành cho người đọc",
 };
@@ -36,8 +36,8 @@ export default function Topbar() {
         </h1>
       </div>
       <div className="workspace-heading-actions">
-        <Link className="outline-button" href="/admin/borrowing">
-          <i className="fa fa-exchange" aria-hidden="true" /> Xử lý phiếu mượn
+        <Link className="outline-button" href="/admin/chatbot">
+          <i className="fa fa-comments-o" aria-hidden="true" /> Chăm sóc khách hàng
         </Link>
         <Link
           className="solid-button"

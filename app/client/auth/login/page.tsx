@@ -39,19 +39,7 @@ export default function LoginPage() {
         password: form.password,
       });
       login(res.accessToken, res.user);
-      const requestedReturn = new URLSearchParams(window.location.search).get(
-        "returnTo",
-      );
-      let destination = res.user.role === "ADMIN" ? "/admin" : "/client";
-      if (requestedReturn?.startsWith("/client/borrowing")) {
-        const target = new URL(requestedReturn, window.location.origin);
-        if (
-          target.origin === window.location.origin &&
-          target.pathname === "/client/borrowing"
-        )
-          destination = target.pathname + target.search;
-      }
-      router.push(destination);
+      router.push(res.user.role === "ADMIN" ? "/admin" : "/client");
     } catch (err: any) {
       setApiError(err.message ?? "Đăng nhập thất bại");
     } finally {

@@ -4,12 +4,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
 const NAV_ITEMS = [
   { href: "/admin", label: "Tổng quan", icon: "fa-th-large", exact: true },
-  { href: "/admin/borrowing", label: "Mượn & trả sách", icon: "fa-exchange" },
   { href: "/admin/orders", label: "Đơn mua sách", icon: "fa-shopping-bag" },
   { href: "/admin/products", label: "Danh mục sách", icon: "fa-book" },
   { href: "/admin/reviews", label: "Đánh giá", icon: "fa-star-o" },
   { href: "/admin/categories", label: "Thể loại", icon: "fa-folder-open-o" },
-  { href: "/admin/stores", label: "Nhà sách", icon: "fa-building-o" },
+  { href: "/admin/chatbot", label: "Chatbot AI", icon: "fa-comments-o" },
+  { href: "/admin/reports", label: "Báo cáo doanh thu", icon: "fa-line-chart" },
   // { href: "/admin/warranty", label: "Đổi trả", icon: "fa-refresh" },
   // { href: "/admin/consultation", label: "Tư vấn", icon: "fa-lightbulb-o" },
 ];
@@ -62,9 +62,6 @@ export default function Sidebar() {
             >
               <i className={`fa ${item.icon}`} aria-hidden="true" />
               {item.label}
-              {item.href === "/admin/borrowing" && (
-                <span className="admin-nav-dot" />
-              )}
             </Link>
           );
         })}

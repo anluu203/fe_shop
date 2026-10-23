@@ -193,6 +193,42 @@
 | TC-DK-11 | Đăng nhập lại tài khoản mới | 1. Đăng ký thành công. 2. Đăng xuất. 3. Đăng nhập lại bằng cùng email/mật khẩu. 4. Tải lại. | Đăng nhập thành công; khôi phục đúng tài khoản mới; quyền vẫn là User. | P1 |
 | TC-DK-12 | Lỗi ghi tài khoản [Tích hợp] | Giả lập storage ném lỗi khi đăng ký hợp lệ; nạp lại storage ban đầu và thử đăng nhập email vừa dùng. | Báo không lưu được thay đổi; tài khoản không được ghi; không tạo phiên thành công; đăng nhập bằng email đó thất bại. | P1 |
 
+### 3.10. Chatbot AI và chăm sóc khách hàng
+
+| Tình huống | Kết quả mong đợi |
+| --- | --- |
+| Khách vãng lai mở chat, hỏi sách thiếu nhi dưới 200k | Có gợi ý sách đang mở bán, không vượt ngân sách; link mở đúng chi tiết |
+| Admin đổi tên, lời chào, giới hạn số sách, lưu rồi tải lại | Cấu hình được lưu; cửa sổ client nhận thay đổi trong cùng trình duyệt |
+| Admin tạm dừng chatbot | Client thấy trạng thái tạm nghỉ và liên hệ hỗ trợ; không gửi được tin mới |
+| Gửi yêu cầu đơn hàng/đổi trả hoặc nội dung không tìm thấy | Log được đánh dấu cần hỗ trợ; có hướng dẫn liên hệ nhân viên |
+| Admin lọc lượt cần chăm sóc, mở phiên và lưu ghi chú/đã xử lý | Lịch sử đúng phiên; lượt đã xử lý rời bộ lọc chờ; ghi chú không hiển thị ở client |
+| User gọi API cấu hình, log quản trị hoặc báo cáo | Bị từ chối; cấu hình public không lộ system prompt |
+| Nhập tin rỗng, quá 2.000 ký tự, cấu hình sai hoặc lưu trữ hết dung lượng | Không báo thành công và không ghi dở dữ liệu |
+| Đăng xuất/đăng nhập tài khoản khác | Cửa sổ và mã phiên mới, không hiển thị hội thoại tài khoản trước |
+| Mở chat trên điện thoại, dùng Enter/Shift+Enter/Escape | Gửi/xuống dòng/đóng đúng; khung chat vừa màn hình |
+
+### 3.11. Báo cáo và thống kê doanh thu
+
+| Tình huống | Kết quả mong đợi |
+| --- | --- |
+| Chọn cùng khoảng ngày, đổi ngày/tuần/tháng/năm | Tổng doanh thu, số đơn, số sách giữ nguyên; chỉ cách gom kỳ thay đổi |
+| Đổi cột/đường, chọn điểm hoặc mở bảng dữ liệu | Biểu đồ/bảng cùng số liệu; kỳ không phát sinh có giá trị 0 |
+| Đơn chưa hoàn thành, đơn sát 00:00 theo giờ Việt Nam | Chỉ tính đơn hoàn thành trong cả hai ngày biên; không dùng UTC làm ngày lịch |
+| Sửa giá/tên sách sau khi đã bán | Báo cáo giữ tiền và tên tại thời điểm mua |
+| Chuyển đơn sang hoàn thành rồi ghi lại cùng trạng thái | Doanh thu ghi nhận một lần, không đổi ngày hoàn thành |
+| Khoảng trống, ngày đảo ngược/ngày không tồn tại | Thông báo rõ ràng; không lỗi chia cho 0 hoặc biểu đồ NaN |
+| Xuất CSV | Có toàn bộ kỳ và sách bán chạy, giá tiền VND chính xác, tên chứa dấu phẩy/nháy được escape |
+
+### 3.12. Thông tin sách và giao diện đã gỡ
+
+| Tình huống | Kết quả mong đợi |
+| --- | --- |
+| Thêm/sửa ISBN, Publisher, PageCount, Discount | Lưu và hiển thị đúng trong chi tiết sách; ISBN kiểm tra checksum, số trang dương, giảm giá 0–100 |
+| Sách có discount=20, price=80.000, mua 2 cuốn | Giỏ hàng 160.000 VND; không áp giảm giá lần thứ hai |
+| Tìm các lối vào đăng ký mượn/quản lý nhà sách | Không còn menu, CTA, bảng mượn trên dashboard hoặc liên kết trong hồ sơ |
+| Truy cập trực tiếp `/client/borrowing`, `/admin/borrowing`, `/admin/stores` | Trả 404 |
+| Mở dữ liệu demo cũ | Giữ tài khoản, sách đã sửa, giỏ và đơn; tự bổ sung cấu hình/log chatbot |
+
 ## 4. Kịch bản kiểm thử xuyên suốt
 
 Các kịch bản dưới đây kết hợp các TC đã liệt kê, không tính thành nhóm test case độc lập.

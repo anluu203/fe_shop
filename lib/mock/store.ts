@@ -20,9 +20,13 @@ import type {
   Store,
 } from "../types";
 import { MOCK_EVENT, MOCK_STORAGE_KEY, MOCK_WARNING_EVENT } from "./config";
+import type { AIConfig, ChatLog } from "../types/chatbot";
+import { defaultAIConfig, validateAIConfig } from "../services/chatbot-config";
 
 export type DemoUser = User & { password: string };
 export interface MockState {
+  aiConfig: AIConfig;
+  chatLogs: ChatLog[];
   version: 1;
   parents: CategoryParent[];
   categories: Category[];
@@ -37,6 +41,8 @@ export interface MockState {
 }
 
 const seed = {
+  aiConfig: defaultAIConfig,
+  chatLogs: [],
   version: 1,
   parents: parentSeed,
   categories: categorySeed,
@@ -139,8 +145,35 @@ function isValid(value: unknown): value is MockState {
         typeof p.reasons === "object",
     ) &&
     isValidBorrowing(state) &&
-    isValidReviews(state)
+    isValidReviews(state) &&
+    isValidChatbot(state)
   );
+}
+
+function isValidChatbot(state: MockState): boolean {
+  try { validateAIConfig(state.aiConfig); } catch { return false; }
+  return Array.isArray(state.chatLogs) && state.chatLogs.every((log) =>
+    log && typeof log.id === "string" && typeof log.sessionId === "string" &&
+    (log.userId === null || state.users.some((u) => u.id === log.userId)) &&
+    typeof log.question === "string" && typeof log.answer === "string" &&
+    Array.isArray(log.recommendedBooks) && log.recommendedBooks.every((id) => typeof id === "string") &&
+    typeof log.customerName === "string" && typeof log.adminNote === "string" &&
+    typeof log.needsHuman === "boolean" && typeof log.resolved === "boolean" &&
+    Number.isFinite(Date.parse(log.createdAt)));
+}
+
+function migrateChatbot(value: unknown): unknown {
+  if (!value || typeof value !== "object") return value;
+  const state = value as MockState;
+  if (state.version === 1) {
+    if (state.aiConfig === undefined) state.aiConfig = structuredClone(defaultAIConfig);
+    if (state.chatLogs === undefined) state.chatLogs = [];
+    if (Array.isArray(state.products)) state.products.forEach((book) => {
+      if (book.isbn === undefined) book.isbn = "";
+      if (book.discount === undefined) book.discount = 0;
+    });
+  }
+  return state;
 }
 
 function isValidReviews(state: MockState): boolean {
@@ -257,7 +290,7 @@ export function readMockState(): MockState {
   try {
     const saved = localStorage.getItem(MOCK_STORAGE_KEY);
     if (!saved) return cloneSeed();
-    const parsed: unknown = migrateReviews(migrateBorrowing(JSON.parse(saved)));
+    const parsed: unknown = migrateChatbot(migrateReviews(migrateBorrowing(JSON.parse(saved))));
     if (!isValid(parsed)) throw new Error("Invalid database");
     return parsed;
   } catch {

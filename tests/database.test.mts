@@ -22,6 +22,7 @@ test("PostgreSQL persists related records and rejects invalid data (rolled back)
       const book = await tx.book.create({ data: {
         categoryId: category.id, title: "Test book", author: "Test author",
         originalPrice: "100000.50", sellingPrice: "80000.25", stockQuantity: 3,
+        isbn: "9780306406157", publisher: "Test publisher", pageCount: 320, discount: "20.00",
       } });
       const cart = await tx.cartItem.create({ data: { userId: user.id, bookId: book.id, quantity: 2 } });
       const review = await tx.review.create({ data: { userId: user.id, bookId: book.id, rating: 5 } });
@@ -37,6 +38,19 @@ test("PostgreSQL persists related records and rejects invalid data (rolled back)
       assert.equal(order.items[0].book.category.id, category.id);
       assert.equal(order.totalAmount.toFixed(2), "160000.50");
       assert.equal(order.items[0].unitPrice.toFixed(2), "80000.25");
+      assert.equal(book.isbn, "9780306406157");
+      assert.equal(book.publisher, "Test publisher");
+      assert.equal(book.pageCount, 320);
+      assert.equal(book.discount.toFixed(2), "20.00");
+      const config = await tx.aIConfig.findUniqueOrThrow({ where: { id: 1 } });
+      assert.equal(config.maxSuggestions, 3);
+      const chat = await tx.chatLog.create({ data: {
+        sessionId: randomUUID(), userId: user.id, question: "Tôi tìm sách khoa học", answer: "Gợi ý sách",
+        recommendedBooks: [book.id], needsHuman: true,
+      } });
+      assert.equal(chat.resolved, false);
+      assert.equal(chat.adminNote, "");
+      await tx.chatLog.update({ where: { id: chat.id }, data: { resolved: true, adminNote: "Đã hỗ trợ" } });
 
       // Savepoints let us test SQL errors without aborting the surrounding transaction.
       async function rejected(write: () => Promise<unknown>, code: string) {
@@ -57,6 +71,13 @@ test("PostgreSQL persists related records and rejects invalid data (rolled back)
       await rejected(() => tx.book.update({ where: { id: book.id }, data: { stockQuantity: -1 } }), "23514");
       await rejected(() => tx.book.update({ where: { id: book.id }, data: { originalPrice: -1 } }), "23514");
       await rejected(() => tx.book.update({ where: { id: book.id }, data: { sellingPrice: -1 } }), "23514");
+      for (const discount of [-1, 100.01]) await rejected(() => tx.book.update({ where: { id: book.id }, data: { discount } }), "23514");
+      await rejected(() => tx.book.update({ where: { id: book.id }, data: { pageCount: 0 } }), "23514");
+      await rejected(() => tx.book.update({ where: { id: book.id }, data: { isbn: "invalid" } }), "23514");
+      await rejected(() => tx.aIConfig.update({ where: { id: 1 }, data: { maxSuggestions: 6 } }), "23514");
+      await rejected(() => tx.aIConfig.update({ where: { id: 1 }, data: { temperature: 3 } }), "23514");
+      await rejected(() => tx.chatLog.update({ where: { id: chat.id }, data: { question: "" } }), "23514");
+      await rejected(() => tx.chatLog.update({ where: { id: chat.id }, data: { userId: -1 } }), "P2003");
       await rejected(() => tx.cartItem.update({ where: { id: cart.id }, data: { quantity: 0 } }), "23514");
       await rejected(() => tx.order.update({ where: { id: order.id }, data: { totalAmount: -1 } }), "23514");
       await rejected(() => tx.orderItem.update({ where: { id: order.items[0].id }, data: { quantity: 0 } }), "23514");
@@ -76,6 +97,9 @@ test("PostgreSQL persists related records and rejects invalid data (rolled back)
       await tx.user.delete({ where: { id: user.id } });
       assert.equal(await tx.cartItem.count({ where: { userId: user.id } }), 0);
       assert.equal(await tx.review.count({ where: { userId: user.id } }), 0);
+      const retained = await tx.chatLog.findUniqueOrThrow({ where: { id: chat.id } });
+      assert.equal(retained.userId, null);
+      assert.equal(retained.resolved, true);
       throw rollback;
     }, { timeout: 30_000 }), (error: unknown) => error === rollback);
 

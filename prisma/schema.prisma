@@ -32,6 +32,7 @@ model User {
   cartItems    CartItem[]
   orders       Order[]
   reviews      Review[]
+  chatLogs     ChatLog[]
 
   @@map("Users")
 }
@@ -51,6 +52,9 @@ model Book {
   title         String      @map("Title") @db.VarChar(255)
   author        String      @map("Author") @db.VarChar(255)
   publisher     String?     @map("Publisher") @db.VarChar(255)
+  isbn          String?     @map("ISBN") @db.VarChar(17)
+  pageCount     Int?        @map("PageCount")
+  discount      Decimal     @default(0) @map("Discount") @db.Decimal(5, 2)
   description   String?     @map("Description") @db.Text
   originalPrice Decimal     @map("OriginalPrice") @db.Decimal(14, 2)
   sellingPrice  Decimal     @map("SellingPrice") @db.Decimal(14, 2)
@@ -124,4 +128,39 @@ model Review {
   @@index([userId])
   @@index([bookId, createdAt])
   @@map("Reviews")
+}
+
+model AIConfig {
+  id              Int      @id @default(1) @map("ConfigID")
+  enabled         Boolean  @default(true) @map("Enabled")
+  botName         String   @default("BookStore AI") @map("BotName") @db.VarChar(80)
+  welcomeMessage  String   @map("WelcomeMessage") @db.Text
+  fallbackMessage String   @map("FallbackMessage") @db.Text
+  systemPrompt    String   @map("SystemPrompt") @db.Text
+  model           String   @default("backend-default") @map("Model") @db.VarChar(100)
+  temperature     Decimal  @default(0.3) @map("Temperature") @db.Decimal(3, 2)
+  maxSuggestions  Int      @default(3) @map("MaxSuggestions")
+  supportContact  String   @map("SupportContact") @db.VarChar(254)
+  updatedAt       DateTime @default(now()) @updatedAt @map("UpdatedAt") @db.Timestamptz(3)
+
+  @@map("AI_Configs")
+}
+
+model ChatLog {
+  id               Int      @id @default(autoincrement()) @map("ChatLogID")
+  sessionId        String   @map("SessionID") @db.VarChar(100)
+  userId           Int?     @map("UserID")
+  question         String   @map("Question") @db.Text
+  answer           String   @map("Answer") @db.Text
+  recommendedBooks Json     @default("[]") @map("RecommendedBooks")
+  needsHuman       Boolean  @default(false) @map("NeedsHuman")
+  resolved         Boolean  @default(false) @map("Resolved")
+  adminNote        String   @default("") @map("AdminNote") @db.Text
+  createdAt        DateTime @default(now()) @map("CreatedAt") @db.Timestamptz(3)
+  user             User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([sessionId, createdAt])
+  @@index([userId])
+  @@index([needsHuman, resolved, createdAt])
+  @@map("Chat_Logs")
 }

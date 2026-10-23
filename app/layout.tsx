@@ -3,6 +3,7 @@ import MockNotice from "../components/client/MockNotice";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import "./bookstore.css";
+import "./features.css";
 import { AuthProvider } from "../contexts/AuthContext";
 import { CartProvider } from "../contexts/CartContext";
 

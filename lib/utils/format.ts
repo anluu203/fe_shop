@@ -7,6 +7,7 @@
  * VD: "8000000" → "8.000.000 ₫"
  */
 export function formatPrice(priceStr: string | number): string {
+  if (typeof priceStr === "string" && /^\d+$/.test(priceStr)) return BigInt(priceStr).toLocaleString("vi-VN") + " ₫";
   const num = typeof priceStr === "string" ? parseInt(priceStr, 10) : priceStr;
   if (isNaN(num)) return "0 ₫";
   return num.toLocaleString("vi-VN") + " ₫";

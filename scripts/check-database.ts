@@ -22,10 +22,12 @@ async function main() {
       prisma.order.count(),
       prisma.orderItem.count(),
       prisma.review.count(),
+      prisma.chatLog.count(),
+      prisma.aIConfig.count(),
     ], { isolationLevel: "RepeatableRead" });
     console.log(`Prisma connected to ${database.name}.`);
     console.table(Object.fromEntries(
-      ["Users", "Categories", "Books", "Cart_Items", "Orders", "Order_Items", "Reviews"]
+      ["Users", "Categories", "Books", "Cart_Items", "Orders", "Order_Items", "Reviews", "Chat_Logs", "AI_Configs"]
         .map((table, index) => [table, counts[index]]),
     ));
   } finally {

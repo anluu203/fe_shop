@@ -71,10 +71,10 @@ export function CtaSection() {
           Kể cho BookStore nghe bạn đang tìm gì. Một câu chuyện nhẹ nhàng, một ý
           tưởng mới hay một kỹ năng cho ngày mai?
         </p>
-        <Link href="/client/consultation">
+        <button type="button" className="cta-chat-button" onClick={() => window.dispatchEvent(new Event("bookstore:open-chat"))}>
           Tìm sách dành cho tôi{" "}
           <i className="fa fa-long-arrow-right" aria-hidden="true" />
-        </Link>
+        </button>
       </div>
     </section>
   );

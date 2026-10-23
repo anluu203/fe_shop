@@ -1,5 +1,6 @@
 import Header from "../../components/client/Header";
 import Footer from "../../components/client/Footer";
+import Chatbot from "../../components/client/Chatbot";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default function ClientLayout({
       <Header />
       <main style={{ flex: 1 }}>{children}</main>
       <Footer />
+      <Chatbot />
     </div>
   );
 }

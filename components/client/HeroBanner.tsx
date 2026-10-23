@@ -25,10 +25,10 @@ export default function HeroBanner({ books = [] }: { books?: Product[] }) {
             Khám phá kệ sách{" "}
             <i className="fa fa-long-arrow-right" aria-hidden="true" />
           </Link>
-          <Link className="editorial-link" href="/client/borrowing">
-            Tôi muốn mượn sách{" "}
+          <button type="button" className="editorial-link" onClick={() => window.dispatchEvent(new Event("bookstore:open-chat"))}>
+            Nhờ AI gợi ý sách{" "}
             <i className="fa fa-arrow-up" aria-hidden="true" />
-          </Link>
+          </button>
         </div>
         <div className="hero-footnote">
           <span>01 / MỖI NGÀY MỘT TRANG MỚI</span>

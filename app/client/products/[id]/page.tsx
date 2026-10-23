@@ -3,9 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { productApi } from "../../../../lib/api/products";
-import { borrowingApi } from "../../../../lib/api/borrowing";
 import type { Product } from "../../../../lib/types";
-import type { BorrowingBook } from "../../../../lib/types/borrowing";
 import { subscribeMockData, USE_MOCK } from "../../../../lib/mock/config";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useCart } from "../../../../contexts/CartContext";
@@ -20,7 +18,6 @@ export default function ProductDetail() {
   const { user } = useAuth();
   const { addItem } = useCart();
   const [book, setBook] = useState<Product | null>(null);
-  const [borrowing, setBorrowing] = useState<BorrowingBook | null>(null);
   const [qty, setQty] = useState(1);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -31,14 +28,10 @@ export default function ProductDetail() {
   useEffect(() => {
     let active = true;
     const load = () =>
-      Promise.all([
-        productApi.getOne(id),
-        borrowingApi.getBooks().catch(() => []),
-      ])
-        .then(([product, catalog]) => {
+      productApi.getOne(id)
+        .then((product) => {
           if (active) {
             setBook(product);
-            setBorrowing(catalog.find((b) => b.productId === id) ?? null);
             setError("");
           }
         })
@@ -172,24 +165,7 @@ export default function ProductDetail() {
               {cartError}
             </p>
           )}
-          <div className="detail-borrow-box">
-            <i className="fa fa-bookmark-o" aria-hidden="true" />
-            <div>
-              <strong>Muốn đọc trước khi sở hữu?</strong>
-              <p>
-                {borrowing?.borrowable && borrowing.availableCopies > 0
-                  ? `Nhà sách còn ${borrowing.availableCopies} bản cho mượn. Chọn thời hạn 7, 14 hoặc 30 ngày.`
-                  : "Khám phá tủ sách cho mượn và kiểm tra các bản có sẵn."}
-              </p>
-              <Link
-                id="borrow-detail-btn"
-                href={`/client/borrowing?bookId=${book.id}`}
-              >
-                Đăng ký mượn cuốn sách này{" "}
-                <i className="fa fa-long-arrow-right" aria-hidden="true" />
-              </Link>
-            </div>
-          </div>
+          <button type="button" className="outline-button" onClick={() => window.dispatchEvent(new Event("bookstore:open-chat"))}><i className="fa fa-comments-o" aria-hidden="true" />Nhờ Chatbot AI tư vấn chọn sách</button>
           <BookMetadata book={book} />
           <div className="detail-promises">
             <span>

@@ -60,14 +60,14 @@ export default function HomeCatalog({
           </div>
           <i className="fa fa-long-arrow-right" aria-hidden="true" />
         </Link>
-        <Link href="/client/borrowing">
+        <button type="button" className="reading-path-chat" onClick={() => window.dispatchEvent(new Event("bookstore:open-chat"))}>
           <span>02</span>
           <div>
-            <strong>Đọc xong, gửi lại một câu chuyện.</strong>
-            <p>Đăng ký mượn sách tại nhà sách.</p>
+            <strong>Tìm cuốn sách dành riêng cho bạn.</strong>
+            <p>Trò chuyện cùng trợ lý chọn sách AI.</p>
           </div>
           <i className="fa fa-long-arrow-right" aria-hidden="true" />
-        </Link>
+        </button>
         <Link href="/client/consultation">
           <span>03</span>
           <div>
@@ -133,21 +133,21 @@ export default function HomeCatalog({
           ↗
         </div>
         <div>
-          <span className="eyebrow">THƯ VIỆN CHIA SẺ BOOKSTORE</span>
+          <span className="eyebrow">ĐỒNG HÀNH CÙNG NGƯỜI ĐỌC</span>
           <h2>
             Một câu chuyện hay
             <br />
-            xứng đáng được đọc thêm lần nữa.
+            bắt đầu từ một gợi ý nhỏ.
           </h2>
           <p>
-            Chọn sách. Hẹn ngày nhận. Đọc theo nhịp của bạn trong 7, 14 hoặc 30
-            ngày — rồi mang câu chuyện trở lại nhà sách.
+            Chia sẻ sở thích, chủ đề và ngân sách. Trợ lý của BookStore sẽ giúp
+            bạn tìm sách trong danh mục và hướng dẫn khi bạn cần hỗ trợ đơn mua.
           </p>
         </div>
-        <Link href="/client/borrowing" className="solid-button">
-          Ghé tủ sách cho mượn{" "}
+        <button type="button" className="solid-button" onClick={() => window.dispatchEvent(new Event("bookstore:open-chat"))}>
+          Trò chuyện cùng BookStore AI{" "}
           <i className="fa fa-long-arrow-right" aria-hidden="true" />
-        </Link>
+        </button>
       </section>
       <CtaSection />
     </div>

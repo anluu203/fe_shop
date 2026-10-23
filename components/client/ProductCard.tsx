@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Product } from "../../lib/types";
 import { formatPrice } from "../../lib/utils/format";
 import { imageSrc } from "../../lib/utils/image";
+import { listPrice } from "../../lib/utils/books";
 import { useCart } from "../../contexts/CartContext";
 import { useAuth } from "../../contexts/AuthContext";
 export default function ProductCard({ product }: { product: Product }) {
@@ -70,6 +71,7 @@ export default function ProductCard({ product }: { product: Product }) {
           {product.author || "Đang cập nhật tác giả"}
         </p>
         <strong className="book-price">{formatPrice(product.price)}</strong>
+        {!!product.discount && <span className="book-discount">Giảm {product.discount}% {listPrice(product.price, product.discount) && <del>{formatPrice(listPrice(product.price, product.discount)!)}</del>}</span>}
         <button
           type="button"
           id={`add-to-cart-${product.id}`}
@@ -87,13 +89,6 @@ export default function ProductCard({ product }: { product: Product }) {
               ? "Thêm tiếp vào giỏ"
               : "Thêm vào giỏ"}
         </button>
-        <Link
-          className="book-borrow-link"
-          href={`/client/borrowing?bookId=${product.id}`}
-        >
-          Mượn cuốn sách này{" "}
-          <i className="fa fa-long-arrow-right" aria-hidden="true" />
-        </Link>
         {error && (
           <p className="catalog-error" role="alert">
             {error}

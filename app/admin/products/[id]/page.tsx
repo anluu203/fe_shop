@@ -42,7 +42,7 @@ export default function EditProductPage() {
       categoryApi.getAll(),
     ]).then(([p, parents, cats]) => {
       setProduct(p);
-      setBookFields({ author: p.author ?? "", publisher: p.publisher ?? "", publicationYear: p.publicationYear?.toString() ?? "", pageCount: p.pageCount?.toString() ?? "", language: p.language ?? "", coverType: p.coverType ?? "" });
+      setBookFields({ isbn: p.isbn ?? "", discount: String(p.discount ?? 0), author: p.author ?? "", publisher: p.publisher ?? "", publicationYear: p.publicationYear?.toString() ?? "", pageCount: p.pageCount?.toString() ?? "", language: p.language ?? "", coverType: p.coverType ?? "" });
       setParents(parents);
       setCategories(cats);
       setSelectedParent(p.category?.parentId ?? "");

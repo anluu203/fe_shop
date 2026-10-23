@@ -1,4 +1,4 @@
-> **BookStore frontend:** mặc định chạy mock qua `lib/mock/request.ts`, dùng JSON trong `mock-data/` và localStorage. Đặt `NEXT_PUBLIC_USE_MOCK=false` để dùng hợp đồng HTTP bên dưới. `Product` bổ sung các trường tùy chọn: `author`, `publisher`, `publicationYear`, `pageCount`, `language`, `coverType`; truy vấn danh sách bổ sung `parentId`, `includeInactive=1` cho admin. Thông tin triển khai trong README.md.
+> **BookStore frontend:** mặc định chạy mock qua `lib/mock/request.ts`, dùng JSON trong `mock-data/` và localStorage. `Product` bổ sung `isbn`, `discount`, `author`, `publisher`, `publicationYear`, `pageCount`, `language`, `coverType`; truy vấn bổ sung `parentId`, `includeInactive=1` cho admin. Hợp đồng chatbot/báo cáo mới tại [CHATBOT_REPORTS_API.md](CHATBOT_REPORTS_API.md), cần backend triển khai trước khi tắt mock. Giao diện mượn sách và quản lý nhà sách đã gỡ; phần API stores bên dưới chỉ là tham chiếu backend cũ.
 
 # Tài liệu bàn giao API cho Frontend
 

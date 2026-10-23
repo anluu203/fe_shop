@@ -139,9 +139,9 @@ function Catalog() {
           ))}
           <div className="catalog-borrow-note">
             <i className="fa fa-bookmark-o" aria-hidden="true" />
-            <strong>Đọc, rồi chia sẻ.</strong>
-            <p>Chưa muốn mua? Ghé tủ sách cho mượn của BookStore.</p>
-            <a href="/client/borrowing">Khám phá tủ sách ↗</a>
+            <strong>Cần một chút gợi ý?</strong>
+            <p>Chia sẻ sở thích để trợ lý giúp bạn chọn sách.</p>
+            <button type="button" onClick={() => window.dispatchEvent(new Event("bookstore:open-chat"))}>Hỏi BookStore AI ↗</button>
           </div>
         </aside>
         <section className="catalog-results" aria-label="Danh sách sách">

@@ -10,6 +10,12 @@ import type {
   Store,
 } from "../types";
 import { ORDER_STATUS_FLOW } from "../types";
+import { validISBN } from "../utils/books";
+import { createChatReply } from "./chatbot";
+import { publicAIConfig, validateAIConfig } from "../services/chatbot-config";
+import { buildRevenueReport } from "../services/reports";
+import type { AIConfig, ChatBody } from "../types/chatbot";
+import type { ReportQuery } from "../types/reports";
 import { hydrateReview, newestReviews } from "./reviews";
 import {
   borrowingBooks,
@@ -81,7 +87,7 @@ function validateBook(
   state: MockState,
   book: Pick<
     ProductBody,
-    "name" | "price" | "categoryId" | "publicationYear" | "pageCount"
+    "name" | "price" | "categoryId" | "publicationYear" | "pageCount" | "isbn" | "discount"
   >,
 ) {
   if (!book.name?.trim() || book.name.length > 200)
@@ -93,6 +99,10 @@ function validateBook(
   for (const value of [book.publicationYear, book.pageCount])
     if (value != null && (!Number.isSafeInteger(value) || value < 1))
       throw new Error("Năm xuất bản và số trang phải là số nguyên dương.");
+  if (book.isbn != null && (typeof book.isbn !== "string" || (book.isbn !== "" && !validISBN(book.isbn))))
+    throw new Error("ISBN phải là mã ISBN-10 hoặc ISBN-13 hợp lệ, không có dấu gạch nối.");
+  if (book.discount !== undefined && (typeof book.discount !== "number" || !Number.isFinite(book.discount) || book.discount < 0 || book.discount > 100 || Math.abs(book.discount * 100 - Math.round(book.discount * 100)) > 0.000001))
+    throw new Error("Giảm giá phải từ 0 đến 100%, tối đa 2 chữ số thập phân.");
 }
 function total(order: Order) {
   order.totalPrice = order.items
@@ -146,6 +156,46 @@ export async function mockRequest<T>(
     return structuredClone(value) as T;
   };
   const result = (value: unknown): T => structuredClone(value) as T;
+
+  if (resource === "chatbot") {
+    if (entityId === "config" && method === "GET" && !action) return result(publicAIConfig(state.aiConfig));
+    if (entityId === "messages" && method === "POST" && !action) {
+      const user = token ? requireUser(state, token) : null;
+      return commit(createChatReply(state, user, body as unknown as ChatBody));
+    }
+    throw new Error("Thao tác chatbot không được hỗ trợ.");
+  }
+  if (resource === "admin" && entityId === "chatbot") {
+    requireAdmin(state, token);
+    if (action === "config" && !itemId) {
+      if (method === "GET") return result(state.aiConfig);
+      if (method === "PATCH") {
+        const allowed = ["enabled", "botName", "welcomeMessage", "fallbackMessage", "systemPrompt", "model", "temperature", "maxSuggestions", "supportContact"];
+        if (Object.keys(body).some((key) => !allowed.includes(key))) throw new Error("Cấu hình có trường không hợp lệ.");
+        const config = { ...state.aiConfig, ...body, updatedAt: now() } as AIConfig;
+        validateAIConfig(config);
+        state.aiConfig = config;
+        return commit(config);
+      }
+    }
+    if (action === "logs") {
+      if (method === "GET" && !itemId) return result([...state.chatLogs].sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
+      if (method === "PATCH" && itemId) {
+        const log = state.chatLogs.find((l) => l.id === itemId);
+        if (!log) throw new Error("Không tìm thấy hội thoại.");
+        if (typeof body.resolved !== "boolean" || typeof body.adminNote !== "string" || body.adminNote.length > 2000) throw new Error("Trạng thái hoặc ghi chú không hợp lệ (tối đa 2.000 ký tự).");
+        log.resolved = body.resolved;
+        log.adminNote = body.adminNote.trim();
+        return commit(log);
+      }
+    }
+    throw new Error("Thao tác quản lý chatbot không được hỗ trợ.");
+  }
+  if (resource === "admin" && entityId === "reports") {
+    requireAdmin(state, token);
+    if (action === "revenue" && method === "GET" && !itemId) return result(buildRevenueReport(state.orders, params as unknown as ReportQuery));
+    throw new Error("Báo cáo không được hỗ trợ.");
+  }
 
   if (resource === "products" && entityId && action === "reviews" && !itemId) {
     const book = state.products.find((item) => item.id === entityId);
@@ -368,6 +418,8 @@ export async function mockRequest<T>(
         "pageCount",
         "language",
         "coverType",
+        "isbn",
+        "discount",
       ];
       const changes = Object.fromEntries(
         Object.entries(body).filter(([key]) => allowed.includes(key)),
@@ -503,6 +555,8 @@ export async function mockRequest<T>(
         throw new Error(
           "Chỉ được giữ nguyên trạng thái hoặc chuyển sang bước tiếp theo.",
         );
+      if (body.status === "Done" && order.status !== "Done") order.completedAt = now();
+      if (order.status === "Done" && !order.completedAt) order.completedAt = order.updatedAt ?? order.createdAt;
       order.status = body.status;
       order.updatedAt = now();
       return commit({

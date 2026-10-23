@@ -2,18 +2,15 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import content from "../../mock-data/site-content.json";
-import { storeApi } from "../../lib/api/stores";
 import { categoryApi } from "../../lib/api/categories";
-import type { Store, CategoryParent } from "../../lib/types";
+import type { CategoryParent } from "../../lib/types";
 import { subscribeMockData, USE_MOCK } from "../../lib/mock/config";
 export default function Footer() {
-  const [stores, setStores] = useState<Store[]>([]);
   const [categories, setCategories] = useState<CategoryParent[]>([]);
   useEffect(() => {
     const load = () => {
-      void Promise.all([storeApi.getAll(), categoryApi.getParents()])
-        .then(([s, c]) => {
-          setStores(s);
+      void categoryApi.getParents()
+        .then((c) => {
           setCategories(c);
         })
         .catch(() => {});
@@ -67,7 +64,7 @@ export default function Footer() {
         </div>
         <div>
           <h3>Đồng hành cùng bạn</h3>
-          <Link href="/client/borrowing">Đăng ký mượn sách</Link>
+          <button className="footer-chat-link" type="button" onClick={() => window.dispatchEvent(new Event("bookstore:open-chat"))}>Tư vấn qua Chatbot AI</button>
           <Link href="/client/consultation">Tư vấn chọn sách</Link>
           <Link href="/client/warranty">Đổi trả sách</Link>
           <Link href="/client/orders">Theo dõi đơn hàng</Link>
@@ -75,17 +72,8 @@ export default function Footer() {
           <Link href="/client/cart">Giỏ hàng</Link>
         </div>
         <div>
-          <h3>Hệ thống nhà sách</h3>
-          {stores.length ? (
-            stores.map((s) => (
-              <div className="footer-store" key={s.id}>
-                <strong>{s.name}</strong>
-                <p>{s.address}</p>
-              </div>
-            ))
-          ) : (
-            <p>{content.address}</p>
-          )}
+          <h3>Thông tin liên hệ</h3>
+          <p>{content.address}</p>
           <p>8:00 – 21:00 mỗi ngày</p>
         </div>
       </div>

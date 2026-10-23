@@ -52,7 +52,6 @@ export default function Header() {
           {[
             { href: "/client", label: "Trang chủ", exact: true },
             { href: "/client/products", label: "Khám phá sách" },
-            { href: "/client/borrowing", label: "Mượn sách" },
             // { href: "/client/consultation", label: "Gợi ý cho bạn" },
           ].map((item) => (
             <Link
@@ -69,9 +68,6 @@ export default function Header() {
               }
             >
               {item.label}
-              {item.href === "/client/borrowing" && (
-                <span className="nav-new">MỚI</span>
-              )}
             </Link>
           ))}
         </nav>
@@ -102,9 +98,6 @@ export default function Header() {
               {open && (
                 <div id="account-dropdown" className="account-dropdown">
                   <small>{user.email}</small>
-                  <Link href="/client/borrowing?tab=mine">
-                    Phiếu mượn của tôi
-                  </Link>
                   <Link href="/client/orders">Đơn mua sách</Link>
                   <Link href="/client/profile">Thông tin cá nhân</Link>
                   <Link href="/client/warranty">Yêu cầu đổi trả</Link>
@@ -148,10 +141,10 @@ export default function Header() {
             Tìm sách <i className="fa fa-long-arrow-right" aria-hidden="true" />
           </button>
         </form>
-        <Link href="/client/borrowing">
-          Một cuốn sách, nhiều người bạn{" "}
+        <button className="header-chat-link" type="button" onClick={() => window.dispatchEvent(new Event("bookstore:open-chat"))}>
+          Tư vấn chọn sách cùng AI{" "}
           <i className="fa fa-arrow-right" aria-hidden="true" />
-        </Link>
+        </button>
       </div>
     </header>
   );

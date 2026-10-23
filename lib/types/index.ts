@@ -71,6 +71,8 @@ export interface CategoryBody {
 
 // ---------- Product ----------
 export interface Product {
+  isbn?: string;
+  discount?: number; // percentage; price is the final selling price
   author?: string;
   publisher?: string;
   publicationYear?: number | null;
@@ -102,6 +104,8 @@ export interface Product {
 }
 
 export interface ProductBody {
+  isbn?: string;
+  discount?: number;
   author?: string;
   publisher?: string;
   publicationYear?: number | null;
@@ -161,6 +165,7 @@ export interface OrderItem {
 }
 
 export interface Order {
+  completedAt?: string; // immutable revenue recognition date when status becomes Done
   id: string | null;
   userId?: string;
   status: OrderStatus;

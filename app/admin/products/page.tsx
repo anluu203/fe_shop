@@ -70,8 +70,8 @@ export default function AdminProducts() {
             sách.
           </p>
         </div>
-        <Link className="outline-button" href="/admin/borrowing">
-          Quản lý kho mượn{" "}
+        <Link className="outline-button" href="/admin/reports">
+          Xem sách bán chạy{" "}
           <i className="fa fa-long-arrow-right" aria-hidden="true" />
         </Link>
       </section>
