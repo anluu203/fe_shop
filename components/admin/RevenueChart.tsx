@@ -58,7 +58,7 @@ export default function RevenueChart({
                 y={y(maximum * fraction) + 4}
                 textAnchor="end"
                 fill="var(--text-muted)"
-                fontSize="12"
+                fontSize="calc(12px * var(--font-scale))"
               >
                 {compact(maximum * fraction)}
               </text>
@@ -140,7 +140,7 @@ export default function RevenueChart({
                   y={bottom + 28}
                   textAnchor="middle"
                   fill="var(--text-muted)"
-                  fontSize="11"
+                  fontSize="calc(11px * var(--font-scale))"
                 >
                   {/^\d{4}-\d{2}-\d{2}$/.test(bucket.key)
                     ? `${bucket.key.slice(8, 10)}/${bucket.key.slice(5, 7)}`
@@ -149,7 +149,7 @@ export default function RevenueChart({
               )}
             </g>
           ))}
-          <text x={left} y="15" fill="var(--text-muted)" fontSize="11">
+          <text x={left} y="15" fill="var(--text-muted)" fontSize="calc(11px * var(--font-scale))">
             VND
           </text>
         </svg>

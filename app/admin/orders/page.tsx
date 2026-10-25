@@ -93,7 +93,7 @@ function AdminOrdersContent() {
               background: statusParam === opt.value ? "var(--primary)" : "var(--bg-card)",
               color: statusParam === opt.value ? "#fff" : "var(--text-secondary)",
               fontWeight: statusParam === opt.value ? 700 : 500,
-              fontSize: 13,
+              fontSize: "calc(13px * var(--font-scale))",
               cursor: "pointer",
               fontFamily: "var(--font-sans)",
               transition: "all var(--transition)",
@@ -123,7 +123,7 @@ function AdminOrdersContent() {
             justifyContent: "space-between",
           }}
         >
-          <span style={{ fontSize: 14, fontWeight: 800, color: "var(--text-secondary)" }}>
+          <span style={{ fontSize: "calc(14px * var(--font-scale))", fontWeight: 800, color: "var(--text-secondary)" }}>
             <i className="fa fa-archive" style={{ marginRight: 6 }} /> Danh sách đơn hàng
             {data && (
               <span style={{ fontWeight: 400, color: "var(--text-muted)", marginLeft: 8 }}>
@@ -134,7 +134,7 @@ function AdminOrdersContent() {
           <button
             onClick={load}
             style={{
-              fontSize: 12,
+              fontSize: "calc(12px * var(--font-scale))",
               color: "var(--primary)",
               background: "none",
               border: "none",
@@ -160,7 +160,7 @@ function AdminOrdersContent() {
                 padding: "10px 20px",
                 background: "var(--bg-section)",
                 borderBottom: "1px solid var(--border)",
-                fontSize: 11,
+                fontSize: "calc(11px * var(--font-scale))",
                 fontWeight: 700,
                 color: "var(--text-muted)",
                 textTransform: "uppercase",
@@ -197,7 +197,7 @@ function AdminOrdersContent() {
               >
                 <span
                   style={{
-                    fontSize: 13,
+                    fontSize: "calc(13px * var(--font-scale))",
                     fontWeight: 700,
                     color: "var(--text-primary)",
                     fontFamily: "monospace",
@@ -208,7 +208,7 @@ function AdminOrdersContent() {
                 <div>
                   <div
                     style={{
-                      fontSize: 13,
+                      fontSize: "calc(13px * var(--font-scale))",
                       fontWeight: 600,
                       color: "var(--text-primary)",
                     }}
@@ -216,7 +216,7 @@ function AdminOrdersContent() {
                     {order.user?.username ?? "N/A"}
                   </div>
                   <div
-                    style={{ fontSize: 11, color: "var(--text-muted)" }}
+                    style={{ fontSize: "calc(11px * var(--font-scale))", color: "var(--text-muted)" }}
                   >
                     {order.user?.email}
                   </div>
@@ -228,13 +228,13 @@ function AdminOrdersContent() {
                   style={{
                     textAlign: "right",
                     fontWeight: 800,
-                    fontSize: 13,
+                    fontSize: "calc(13px * var(--font-scale))",
                     color: "var(--accent)",
                   }}
                 >
                   {formatPrice(order.totalPrice)}
                 </span>
-                <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                <span style={{ fontSize: "calc(12px * var(--font-scale))", color: "var(--text-muted)" }}>
                   {order.createdAt ? formatDate(order.createdAt) : "—"}
                 </span>
                 <div style={{ textAlign: "center" }}>
@@ -242,7 +242,7 @@ function AdminOrdersContent() {
                     href={`/admin/orders/${order.id}`}
                     id={`admin-order-${order.id}`}
                     style={{
-                      fontSize: 12,
+                      fontSize: "calc(12px * var(--font-scale))",
                       fontWeight: 700,
                       color: "var(--primary)",
                       textDecoration: "none",
@@ -278,7 +278,7 @@ function AdminOrdersContent() {
                   color: "var(--text-muted)",
                 }}
               >
-                <div style={{ fontSize: 48, marginBottom: 12 }}><i className="fa fa-inbox" /></div>
+                <div style={{ fontSize: "calc(48px * var(--font-scale))", marginBottom: 12 }}><i className="fa fa-inbox" /></div>
                 <p>Không có đơn hàng nào</p>
               </div>
             )}

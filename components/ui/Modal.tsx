@@ -77,7 +77,7 @@ export default function Modal({
           >
             <h2
               style={{
-                fontSize: 17,
+                fontSize: "calc(17px * var(--font-scale))",
                 fontWeight: 700,
                 color: "var(--text-primary)",
               }}
@@ -97,7 +97,7 @@ export default function Modal({
                 background: "var(--bg-section)",
                 color: "var(--text-muted)",
                 transition: "all var(--transition)",
-                fontSize: 18,
+                fontSize: "calc(18px * var(--font-scale))",
                 cursor: "pointer",
                 border: "none",
               }}

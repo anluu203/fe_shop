@@ -58,7 +58,7 @@ export default function CartPage() {
         <div className="container">
           <h1
             style={{
-              fontSize: 24,
+              fontSize: "calc(24px * var(--font-scale))",
               fontWeight: 900,
               color: "#fff",
               display: "flex",
@@ -83,12 +83,12 @@ export default function CartPage() {
               border: "1px solid var(--border)",
             }}
           >
-            <div style={{ fontSize: 64, marginBottom: 20, color: "var(--text-muted)" }}>
+            <div style={{ fontSize: "calc(64px * var(--font-scale))", marginBottom: 20, color: "var(--text-muted)" }}>
               <i className="fa fa-shopping-cart" />
             </div>
             <h2
               style={{
-                fontSize: 22,
+                fontSize: "calc(22px * var(--font-scale))",
                 fontWeight: 800,
                 color: "var(--text-primary)",
                 marginBottom: 10,
@@ -98,7 +98,7 @@ export default function CartPage() {
             </h2>
             <p
               style={{
-                fontSize: 14,
+                fontSize: "calc(14px * var(--font-scale))",
                 color: "var(--text-muted)",
                 marginBottom: 28,
               }}
@@ -117,7 +117,7 @@ export default function CartPage() {
                 padding: "13px 28px",
                 borderRadius: "var(--radius-full)",
                 fontWeight: 700,
-                fontSize: 15,
+                fontSize: "calc(15px * var(--font-scale))",
                 textDecoration: "none",
               }}
             >
@@ -144,7 +144,7 @@ export default function CartPage() {
                   padding: "12px 20px",
                   background: "var(--bg-section)",
                   borderRadius: "var(--radius-md)",
-                  fontSize: 12,
+                  fontSize: "calc(12px * var(--font-scale))",
                   fontWeight: 700,
                   color: "var(--text-muted)",
                   textTransform: "uppercase",
@@ -175,7 +175,7 @@ export default function CartPage() {
               <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
                 {clearConfirm ? (
                   <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <span style={{ fontSize: 13, color: "var(--text-muted)" }}>
+                    <span style={{ fontSize: "calc(13px * var(--font-scale))", color: "var(--text-muted)" }}>
                       Xóa toàn bộ?
                     </span>
                     <button
@@ -192,7 +192,7 @@ export default function CartPage() {
                         border: "none",
                         borderRadius: "var(--radius-sm)",
                         fontWeight: 700,
-                        fontSize: 13,
+                        fontSize: "calc(13px * var(--font-scale))",
                         cursor: "pointer",
                         fontFamily: "var(--font-sans)",
                       }}
@@ -207,7 +207,7 @@ export default function CartPage() {
                         color: "var(--text-secondary)",
                         border: "none",
                         borderRadius: "var(--radius-sm)",
-                        fontSize: 13,
+                        fontSize: "calc(13px * var(--font-scale))",
                         cursor: "pointer",
                         fontFamily: "var(--font-sans)",
                       }}
@@ -220,7 +220,7 @@ export default function CartPage() {
                     id="clear-cart-btn"
                     onClick={() => setClearConfirm(true)}
                     style={{
-                      fontSize: 13,
+                      fontSize: "calc(13px * var(--font-scale))",
                       color: "var(--danger)",
                       background: "none",
                       border: "none",
@@ -258,7 +258,7 @@ export default function CartPage() {
               >
                 <h2
                   style={{
-                    fontSize: 15,
+                    fontSize: "calc(15px * var(--font-scale))",
                     fontWeight: 800,
                     color: "var(--primary-dark)",
                   }}
@@ -279,7 +279,7 @@ export default function CartPage() {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      fontSize: 14,
+                      fontSize: "calc(14px * var(--font-scale))",
                       color: "var(--text-secondary)",
                     }}
                   >
@@ -292,7 +292,7 @@ export default function CartPage() {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      fontSize: 14,
+                      fontSize: "calc(14px * var(--font-scale))",
                       color: "var(--text-secondary)",
                     }}
                   >
@@ -313,13 +313,13 @@ export default function CartPage() {
                       justifyContent: "space-between",
                     }}
                   >
-                    <span style={{ fontWeight: 800, fontSize: 15 }}>
+                    <span style={{ fontWeight: 800, fontSize: "calc(15px * var(--font-scale))" }}>
                       Tổng cộng
                     </span>
                     <span
                       style={{
                         fontWeight: 900,
-                        fontSize: 22,
+                        fontSize: "calc(22px * var(--font-scale))",
                         color: "var(--accent)",
                         letterSpacing: "-0.5px",
                       }}
@@ -347,7 +347,7 @@ export default function CartPage() {
                     display: "block",
                     textAlign: "center",
                     marginTop: 12,
-                    fontSize: 13,
+                    fontSize: "calc(13px * var(--font-scale))",
                     color: "var(--primary)",
                     fontWeight: 600,
                     textDecoration: "none",
@@ -375,7 +375,7 @@ export default function CartPage() {
                     <div
                       key={item.text}
                       style={{
-                        fontSize: 12,
+                        fontSize: "calc(12px * var(--font-scale))",
                         color: "var(--text-muted)",
                         display: "flex",
                         alignItems: "center",
@@ -470,7 +470,7 @@ function CartItemRow({
               }}
             />
           ) : (
-            <span style={{ fontSize: 24, opacity: 0.3 }}><i className="fa fa-book" /></span>
+            <span style={{ fontSize: "calc(24px * var(--font-scale))", opacity: 0.3 }}><i className="fa fa-book" /></span>
           )}
         </div>
         <div>
@@ -478,7 +478,7 @@ function CartItemRow({
             href={`/client/products/${item.productId}`}
             className="line-clamp-2"
             style={{
-              fontSize: 13,
+              fontSize: "calc(13px * var(--font-scale))",
               fontWeight: 600,
               color: "var(--text-primary)",
               textDecoration: "none",
@@ -487,7 +487,7 @@ function CartItemRow({
           >
             {item.product?.name}
           </Link>
-          <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
+          <div style={{ fontSize: "calc(12px * var(--font-scale))", color: "var(--text-muted)", marginTop: 4 }}>
             Đơn giá: {formatPrice(item.unitPrice)}
           </div>
         </div>
@@ -513,7 +513,7 @@ function CartItemRow({
             background: "var(--bg-section)",
             border: "none",
             cursor: qty > 1 ? "pointer" : "not-allowed",
-            fontSize: 16,
+            fontSize: "calc(16px * var(--font-scale))",
             color: "var(--text-secondary)",
             fontFamily: "var(--font-sans)",
             display: "flex",
@@ -528,7 +528,7 @@ function CartItemRow({
             width: 36,
             textAlign: "center",
             fontWeight: 700,
-            fontSize: 14,
+            fontSize: "calc(14px * var(--font-scale))",
             color: "var(--text-primary)",
           }}
         >
@@ -543,7 +543,7 @@ function CartItemRow({
             background: "var(--bg-section)",
             border: "none",
             cursor: qty < 999 ? "pointer" : "not-allowed",
-            fontSize: 16,
+            fontSize: "calc(16px * var(--font-scale))",
             color: "var(--text-secondary)",
             fontFamily: "var(--font-sans)",
             display: "flex",
@@ -560,7 +560,7 @@ function CartItemRow({
         style={{
           textAlign: "right",
           fontWeight: 800,
-          fontSize: 14,
+          fontSize: "calc(14px * var(--font-scale))",
           color: "var(--accent)",
         }}
       >
@@ -587,7 +587,7 @@ function CartItemRow({
           border: "none",
           color: "var(--danger)",
           cursor: "pointer",
-          fontSize: 14,
+          fontSize: "calc(14px * var(--font-scale))",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",

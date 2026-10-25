@@ -37,9 +37,9 @@ const variantStyles: Record<Variant, string> = {
 };
 
 const sizeStyles: Record<Size, React.CSSProperties> = {
-  sm: { padding: "6px 14px", fontSize: "13px", borderRadius: "var(--radius-sm)" },
-  md: { padding: "10px 20px", fontSize: "14px", borderRadius: "var(--radius-md)" },
-  lg: { padding: "13px 28px", fontSize: "15px", borderRadius: "var(--radius-md)" },
+  sm: { padding: "6px 14px", fontSize: "calc(13px * var(--font-scale))", borderRadius: "var(--radius-sm)" },
+  md: { padding: "10px 20px", fontSize: "calc(14px * var(--font-scale))", borderRadius: "var(--radius-md)" },
+  lg: { padding: "13px 28px", fontSize: "calc(15px * var(--font-scale))", borderRadius: "var(--radius-md)" },
 };
 
 export default function Button({

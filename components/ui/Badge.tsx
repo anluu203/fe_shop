@@ -28,7 +28,7 @@ export default function Badge({ variant = "neutral", children, dot }: BadgeProps
         gap: 5,
         padding: "3px 10px",
         borderRadius: "var(--radius-full)",
-        fontSize: 12,
+        fontSize: "calc(12px * var(--font-scale))",
         fontWeight: 600,
         letterSpacing: "0.3px",
         background: bg,

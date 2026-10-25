@@ -37,7 +37,7 @@ export function PageSpinner() {
       }}
     >
       <Spinner size={40} />
-      <span style={{ color: "var(--text-muted)", fontSize: 14 }}>
+      <span style={{ color: "var(--text-muted)", fontSize: "calc(14px * var(--font-scale))" }}>
         Đang tải...
       </span>
     </div>

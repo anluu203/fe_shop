@@ -80,7 +80,7 @@ export default function AdminConsultationPage() {
           </div>
           <h4 className="mt-3 text-base font-bold [overflow-wrap:anywhere]">{product.name}</h4><p className="my-3 text-xl font-extrabold text-[var(--accent-dark)]">{formatPrice(product.price)}</p>
           <ul className="list-disc space-y-1 pl-5 text-sm text-[var(--text-secondary)]">{product.specs.map((spec, index) => <li key={index}>{spec}</li>)}</ul>
-          <div className="mt-4 space-y-3">{product.usages.map((item) => <div key={item} className="rounded-xl bg-[var(--primary-bg)] p-3 text-[13px] text-primary-dark"><strong>{options.usages.find((option) => option.id === item)?.label}</strong><p className="mt-1 whitespace-pre-wrap [overflow-wrap:anywhere]">{product.reasons[item]}</p></div>)}</div>
+          <div className="mt-4 space-y-3">{product.usages.map((item) => <div key={item} className="rounded-xl bg-[var(--primary-bg)] p-3 text-[length:calc(13px*var(--font-scale))] text-primary-dark"><strong>{options.usages.find((option) => option.id === item)?.label}</strong><p className="mt-1 whitespace-pre-wrap [overflow-wrap:anywhere]">{product.reasons[item]}</p></div>)}</div>
           <div className="mt-5 flex flex-wrap gap-2">
             <button type="button" className={ui.secondary} aria-label={`Sửa ${product.name}`} onClick={() => { setEditor(product); setSuccess(""); }}>Chỉnh sửa</button>
             <button type="button" className={ui.secondary} aria-label={`${product.isActive ? "Ẩn" : "Hiện"} ${product.name}`} onClick={() => toggle(product)}>{product.isActive ? "Ẩn khỏi gợi ý" : "Bật hiển thị"}</button>

@@ -88,7 +88,7 @@ export default function NewProductPage() {
   return (
     <div style={{ maxWidth: 680 }}>
       {/* Breadcrumb */}
-      <div style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 20, display: "flex", gap: 8 }}>
+      <div style={{ fontSize: "calc(13px * var(--font-scale))", color: "var(--text-muted)", marginBottom: 20, display: "flex", gap: 8 }}>
         <Link href="/admin/products" style={{ color: "var(--primary)", textDecoration: "none" }}>
           Sách
         </Link>
@@ -111,7 +111,7 @@ export default function NewProductPage() {
             background: "var(--primary-bg)",
           }}
         >
-          <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--primary-dark)" }}>
+          <h2 style={{ fontSize: "calc(16px * var(--font-scale))", fontWeight: 800, color: "var(--primary-dark)" }}>
             <i className="fa fa-plus" style={{ marginRight: 6 }} /> Thêm sách mới
           </h2>
         </div>
@@ -125,7 +125,7 @@ export default function NewProductPage() {
                 color: "var(--danger)",
                 padding: "12px 16px",
                 borderRadius: "var(--radius-md)",
-                fontSize: 13,
+                fontSize: "calc(13px * var(--font-scale))",
                 fontWeight: 600,
                 marginBottom: 20,
               }}
@@ -147,7 +147,7 @@ export default function NewProductPage() {
             <div>
               <label
                 style={{
-                  fontSize: 13,
+                  fontSize: "calc(13px * var(--font-scale))",
                   fontWeight: 600,
                   color: "var(--text-secondary)",
                   display: "block",
@@ -167,7 +167,7 @@ export default function NewProductPage() {
                   padding: "10px 12px",
                   border: "1.5px solid var(--border)",
                   borderRadius: "var(--radius-md)",
-                  fontSize: 14,
+                  fontSize: "calc(14px * var(--font-scale))",
                   color: "var(--text-primary)",
                   background: "var(--bg-card)",
                   outline: "none",
@@ -189,7 +189,7 @@ export default function NewProductPage() {
               onChange={(url) => setForm({ ...form, imageUrl: url })}
             />
             {errors.imageUrl && (
-              <span style={{ fontSize: 12, color: "var(--danger)", marginTop: -10, display: "block" }}>
+              <span style={{ fontSize: "calc(12px * var(--font-scale))", color: "var(--danger)", marginTop: -10, display: "block" }}>
                 {errors.imageUrl}
               </span>
             )}
@@ -210,7 +210,7 @@ export default function NewProductPage() {
             <div>
               <label
                 style={{
-                  fontSize: 13,
+                  fontSize: "calc(13px * var(--font-scale))",
                   fontWeight: 600,
                   color: "var(--text-secondary)",
                   display: "block",
@@ -231,7 +231,7 @@ export default function NewProductPage() {
                   padding: "10px 12px",
                   border: "1.5px solid var(--border)",
                   borderRadius: "var(--radius-md)",
-                  fontSize: 14,
+                  fontSize: "calc(14px * var(--font-scale))",
                   color: "var(--text-primary)",
                   background: "var(--bg-card)",
                   outline: "none",
@@ -250,7 +250,7 @@ export default function NewProductPage() {
 
               <label
                 style={{
-                  fontSize: 13,
+                  fontSize: "calc(13px * var(--font-scale))",
                   fontWeight: 600,
                   color: "var(--text-secondary)",
                   display: "block",
@@ -268,7 +268,7 @@ export default function NewProductPage() {
                   padding: "10px 12px",
                   border: `1.5px solid ${errors.categoryId ? "var(--danger)" : "var(--border)"}`,
                   borderRadius: "var(--radius-md)",
-                  fontSize: 14,
+                  fontSize: "calc(14px * var(--font-scale))",
                   color: "var(--text-primary)",
                   background: "var(--bg-card)",
                   outline: "none",
@@ -284,7 +284,7 @@ export default function NewProductPage() {
                 ))}
               </select>
               {errors.categoryId && (
-                <span style={{ fontSize: 12, color: "var(--danger)", marginTop: 4, display: "block" }}>
+                <span style={{ fontSize: "calc(12px * var(--font-scale))", color: "var(--danger)", marginTop: 4, display: "block" }}>
                   {errors.categoryId}
                 </span>
               )}
@@ -297,7 +297,7 @@ export default function NewProductPage() {
                   padding: "12px 16px",
                   background: "var(--primary-bg)",
                   borderRadius: "var(--radius-md)",
-                  fontSize: 14,
+                  fontSize: "calc(14px * var(--font-scale))",
                   color: "var(--primary-dark)",
                   fontWeight: 600,
                 }}

@@ -64,7 +64,7 @@ export default function OrderDetailPage() {
             href="/client/orders"
             style={{
               color: "rgba(255,255,255,0.75)",
-              fontSize: 13,
+              fontSize: "calc(13px * var(--font-scale))",
               textDecoration: "none",
               display: "inline-flex",
               alignItems: "center",
@@ -75,7 +75,7 @@ export default function OrderDetailPage() {
             <i className="fa fa-arrow-left" /> Lịch sử đơn hàng
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-            <h1 style={{ fontSize: 22, fontWeight: 900, color: "#fff" }}>
+            <h1 style={{ fontSize: "calc(22px * var(--font-scale))", fontWeight: 900, color: "#fff" }}>
               Đơn hàng {shortId(order.id!)}
             </h1>
             <Badge variant={getStatusVariant(order.status)} dot>
@@ -83,7 +83,7 @@ export default function OrderDetailPage() {
             </Badge>
           </div>
           {order.createdAt && (
-            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 13, marginTop: 6 }}>
+            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "calc(13px * var(--font-scale))", marginTop: 6 }}>
               Đặt lúc: {formatDate(order.createdAt)}
             </p>
           )}
@@ -113,7 +113,7 @@ export default function OrderDetailPage() {
             >
               <h2
                 style={{
-                  fontSize: 14,
+                  fontSize: "calc(14px * var(--font-scale))",
                   fontWeight: 800,
                   color: "var(--text-secondary)",
                   marginBottom: 20,
@@ -149,7 +149,7 @@ export default function OrderDetailPage() {
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              fontSize: 14,
+                              fontSize: "calc(14px * var(--font-scale))",
                               color: isActive ? "#fff" : "var(--text-muted)",
                               fontWeight: 700,
                               boxShadow: isCurrent ? "0 0 0 4px var(--primary-bg)" : "none",
@@ -160,7 +160,7 @@ export default function OrderDetailPage() {
                           </div>
                           <span
                             style={{
-                              fontSize: 11,
+                              fontSize: "calc(11px * var(--font-scale))",
                               fontWeight: isCurrent ? 700 : 500,
                               color: isCurrent ? "var(--primary)" : "var(--text-muted)",
                               textAlign: "center",
@@ -205,7 +205,7 @@ export default function OrderDetailPage() {
                   background: "var(--bg-section)",
                 }}
               >
-                <h2 style={{ fontSize: 14, fontWeight: 800, color: "var(--text-secondary)" }}>
+                <h2 style={{ fontSize: "calc(14px * var(--font-scale))", fontWeight: 800, color: "var(--text-secondary)" }}>
                   <i className="fa fa-cube" style={{ marginRight: 6 }} /> Sách ({order.items.length})
                 </h2>
               </div>
@@ -252,21 +252,21 @@ export default function OrderDetailPage() {
                           }}
                         />
                       ) : (
-                        <i className="fa fa-book" style={{ fontSize: 24, opacity: 0.3, color: "var(--text-muted)" }} />
+                        <i className="fa fa-book" style={{ fontSize: "calc(24px * var(--font-scale))", opacity: 0.3, color: "var(--text-muted)" }} />
                       )}
                     </div>
                     <div style={{ flex: 1 }}>
                       <div
                         className="line-clamp-2"
                         style={{
-                          fontSize: 14,
+                          fontSize: "calc(14px * var(--font-scale))",
                           fontWeight: 600,
                           color: "var(--text-primary)",
                         }}
                       >
                         {item.product?.name}
                       </div>
-                      <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
+                      <div style={{ fontSize: "calc(12px * var(--font-scale))", color: "var(--text-muted)", marginTop: 4 }}>
                         Đơn giá: {formatPrice(item.unitPrice)} × {item.quantity}
                       </div>
                     </div>
@@ -274,7 +274,7 @@ export default function OrderDetailPage() {
                       style={{
                         fontWeight: 800,
                         color: "var(--accent)",
-                        fontSize: 15,
+                        fontSize: "calc(15px * var(--font-scale))",
                         whiteSpace: "nowrap",
                       }}
                     >
@@ -305,7 +305,7 @@ export default function OrderDetailPage() {
                   background: "var(--primary-bg)",
                 }}
               >
-                <h2 style={{ fontSize: 14, fontWeight: 800, color: "var(--primary-dark)" }}>
+                <h2 style={{ fontSize: "calc(14px * var(--font-scale))", fontWeight: 800, color: "var(--primary-dark)" }}>
                   <i className="fa fa-money" style={{ marginRight: 6 }} /> Tóm tắt đơn hàng
                 </h2>
               </div>
@@ -326,11 +326,11 @@ export default function OrderDetailPage() {
                   )}
                   <div style={{ height: 1, background: "var(--border)" }} />
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontWeight: 800, fontSize: 15 }}>Tổng cộng</span>
+                    <span style={{ fontWeight: 800, fontSize: "calc(15px * var(--font-scale))" }}>Tổng cộng</span>
                     <span
                       style={{
                         fontWeight: 900,
-                        fontSize: 22,
+                        fontSize: "calc(22px * var(--font-scale))",
                         color: "var(--accent)",
                         letterSpacing: "-0.5px",
                       }}
@@ -351,7 +351,7 @@ export default function OrderDetailPage() {
                     padding: "11px",
                     borderRadius: "var(--radius-md)",
                     fontWeight: 700,
-                    fontSize: 14,
+                    fontSize: "calc(14px * var(--font-scale))",
                     textDecoration: "none",
                     marginTop: 8,
                   }}
@@ -385,9 +385,9 @@ function SummaryRow({
         gap: 8,
       }}
     >
-      <span style={{ fontSize: 13, color: "var(--text-muted)" }}>{label}</span>
+      <span style={{ fontSize: "calc(13px * var(--font-scale))", color: "var(--text-muted)" }}>{label}</span>
       {children ?? (
-        <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+        <span style={{ fontSize: "calc(13px * var(--font-scale))", fontWeight: 600, color: "var(--text-primary)" }}>
           {value}
         </span>
       )}

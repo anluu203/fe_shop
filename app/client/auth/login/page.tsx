@@ -91,7 +91,7 @@ export default function LoginPage() {
             >
               <span
                 style={{
-                  fontSize: 28,
+                  fontSize: "calc(28px * var(--font-scale))",
                   background: "rgba(255,255,255,0.15)",
                   width: 52,
                   height: 52,
@@ -106,7 +106,7 @@ export default function LoginPage() {
               </span>
               <span
                 style={{
-                  fontSize: 26,
+                  fontSize: "calc(26px * var(--font-scale))",
                   fontWeight: 900,
                   color: "#fff",
                   letterSpacing: "-0.5px",
@@ -117,13 +117,13 @@ export default function LoginPage() {
             </div>
           </Link>
           <h1
-            style={{ fontSize: 22, fontWeight: 800, color: "#fff", margin: 0 }}
+            style={{ fontSize: "calc(22px * var(--font-scale))", fontWeight: 800, color: "#fff", margin: 0 }}
           >
             Đăng nhập
           </h1>
           <p
             style={{
-              fontSize: 13,
+              fontSize: "calc(13px * var(--font-scale))",
               color: "rgba(255,255,255,0.75)",
               marginTop: 6,
             }}
@@ -152,7 +152,7 @@ export default function LoginPage() {
                 borderRadius: "var(--radius-md)",
                 padding: "12px 16px",
                 marginBottom: 20,
-                fontSize: 14,
+                fontSize: "calc(14px * var(--font-scale))",
                 color: "var(--danger)",
                 fontWeight: 600,
                 display: "flex",
@@ -204,7 +204,7 @@ export default function LoginPage() {
                     background: "none",
                     border: "none",
                     cursor: "pointer",
-                    fontSize: 16,
+                    fontSize: "calc(16px * var(--font-scale))",
                     color: "var(--text-muted)",
                   }}
                 >
@@ -230,7 +230,7 @@ export default function LoginPage() {
             style={{
               textAlign: "center",
               marginTop: 20,
-              fontSize: 14,
+              fontSize: "calc(14px * var(--font-scale))",
               color: "var(--text-muted)",
             }}
           >

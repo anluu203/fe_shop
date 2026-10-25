@@ -19,7 +19,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <label
             htmlFor={inputId}
             style={{
-              fontSize: 13,
+              fontSize: "calc(13px * var(--font-scale))",
               fontWeight: 600,
               color: "var(--text-secondary)",
               letterSpacing: "0.3px",
@@ -53,7 +53,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               paddingRight: rightElement ? 44 : 12,
               border: `1.5px solid ${error ? "var(--danger)" : "var(--border)"}`,
               borderRadius: "var(--radius-md)",
-              fontSize: 14,
+              fontSize: "calc(14px * var(--font-scale))",
               color: "var(--text-primary)",
               background: "var(--bg-card)",
               outline: "none",
@@ -93,7 +93,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         </div>
         {error && (
           <span
-            style={{ fontSize: 12, color: "var(--danger)", fontWeight: 500 }}
+            style={{ fontSize: "calc(12px * var(--font-scale))", color: "var(--danger)", fontWeight: 500 }}
           >
             {error}
           </span>

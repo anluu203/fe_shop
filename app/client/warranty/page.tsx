@@ -175,7 +175,7 @@ function WarrantyCard({ product, user, requests, onSubmit }: {
           requests.map((request) => (
             <section className={ui.request} key={request.id} aria-label={`Phiếu ${request.id}`}>
               <div className={ui.row}>
-                <strong className="text-[13px]">{request.id}</strong>
+                <strong className="text-[length:calc(13px*var(--font-scale))]">{request.id}</strong>
                 <Badge variant={request.status === "completed" ? "success" : "warning"}>{WARRANTY_STATUS_LABEL[request.status]}</Badge>
               </div>
               <p className={ui.muted}>{request.contactName} · {request.phone}</p>

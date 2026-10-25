@@ -4,11 +4,11 @@ import { WARRANTY_STATUS_LABEL } from "../../lib/services/customer-services";
 
 export const adminServiceClasses = {
   panel: "min-w-0 rounded-2xl border border-[var(--border)] bg-white p-4 sm:p-6",
-  label: "flex min-w-0 flex-col gap-2 text-[13px] font-semibold text-[var(--text-secondary)]",
+  label: "flex min-w-0 flex-col gap-2 text-[length:calc(13px*var(--font-scale))] font-semibold text-[var(--text-secondary)]",
   control: "w-full min-w-0 rounded-xl border border-[var(--border)] bg-white px-3 py-2.5 text-sm font-normal text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
   primary: "inline-flex items-center justify-center gap-2 rounded-xl border border-primary bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50",
   secondary: "inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-section)] disabled:cursor-not-allowed disabled:opacity-50",
-  muted: "text-[13px] text-[var(--text-muted)]",
+  muted: "text-[length:calc(13px*var(--font-scale))] text-[var(--text-muted)]",
 };
 
 export function ServiceAdminIntro({ title, description, children }: { title: string; description: string; children?: ReactNode }) {

@@ -173,14 +173,14 @@ export default function AdminCategoriesPage() {
               justifyContent: "space-between",
             }}
           >
-            <h2 style={{ fontSize: 14, fontWeight: 800, color: "var(--primary-dark)", display: "flex", alignItems: "center" }}>
+            <h2 style={{ fontSize: "calc(14px * var(--font-scale))", fontWeight: 800, color: "var(--primary-dark)", display: "flex", alignItems: "center" }}>
               <i className="fa fa-folder-open" style={{ marginRight: 6 }} /> Danh mục cha ({parents.length})
             </h2>
             <button
               id="add-parent-btn"
               onClick={openCreateParent}
               style={{
-                fontSize: 12,
+                fontSize: "calc(12px * var(--font-scale))",
                 fontWeight: 700,
                 color: "var(--primary)",
                 background: "#fff",
@@ -205,7 +205,7 @@ export default function AdminCategoriesPage() {
                 borderLeft: !selectedParent ? "3px solid var(--primary)" : "3px solid transparent",
                 color: !selectedParent ? "var(--primary-dark)" : "var(--text-secondary)",
                 fontWeight: !selectedParent ? 700 : 500,
-                fontSize: 13,
+                fontSize: "calc(13px * var(--font-scale))",
                 textAlign: "left",
                 cursor: "pointer",
                 fontFamily: "var(--font-sans)",
@@ -233,14 +233,14 @@ export default function AdminCategoriesPage() {
                     border: "none",
                     color: selectedParent === p.id ? "var(--primary-dark)" : "var(--text-secondary)",
                     fontWeight: selectedParent === p.id ? 700 : 500,
-                    fontSize: 13,
+                    fontSize: "calc(13px * var(--font-scale))",
                     textAlign: "left",
                     cursor: "pointer",
                     fontFamily: "var(--font-sans)",
                   }}
                 >
                   {p.name}
-                  <span style={{ fontSize: 11, color: "var(--text-muted)", marginLeft: 6 }}>
+                  <span style={{ fontSize: "calc(11px * var(--font-scale))", color: "var(--text-muted)", marginLeft: 6 }}>
                     ({categories.filter((c) => c.parentId === p.id).length})
                   </span>
                 </button>
@@ -249,7 +249,7 @@ export default function AdminCategoriesPage() {
                     id={`edit-parent-${p.id}`}
                     onClick={() => openEditParent(p)}
                     style={{
-                      fontSize: 11,
+                      fontSize: "calc(11px * var(--font-scale))",
                       padding: "3px 8px",
                       background: "var(--primary-bg)",
                       color: "var(--primary-dark)",
@@ -265,7 +265,7 @@ export default function AdminCategoriesPage() {
                     id={`delete-parent-${p.id}`}
                     onClick={() => deleteParent(p.id)}
                     style={{
-                      fontSize: 11,
+                      fontSize: "calc(11px * var(--font-scale))",
                       padding: "3px 8px",
                       background: "var(--danger-bg)",
                       color: "var(--danger)",
@@ -302,7 +302,7 @@ export default function AdminCategoriesPage() {
               justifyContent: "space-between",
             }}
           >
-            <h2 style={{ fontSize: 14, fontWeight: 800, color: "var(--text-secondary)" }}>
+            <h2 style={{ fontSize: "calc(14px * var(--font-scale))", fontWeight: 800, color: "var(--text-secondary)" }}>
               Danh mục con ({filteredCats.length})
             </h2>
             <Button id="add-category-btn" size="sm" onClick={openCreateCat}>
@@ -311,7 +311,7 @@ export default function AdminCategoriesPage() {
           </div>
           <div>
             {filteredCats.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "40px 0", color: "var(--text-muted)", fontSize: 13 }}>
+              <div style={{ textAlign: "center", padding: "40px 0", color: "var(--text-muted)", fontSize: "calc(13px * var(--font-scale))" }}>
                 Chưa có danh mục con
               </div>
             ) : (
@@ -330,10 +330,10 @@ export default function AdminCategoriesPage() {
                   onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.background = "none")}
                 >
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>
+                    <div style={{ fontSize: "calc(14px * var(--font-scale))", fontWeight: 600, color: "var(--text-primary)" }}>
                       {c.name}
                     </div>
-                    <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
+                    <div style={{ fontSize: "calc(12px * var(--font-scale))", color: "var(--text-muted)", marginTop: 2 }}>
                       {c.parent?.name} {c.description && `· ${c.description}`}
                     </div>
                   </div>
@@ -347,7 +347,7 @@ export default function AdminCategoriesPage() {
                         color: "var(--primary-dark)",
                         border: "1px solid var(--primary-border)",
                         borderRadius: "var(--radius-sm)",
-                        fontSize: 12,
+                        fontSize: "calc(12px * var(--font-scale))",
                         fontWeight: 700,
                         cursor: "pointer",
                         fontFamily: "var(--font-sans)",
@@ -364,7 +364,7 @@ export default function AdminCategoriesPage() {
                         color: "var(--danger)",
                         border: "1px solid var(--danger)",
                         borderRadius: "var(--radius-sm)",
-                        fontSize: 12,
+                        fontSize: "calc(12px * var(--font-scale))",
                         fontWeight: 700,
                         cursor: "pointer",
                         fontFamily: "var(--font-sans)",
@@ -393,7 +393,7 @@ export default function AdminCategoriesPage() {
         }
       >
         {parentError && (
-          <div style={{ color: "var(--danger)", fontSize: 13, marginBottom: 14, fontWeight: 600 }}>
+          <div style={{ color: "var(--danger)", fontSize: "calc(13px * var(--font-scale))", marginBottom: 14, fontWeight: 600 }}>
             <i className="fa fa-exclamation-triangle" style={{ marginRight: 4 }} /> {parentError}
           </div>
         )}
@@ -433,13 +433,13 @@ export default function AdminCategoriesPage() {
         }
       >
         {catError && (
-          <div style={{ color: "var(--danger)", fontSize: 13, marginBottom: 14, fontWeight: 600 }}>
+          <div style={{ color: "var(--danger)", fontSize: "calc(13px * var(--font-scale))", marginBottom: 14, fontWeight: 600 }}>
             <i className="fa fa-exclamation-triangle" style={{ marginRight: 4 }} /> {catError}
           </div>
         )}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div>
-            <label style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>
+            <label style={{ fontSize: "calc(13px * var(--font-scale))", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>
               Danh mục cha *
             </label>
             <select
@@ -451,7 +451,7 @@ export default function AdminCategoriesPage() {
                 padding: "10px 12px",
                 border: "1.5px solid var(--border)",
                 borderRadius: "var(--radius-md)",
-                fontSize: 14,
+                fontSize: "calc(14px * var(--font-scale))",
                 background: "var(--bg-card)",
                 color: "var(--text-primary)",
                 fontFamily: "var(--font-sans)",

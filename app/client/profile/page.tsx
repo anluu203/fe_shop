@@ -88,7 +88,7 @@ export default function ProfilePage() {
         <div className="container">
           <h1
             style={{
-              fontSize: 26,
+              fontSize: "calc(26px * var(--font-scale))",
               fontWeight: 900,
               color: "#fff",
               display: "flex",
@@ -106,7 +106,7 @@ export default function ProfilePage() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 22,
+                fontSize: "calc(22px * var(--font-scale))",
                 overflow: "hidden",
                 flexShrink: 0,
                 border: "2px solid rgba(255,255,255,0.5)",
@@ -128,7 +128,7 @@ export default function ProfilePage() {
             </div>
             {user.username}
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.75)", marginTop: 6, fontSize: 14 }}>
+          <p style={{ color: "rgba(255,255,255,0.75)", marginTop: 6, fontSize: "calc(14px * var(--font-scale))" }}>
             {user.email} · {user.role === "ADMIN" ? "Quản trị viên" : "Thành viên"}
           </p>
         </div>
@@ -164,7 +164,7 @@ export default function ProfilePage() {
             >
               <h2
                 style={{
-                  fontSize: 15,
+                  fontSize: "calc(15px * var(--font-scale))",
                   fontWeight: 800,
                   color: "var(--primary-dark)",
                 }}
@@ -180,7 +180,7 @@ export default function ProfilePage() {
                     color: "var(--danger)",
                     padding: "10px 14px",
                     borderRadius: "var(--radius-md)",
-                    fontSize: 13,
+                    fontSize: "calc(13px * var(--font-scale))",
                     marginBottom: 16,
                     fontWeight: 600,
                   }}
@@ -195,7 +195,7 @@ export default function ProfilePage() {
                     color: "#15803d",
                     padding: "10px 14px",
                     borderRadius: "var(--radius-md)",
-                    fontSize: 13,
+                    fontSize: "calc(13px * var(--font-scale))",
                     marginBottom: 16,
                     fontWeight: 600,
                     animation: "fadeIn 0.3s ease",
@@ -215,7 +215,7 @@ export default function ProfilePage() {
                 <div>
                   <label
                     style={{
-                      fontSize: 13,
+                      fontSize: "calc(13px * var(--font-scale))",
                       fontWeight: 600,
                       color: "var(--text-secondary)",
                       display: "block",
@@ -230,13 +230,13 @@ export default function ProfilePage() {
                       background: "var(--bg-section)",
                       borderRadius: "var(--radius-md)",
                       border: "1.5px solid var(--border)",
-                      fontSize: 14,
+                      fontSize: "calc(14px * var(--font-scale))",
                       color: "var(--text-muted)",
                     }}
                   >
                     {user.email}
                   </div>
-                  <p style={{ fontSize: 11, color: "var(--text-disabled)", marginTop: 4 }}>
+                  <p style={{ fontSize: "calc(11px * var(--font-scale))", color: "var(--text-disabled)", marginTop: 4 }}>
                     Email không thể thay đổi hiện tại
                   </p>
                 </div>
@@ -270,7 +270,7 @@ export default function ProfilePage() {
             >
               <h2
                 style={{
-                  fontSize: 15,
+                  fontSize: "calc(15px * var(--font-scale))",
                   fontWeight: 800,
                   color: "var(--primary-dark)",
                 }}
@@ -286,7 +286,7 @@ export default function ProfilePage() {
                     color: "var(--danger)",
                     padding: "10px 14px",
                     borderRadius: "var(--radius-md)",
-                    fontSize: 13,
+                    fontSize: "calc(13px * var(--font-scale))",
                     marginBottom: 16,
                     fontWeight: 600,
                   }}
@@ -301,7 +301,7 @@ export default function ProfilePage() {
                     color: "#15803d",
                     padding: "10px 14px",
                     borderRadius: "var(--radius-md)",
-                    fontSize: 13,
+                    fontSize: "calc(13px * var(--font-scale))",
                     marginBottom: 16,
                     fontWeight: 600,
                     animation: "fadeIn 0.3s ease",
@@ -347,7 +347,7 @@ export default function ProfilePage() {
                 background: "var(--bg-section)",
               }}
             >
-              <h2 style={{ fontSize: 15, fontWeight: 800, color: "var(--text-secondary)" }}>
+              <h2 style={{ fontSize: "calc(15px * var(--font-scale))", fontWeight: 800, color: "var(--text-secondary)" }}>
                 <i className="fa fa-info-circle" style={{ marginRight: 6 }} /> Thông tin tài khoản
               </h2>
             </div>
@@ -369,11 +369,11 @@ export default function ProfilePage() {
                     gap: 12,
                   }}
                 >
-                  <span style={{ fontSize: 13, color: "var(--text-muted)" }}>
+                  <span style={{ fontSize: "calc(13px * var(--font-scale))", color: "var(--text-muted)" }}>
                     {item.label}
                   </span>
                   <span
-                    style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}
+                    style={{ fontSize: "calc(13px * var(--font-scale))", fontWeight: 600, color: "var(--text-primary)" }}
                   >
                     {item.value}
                   </span>
@@ -398,7 +398,7 @@ export default function ProfilePage() {
                 background: "var(--bg-section)",
               }}
             >
-              <h2 style={{ fontSize: 15, fontWeight: 800, color: "var(--text-secondary)" }}>
+              <h2 style={{ fontSize: "calc(15px * var(--font-scale))", fontWeight: 800, color: "var(--text-secondary)" }}>
                 <i className="fa fa-link" style={{ marginRight: 6 }} /> Liên kết nhanh
               </h2>
             </div>
@@ -419,7 +419,7 @@ export default function ProfilePage() {
                     gap: 12,
                     padding: "12px 16px",
                     borderRadius: "var(--radius-md)",
-                    fontSize: 14,
+                    fontSize: "calc(14px * var(--font-scale))",
                     fontWeight: 600,
                     color: "var(--text-primary)",
                     textDecoration: "none",
@@ -438,7 +438,7 @@ export default function ProfilePage() {
                       "var(--text-primary)";
                   }}
                 >
-                  <i className={`fa ${item.icon}`} style={{ fontSize: 18, width: 20, textAlign: "center", color: "var(--primary)" }} />
+                  <i className={`fa ${item.icon}`} style={{ fontSize: "calc(18px * var(--font-scale))", width: 20, textAlign: "center", color: "var(--primary)" }} />
                   {item.label}
                   <span style={{ marginLeft: "auto", color: "var(--text-muted)" }}>
                     <i className="fa fa-angle-right" />

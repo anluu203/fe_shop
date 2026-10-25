@@ -56,12 +56,12 @@ export default function ConsultationPage() {
           <form className={ui.panel} onSubmit={handleSubmit} noValidate>
             <h2 className={ui.panelTitle}>Bạn đang cần gì?</h2>
             <fieldset className="mb-[18px] min-w-0 border-0">
-              <legend className="mb-2 text-[13px] font-semibold">Nhu cầu sử dụng</legend>
+              <legend className="mb-2 text-[length:calc(13px*var(--font-scale))] font-semibold">Nhu cầu sử dụng</legend>
               {options.usages.map((item) => (
                 <button key={item.id} type="button" className={ui.usage}
                   aria-pressed={usage === item.id} onClick={() => setUsage(item.id)}>
-                  <i className={`fa ${item.icon} w-[25px] text-center text-[21px]`} aria-hidden="true" />
-                  <span><strong className="block text-[13px]">{item.label}</strong><small className="text-xs font-normal">{item.description}</small></span>
+                  <i className={`fa ${item.icon} w-[25px] text-center text-[length:calc(21px*var(--font-scale))]`} aria-hidden="true" />
+                  <span><strong className="block text-[length:calc(13px*var(--font-scale))]">{item.label}</strong><small className="text-xs font-normal">{item.description}</small></span>
                 </button>
               ))}
             </fieldset>

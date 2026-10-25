@@ -81,7 +81,7 @@ export default function AdminOrderDetailPage() {
           alignItems: "center",
           gap: 8,
           marginBottom: 20,
-          fontSize: 13,
+          fontSize: "calc(13px * var(--font-scale))",
           color: "var(--text-muted)",
         }}
       >
@@ -123,7 +123,7 @@ export default function AdminOrderDetailPage() {
                 gap: 12,
               }}
             >
-              <h2 style={{ fontSize: 14, fontWeight: 800, color: "var(--text-secondary)" }}>
+              <h2 style={{ fontSize: "calc(14px * var(--font-scale))", fontWeight: 800, color: "var(--text-secondary)" }}>
                 <i className="fa fa-truck" style={{ marginRight: 6 }} /> Trạng thái
               </h2>
               <Badge variant={getStatusVariant(order.status)} dot>
@@ -160,7 +160,7 @@ export default function AdminOrderDetailPage() {
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              fontSize: 14,
+                              fontSize: "calc(14px * var(--font-scale))",
                               color: isActive ? "#fff" : "var(--text-muted)",
                               fontWeight: 700,
                               boxShadow: isCurrent ? "0 0 0 4px var(--primary-bg)" : "none",
@@ -170,7 +170,7 @@ export default function AdminOrderDetailPage() {
                           </div>
                           <span
                             style={{
-                              fontSize: 11,
+                              fontSize: "calc(11px * var(--font-scale))",
                               fontWeight: isCurrent ? 700 : 500,
                               color: isCurrent ? "var(--primary)" : "var(--text-muted)",
                               whiteSpace: "nowrap",
@@ -205,7 +205,7 @@ export default function AdminOrderDetailPage() {
                     color: "var(--danger)",
                     padding: "10px 14px",
                     borderRadius: "var(--radius-md)",
-                    fontSize: 13,
+                    fontSize: "calc(13px * var(--font-scale))",
                     fontWeight: 600,
                     marginBottom: 14,
                   }}
@@ -236,7 +236,7 @@ export default function AdminOrderDetailPage() {
                     background: "var(--success-bg)",
                     color: "#15803d",
                     borderRadius: "var(--radius-md)",
-                    fontSize: 14,
+                    fontSize: "calc(14px * var(--font-scale))",
                     fontWeight: 700,
                   }}
                 >
@@ -263,7 +263,7 @@ export default function AdminOrderDetailPage() {
                   background: "var(--bg-section)",
                 }}
               >
-                <h2 style={{ fontSize: 14, fontWeight: 800, color: "var(--text-secondary)" }}>
+                <h2 style={{ fontSize: "calc(14px * var(--font-scale))", fontWeight: 800, color: "var(--text-secondary)" }}>
                   <i className="fa fa-user" style={{ marginRight: 6 }} /> Thông tin khách hàng
                 </h2>
               </div>
@@ -279,7 +279,7 @@ export default function AdminOrderDetailPage() {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      fontSize: 13,
+                      fontSize: "calc(13px * var(--font-scale))",
                       paddingBottom: 10,
                       borderBottom: "1px solid var(--border)",
                     }}
@@ -310,7 +310,7 @@ export default function AdminOrderDetailPage() {
                 background: "var(--bg-section)",
               }}
             >
-              <h2 style={{ fontSize: 14, fontWeight: 800, color: "var(--text-secondary)" }}>
+              <h2 style={{ fontSize: "calc(14px * var(--font-scale))", fontWeight: 800, color: "var(--text-secondary)" }}>
                 <i className="fa fa-cube" style={{ marginRight: 6 }} /> Sách ({order.items.length})
               </h2>
             </div>
@@ -349,18 +349,18 @@ export default function AdminOrderDetailPage() {
                         }}
                       />
                     ) : (
-                      <span style={{ fontSize: 22, opacity: 0.3 }}><i className="fa fa-book" /></span>
+                      <span style={{ fontSize: "calc(22px * var(--font-scale))", opacity: 0.3 }}><i className="fa fa-book" /></span>
                     )}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+                    <div style={{ fontSize: "calc(13px * var(--font-scale))", fontWeight: 600, color: "var(--text-primary)" }}>
                       {item.product?.name}
                     </div>
-                    <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
+                    <div style={{ fontSize: "calc(12px * var(--font-scale))", color: "var(--text-muted)", marginTop: 2 }}>
                       {formatPrice(item.unitPrice)} × {item.quantity}
                     </div>
                   </div>
-                  <div style={{ fontWeight: 800, color: "var(--accent)", fontSize: 14 }}>
+                  <div style={{ fontWeight: 800, color: "var(--accent)", fontSize: "calc(14px * var(--font-scale))" }}>
                     {formatPrice(String(parseInt(item.unitPrice) * item.quantity))}
                   </div>
                 </div>
@@ -387,7 +387,7 @@ export default function AdminOrderDetailPage() {
               background: "var(--primary-bg)",
             }}
           >
-            <h2 style={{ fontSize: 14, fontWeight: 800, color: "var(--primary-dark)" }}>
+            <h2 style={{ fontSize: "calc(14px * var(--font-scale))", fontWeight: 800, color: "var(--primary-dark)" }}>
               <i className="fa fa-money" style={{ marginRight: 6 }} /> Tóm tắt
             </h2>
           </div>
@@ -402,7 +402,7 @@ export default function AdminOrderDetailPage() {
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  fontSize: 13,
+                  fontSize: "calc(13px * var(--font-scale))",
                   paddingBottom: 10,
                   borderBottom: "1px solid var(--border)",
                 }}
@@ -412,8 +412,8 @@ export default function AdminOrderDetailPage() {
               </div>
             ))}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontWeight: 800, fontSize: 15 }}>Tổng cộng</span>
-              <span style={{ fontWeight: 900, fontSize: 22, color: "var(--accent)" }}>
+              <span style={{ fontWeight: 800, fontSize: "calc(15px * var(--font-scale))" }}>Tổng cộng</span>
+              <span style={{ fontWeight: 900, fontSize: "calc(22px * var(--font-scale))", color: "var(--accent)" }}>
                 {formatPrice(order.totalPrice)}
               </span>
             </div>
@@ -428,7 +428,7 @@ export default function AdminOrderDetailPage() {
                 padding: "10px",
                 background: "var(--bg-section)",
                 borderRadius: "var(--radius-md)",
-                fontSize: 13,
+                fontSize: "calc(13px * var(--font-scale))",
                 fontWeight: 600,
                 color: "var(--text-secondary)",
                 textDecoration: "none",

@@ -59,7 +59,7 @@ export default function OrdersPage() {
         <div className="container">
           <h1
             style={{
-              fontSize: 24,
+              fontSize: "calc(24px * var(--font-scale))",
               fontWeight: 900,
               color: "#fff",
               display: "flex",
@@ -69,7 +69,7 @@ export default function OrdersPage() {
           >
             <i className="fa fa-archive" style={{ marginRight: 4 }} /> Đơn hàng của tôi
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.75)", marginTop: 6, fontSize: 14 }}>
+          <p style={{ color: "rgba(255,255,255,0.75)", marginTop: 6, fontSize: "calc(14px * var(--font-scale))" }}>
             {orders.length} đơn hàng
           </p>
         </div>
@@ -86,12 +86,12 @@ export default function OrdersPage() {
               border: "1px solid var(--border)",
             }}
           >
-            <div style={{ fontSize: 64, marginBottom: 20, color: "var(--text-muted)" }}>
+            <div style={{ fontSize: "calc(64px * var(--font-scale))", marginBottom: 20, color: "var(--text-muted)" }}>
               <i className="fa fa-archive" />
             </div>
             <h2
               style={{
-                fontSize: 20,
+                fontSize: "calc(20px * var(--font-scale))",
                 fontWeight: 800,
                 color: "var(--text-primary)",
                 marginBottom: 10,
@@ -99,7 +99,7 @@ export default function OrdersPage() {
             >
               Chưa có đơn hàng nào
             </h2>
-            <p style={{ color: "var(--text-muted)", marginBottom: 28, fontSize: 14 }}>
+            <p style={{ color: "var(--text-muted)", marginBottom: 28, fontSize: "calc(14px * var(--font-scale))" }}>
               Đặt hàng ngay để trải nghiệm dịch vụ của BookStore!
             </p>
             <Link
@@ -114,7 +114,7 @@ export default function OrdersPage() {
                 padding: "12px 28px",
                 borderRadius: "var(--radius-full)",
                 fontWeight: 700,
-                fontSize: 14,
+                fontSize: "calc(14px * var(--font-scale))",
                 textDecoration: "none",
               }}
             >
@@ -157,7 +157,7 @@ export default function OrdersPage() {
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <span
                       style={{
-                        fontSize: 13,
+                        fontSize: "calc(13px * var(--font-scale))",
                         fontWeight: 800,
                         color: "var(--text-primary)",
                       }}
@@ -169,12 +169,12 @@ export default function OrdersPage() {
                     </Badge>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                    <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                    <span style={{ fontSize: "calc(12px * var(--font-scale))", color: "var(--text-muted)" }}>
                       {order.createdAt ? formatDate(order.createdAt) : ""}
                     </span>
                     <span
                       style={{
-                        fontSize: 16,
+                        fontSize: "calc(16px * var(--font-scale))",
                         fontWeight: 900,
                         color: "var(--accent)",
                       }}
@@ -232,14 +232,14 @@ export default function OrdersPage() {
                               }}
                             />
                           ) : (
-                            <span style={{ fontSize: 20, opacity: 0.3 }}><i className="fa fa-book" /></span>
+                            <span style={{ fontSize: "calc(20px * var(--font-scale))", opacity: 0.3 }}><i className="fa fa-book" /></span>
                           )}
                         </div>
                         <div>
                           <div
                             className="line-clamp-1"
                             style={{
-                              fontSize: 12,
+                              fontSize: "calc(12px * var(--font-scale))",
                               fontWeight: 600,
                               color: "var(--text-primary)",
                               maxWidth: 160,
@@ -249,7 +249,7 @@ export default function OrdersPage() {
                           </div>
                           <div
                             style={{
-                              fontSize: 11,
+                              fontSize: "calc(11px * var(--font-scale))",
                               color: "var(--text-muted)",
                             }}
                           >
@@ -261,7 +261,7 @@ export default function OrdersPage() {
                     {order.items.length > 3 && (
                       <span
                         style={{
-                          fontSize: 12,
+                          fontSize: "calc(12px * var(--font-scale))",
                           color: "var(--text-muted)",
                           fontWeight: 600,
                         }}
@@ -274,7 +274,7 @@ export default function OrdersPage() {
                       id={`order-detail-${order.id}`}
                       style={{
                         marginLeft: "auto",
-                        fontSize: 13,
+                        fontSize: "calc(13px * var(--font-scale))",
                         fontWeight: 700,
                         color: "var(--primary)",
                         textDecoration: "none",

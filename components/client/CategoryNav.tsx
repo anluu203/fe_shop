@@ -84,7 +84,7 @@ function NavItem({
           : "3px solid transparent",
         color: active ? "var(--primary)" : "var(--text-secondary)",
         fontWeight: active ? 700 : 500,
-        fontSize: 12,
+        fontSize: "calc(12px * var(--font-scale))",
         transition: "all var(--transition)",
         textDecoration: "none",
       }}
@@ -103,7 +103,7 @@ function NavItem({
         }
       }}
     >
-      <i className={`fa ${icon}`} style={{ fontSize: 20 }} />
+      <i className={`fa ${icon}`} style={{ fontSize: "calc(20px * var(--font-scale))" }} />
       <span className="line-clamp-1">{label}</span>
     </Link>
   );

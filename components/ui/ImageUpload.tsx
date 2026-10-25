@@ -82,7 +82,7 @@ export default function ImageUpload({
       {label && (
         <label
           style={{
-            fontSize: 13,
+            fontSize: "calc(13px * var(--font-scale))",
             fontWeight: 600,
             color: "var(--text-secondary)",
             display: "block",
@@ -164,19 +164,19 @@ export default function ImageUpload({
         />
 
         {uploading ? (
-          <div style={{ color: "var(--primary)", fontSize: 13, fontWeight: 600 }}>
+          <div style={{ color: "var(--primary)", fontSize: "calc(13px * var(--font-scale))", fontWeight: 600 }}>
             <i className="fa fa-spinner fa-spin" style={{ marginRight: 6 }} />
             Đang upload...
           </div>
         ) : (
           <div>
-            <div style={{ fontSize: 24, color: "var(--text-muted)", marginBottom: 6 }}>
+            <div style={{ fontSize: "calc(24px * var(--font-scale))", color: "var(--text-muted)", marginBottom: 6 }}>
               <i className="fa fa-cloud-upload" />
             </div>
-            <div style={{ fontSize: 13, color: "var(--text-secondary)", fontWeight: 600 }}>
+            <div style={{ fontSize: "calc(13px * var(--font-scale))", color: "var(--text-secondary)", fontWeight: 600 }}>
               Kéo thả hoặc <span style={{ color: "var(--primary)" }}>chọn file</span>
             </div>
-            <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
+            <div style={{ fontSize: "calc(11px * var(--font-scale))", color: "var(--text-muted)", marginTop: 4 }}>
               JPEG, PNG, GIF, WebP — tối đa {USE_MOCK ? 2 : 5} MB
             </div>
           </div>
@@ -192,7 +192,7 @@ export default function ImageUpload({
             background: "var(--border)",
           }}
         />
-        <span style={{ fontSize: 11, color: "var(--text-muted)", whiteSpace: "nowrap" }}>
+        <span style={{ fontSize: "calc(11px * var(--font-scale))", color: "var(--text-muted)", whiteSpace: "nowrap" }}>
           hoặc nhập URL
         </span>
         <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
@@ -206,7 +206,7 @@ export default function ImageUpload({
             top: "50%",
             transform: "translateY(-50%)",
             color: "var(--text-muted)",
-            fontSize: 14,
+            fontSize: "calc(14px * var(--font-scale))",
             pointerEvents: "none",
           }}
         >
@@ -228,7 +228,7 @@ export default function ImageUpload({
             padding: "10px 12px 10px 36px",
             border: "1.5px solid var(--border)",
             borderRadius: "var(--radius-md)",
-            fontSize: 13,
+            fontSize: "calc(13px * var(--font-scale))",
             background: "var(--bg-card)",
             color: "var(--text-primary)",
             outline: "none",
@@ -251,7 +251,7 @@ export default function ImageUpload({
           }}
           style={{
             marginTop: 8,
-            fontSize: 12,
+            fontSize: "calc(12px * var(--font-scale))",
             color: "var(--danger)",
             background: "none",
             border: "none",
@@ -272,7 +272,7 @@ export default function ImageUpload({
         <div
           style={{
             marginTop: 8,
-            fontSize: 12,
+            fontSize: "calc(12px * var(--font-scale))",
             color: "var(--danger)",
             fontWeight: 600,
             display: "flex",

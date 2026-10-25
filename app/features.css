@@ -22,13 +22,13 @@
   min-width: 0;
 }
 .feature-panel h2 {
-  font-size: 24px;
+  font-size: calc(24px * var(--font-scale));
   font-family: Georgia, serif;
   line-height: 1.3;
   margin: 6px 0;
 }
 .feature-panel h3 {
-  font-size: 21px;
+  font-size: calc(21px * var(--font-scale));
 }
 .feature-stats {
   display: grid;
@@ -46,16 +46,16 @@
 }
 .feature-stats span {
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
 }
 .feature-stats strong {
   color: var(--primary);
-  font-size: clamp(20px, 2vw, 32px);
+  font-size: clamp(calc(20px * var(--font-scale)), calc(2vw * var(--font-scale)), calc(32px * var(--font-scale)));
   overflow-wrap: anywhere;
 }
 .feature-stats small {
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
 }
 .feature-stats a {
   text-decoration: none;
@@ -70,7 +70,7 @@
 .feature-tabs button {
   padding: 10px 16px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
@@ -93,7 +93,7 @@
 .report-filters label {
   display: grid;
   gap: 8px;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -147,7 +147,7 @@
 .feature-note {
   padding: 14px 16px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
   line-height: 1.7;
   overflow-wrap: anywhere;
 }
@@ -172,7 +172,7 @@
 .feature-block,
 .feature-actions small {
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   line-height: 1.7;
 }
 .feature-block {
@@ -210,7 +210,7 @@
   background: var(--primary-bg);
   color: var(--primary);
   border-radius: 20px;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   white-space: nowrap;
 }
 .feature-pill.attention {
@@ -249,7 +249,7 @@
   margin: 10px 0;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale));
   line-height: 1.7;
 }
 .revenue-chart-scroll {
@@ -271,26 +271,26 @@
 }
 .chart-detail {
   margin: 12px 0;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
   color: var(--text-secondary);
   min-height: 24px;
 }
 .chart-scroll-hint {
   display: none;
   color: var(--text-muted);
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   margin-top: 12px;
 }
 .report-data summary {
   cursor: pointer;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
   color: var(--primary);
   padding: 12px 0;
 }
 .bestseller-rank {
   color: var(--accent);
   font-family: Georgia, serif;
-  font-size: 22px;
+  font-size: calc(22px * var(--font-scale));
 }
 .dashboard-shortcuts {
   display: grid;
@@ -308,16 +308,16 @@
 }
 .dashboard-shortcuts i {
   color: var(--accent);
-  font-size: 22px;
+  font-size: calc(22px * var(--font-scale));
 }
 .dashboard-shortcuts p {
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
   line-height: 1.7;
 }
 .book-discount {
   display: block;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   color: var(--accent-dark);
   margin: -4px 0 10px;
 }
@@ -334,7 +334,7 @@
   margin-bottom: 10px;
 }
 .header-chat-link {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   color: var(--primary);
   display: flex;
   align-items: center;
@@ -368,12 +368,12 @@
   box-shadow: var(--shadow-lg);
   padding: 15px 21px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale));
   font-weight: 600;
   margin-left: auto;
 }
 .chatbot-launcher i {
-  font-size: 23px;
+  font-size: calc(23px * var(--font-scale));
 }
 .chatbot-window {
   width: min(410px, calc(100vw - 32px));
@@ -396,13 +396,13 @@
   gap: 12px;
 }
 .chatbot-heading h2 {
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale));
   font-weight: 700;
   margin: 0;
 }
 .chatbot-heading small {
   display: block;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   opacity: 0.85;
   margin-top: 4px;
 }
@@ -418,7 +418,7 @@
   place-items: center;
   border: 1px solid #ffffff50;
   border-radius: 50%;
-  font-size: 22px;
+  font-size: calc(22px * var(--font-scale));
   flex-shrink: 0;
 }
 .chatbot-messages {
@@ -439,7 +439,7 @@
 .chat-bubble {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
   line-height: 1.75;
   border-radius: 12px;
   padding: 12px 14px;
@@ -481,22 +481,22 @@
   gap: 4px;
 }
 .chat-book strong {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   line-height: 1.4;
 }
 .chat-book small {
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   color: var(--text-muted);
 }
 .chat-book b {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   color: var(--primary);
 }
 .chat-support-links {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   color: var(--primary);
   text-decoration: underline;
 }
@@ -512,7 +512,7 @@
   color: var(--primary);
   border-radius: 20px;
   padding: 6px 9px;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   cursor: pointer;
 }
 .chatbot-compose {
@@ -528,7 +528,7 @@
   border: 0;
   background: transparent;
   padding: 6px;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
   resize: none;
   line-height: 1.5;
 }
@@ -541,14 +541,14 @@
   flex-shrink: 0;
 }
 .chatbot-disclaimer {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   color: var(--text-muted);
   padding: 0 15px 12px;
   line-height: 1.6;
 }
 .chat-typing,
 .chat-offline {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   color: var(--text-muted);
   padding: 12px;
 }
@@ -582,7 +582,7 @@
     padding: 15px;
   }
   .feature-stats strong {
-    font-size: 21px;
+    font-size: calc(21px * var(--font-scale));
   }
   .feature-toolbar > * {
     width: 100%;

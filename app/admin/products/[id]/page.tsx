@@ -113,7 +113,7 @@ export default function EditProductPage() {
   return (
     <div style={{ maxWidth: 680 }}>
       {/* Breadcrumb */}
-      <div style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 20, display: "flex", gap: 8 }}>
+      <div style={{ fontSize: "calc(13px * var(--font-scale))", color: "var(--text-muted)", marginBottom: 20, display: "flex", gap: 8 }}>
         <Link href="/admin/products" style={{ color: "var(--primary)", textDecoration: "none" }}>
           Sách
         </Link>
@@ -139,10 +139,10 @@ export default function EditProductPage() {
             justifyContent: "space-between",
           }}
         >
-          <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--text-secondary)" }}>
+          <h2 style={{ fontSize: "calc(16px * var(--font-scale))", fontWeight: 800, color: "var(--text-secondary)" }}>
             <i className="fa fa-pencil" style={{ marginRight: 6 }} /> Chỉnh sửa sách
           </h2>
-          <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+          <span style={{ fontSize: "calc(12px * var(--font-scale))", color: "var(--text-muted)" }}>
             Giá hiện tại: {formatPrice(product.price)}
           </span>
         </div>
@@ -156,7 +156,7 @@ export default function EditProductPage() {
                 color: "var(--danger)",
                 padding: "12px 16px",
                 borderRadius: "var(--radius-md)",
-                fontSize: 13,
+                fontSize: "calc(13px * var(--font-scale))",
                 fontWeight: 600,
                 marginBottom: 20,
               }}
@@ -171,7 +171,7 @@ export default function EditProductPage() {
                 color: "#15803d",
                 padding: "12px 16px",
                 borderRadius: "var(--radius-md)",
-                fontSize: 13,
+                fontSize: "calc(13px * var(--font-scale))",
                 fontWeight: 600,
                 marginBottom: 20,
                 animation: "fadeIn 0.3s ease",
@@ -190,7 +190,7 @@ export default function EditProductPage() {
               error={errors.name}
             />
             <div>
-              <label style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>
+              <label style={{ fontSize: "calc(13px * var(--font-scale))", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>
                 Mô tả
               </label>
               <textarea
@@ -203,7 +203,7 @@ export default function EditProductPage() {
                   padding: "10px 12px",
                   border: "1.5px solid var(--border)",
                   borderRadius: "var(--radius-md)",
-                  fontSize: 14,
+                  fontSize: "calc(14px * var(--font-scale))",
                   color: "var(--text-primary)",
                   background: "var(--bg-card)",
                   outline: "none",
@@ -224,7 +224,7 @@ export default function EditProductPage() {
               onChange={(url) => setForm({ ...form, imageUrl: url })}
             />
             {errors.imageUrl && (
-              <span style={{ fontSize: 12, color: "var(--danger)", marginTop: -10, display: "block" }}>
+              <span style={{ fontSize: "calc(12px * var(--font-scale))", color: "var(--danger)", marginTop: -10, display: "block" }}>
                 {errors.imageUrl}
               </span>
             )}
@@ -241,7 +241,7 @@ export default function EditProductPage() {
 
             {/* Category */}
             <div>
-              <label style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>
+              <label style={{ fontSize: "calc(13px * var(--font-scale))", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>
                 Danh mục cha
               </label>
               <select
@@ -256,7 +256,7 @@ export default function EditProductPage() {
                   padding: "10px 12px",
                   border: "1.5px solid var(--border)",
                   borderRadius: "var(--radius-md)",
-                  fontSize: 14,
+                  fontSize: "calc(14px * var(--font-scale))",
                   background: "var(--bg-card)",
                   color: "var(--text-primary)",
                   outline: "none",
@@ -269,7 +269,7 @@ export default function EditProductPage() {
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </select>
-              <label style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>
+              <label style={{ fontSize: "calc(13px * var(--font-scale))", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>
                 Danh mục con *
               </label>
               <select
@@ -281,7 +281,7 @@ export default function EditProductPage() {
                   padding: "10px 12px",
                   border: `1.5px solid ${errors.categoryId ? "var(--danger)" : "var(--border)"}`,
                   borderRadius: "var(--radius-md)",
-                  fontSize: 14,
+                  fontSize: "calc(14px * var(--font-scale))",
                   background: "var(--bg-card)",
                   color: "var(--text-primary)",
                   outline: "none",
@@ -296,7 +296,7 @@ export default function EditProductPage() {
             </div>
 
             {form.price && /^\d+$/.test(form.price) && (
-              <div style={{ padding: "12px 16px", background: "var(--primary-bg)", borderRadius: "var(--radius-md)", fontSize: 14, color: "var(--primary-dark)", fontWeight: 600 }}>
+              <div style={{ padding: "12px 16px", background: "var(--primary-bg)", borderRadius: "var(--radius-md)", fontSize: "calc(14px * var(--font-scale))", color: "var(--primary-dark)", fontWeight: 600 }}>
                 <i className="fa fa-money" style={{ marginRight: 6 }} /> Hiển thị: {parseInt(form.price).toLocaleString("vi-VN")} ₫
               </div>
             )}

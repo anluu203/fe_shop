@@ -101,7 +101,7 @@ function PageBtn({
         background: active ? "var(--primary)" : "var(--bg-card)",
         color: active ? "#fff" : disabled ? "var(--text-disabled)" : "var(--text-primary)",
         fontWeight: active ? 700 : 500,
-        fontSize: 14,
+        fontSize: "calc(14px * var(--font-scale))",
         cursor: disabled ? "not-allowed" : "pointer",
         transition: "all var(--transition)",
         display: "flex",
