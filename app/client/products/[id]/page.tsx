@@ -10,6 +10,7 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { PageSpinner } from "../../../../components/ui/Spinner";
 import Button from "../../../../components/ui/Button";
 import Link from "next/link";
+import ProductReviews from "../../../../components/client/ProductReviews";
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -110,6 +111,7 @@ export default function ProductDetailPage() {
 
       <div className="container" style={{ padding: "32px 32px" }}>
         <div
+          className="product-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
@@ -387,6 +389,7 @@ export default function ProductDetailPage() {
             </div>
           </div>
         </div>
+        <ProductReviews key={product.id} productId={product.id} />
       </div>
 
       <style>{`

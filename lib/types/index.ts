@@ -95,6 +95,19 @@ export interface Product {
   updatedAt: string;
 }
 
+// ---------- Review ----------
+export interface Review {
+  id: string;
+  rating: number;
+  comment: string;
+  userId: string;
+  productId: string;
+}
+
+export interface ProductReview extends Review {
+  user: Pick<User, "id" | "username">;
+}
+
 export interface ProductBody {
   name: string;
   description?: string;

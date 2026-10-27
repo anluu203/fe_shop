@@ -9,6 +9,14 @@ import { formatPrice } from "../../../lib/utils/format";
 import { PageSpinner } from "../../../components/ui/Spinner";
 import Button from "../../../components/ui/Button";
 import type { OrderItem } from "../../../lib/types";
+import {
+  CartDeliveryPreview,
+  CartProductPromotion,
+  CartPromotionPreview,
+  getCartPreview,
+  type DeliveryMethod,
+} from "./CartPreview";
+import styles from "./cart.module.css";
 
 export default function CartPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -16,6 +24,9 @@ export default function CartPage() {
   const router = useRouter();
   const [checkingOut, setCheckingOut] = useState(false);
   const [clearConfirm, setClearConfirm] = useState(false);
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("standard");
+  const [promotionCode, setPromotionCode] = useState("");
+  const preview = getCartPreview(Number(cart?.totalPrice ?? 0), deliveryMethod, promotionCode);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -25,9 +36,9 @@ export default function CartPage() {
 
   useEffect(() => {
     if (user) refreshCart();
-  }, [user]);
+  }, [user, refreshCart]);
 
-  if (authLoading || (!user && !authLoading)) return <PageSpinner />;
+  if (authLoading || !user) return <PageSpinner />;
 
   const handleCheckout = async () => {
     if (!cart?.items.length) return;
@@ -35,8 +46,8 @@ export default function CartPage() {
     try {
       const order = await checkout();
       router.push(`/client/orders/${order.id}`);
-    } catch (err: any) {
-      alert(err.message ?? "Checkout thất bại");
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Checkout thất bại");
     } finally {
       setCheckingOut(false);
     }
@@ -69,7 +80,7 @@ export default function CartPage() {
         </div>
       </div>
 
-      <div className="container" style={{ padding: "28px 32px" }}>
+      <div className={`container ${styles.content}`}>
         {isEmpty ? (
           <div
             style={{
@@ -122,22 +133,19 @@ export default function CartPage() {
             </Link>
           </div>
         ) : (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 340px",
-              gap: 24,
-              alignItems: "start",
-            }}
-          >
+          <div className={styles.layout}>
             {/* Cart items */}
-            <div>
+            <div className={styles.itemsColumn}>
+              <CartDeliveryPreview
+                recipientName={user.username}
+                method={deliveryMethod}
+                subtotal={preview.subtotal}
+                onMethodChange={setDeliveryMethod}
+              />
               {/* Header row */}
               <div
+                className={styles.itemHeader}
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 120px 130px 40px",
-                  gap: 16,
                   padding: "12px 20px",
                   background: "var(--bg-section)",
                   borderRadius: "var(--radius-md)",
@@ -146,7 +154,6 @@ export default function CartPage() {
                   color: "var(--text-muted)",
                   textTransform: "uppercase",
                   letterSpacing: "0.5px",
-                  marginBottom: 12,
                 }}
               >
                 <span>Sản phẩm</span>
@@ -232,17 +239,23 @@ export default function CartPage() {
                   </button>
                 )}
               </div>
+              <div style={{ marginTop: 20 }}>
+                <CartPromotionPreview
+                  subtotal={preview.subtotal}
+                  code={promotionCode}
+                  onChange={setPromotionCode}
+                />
+              </div>
             </div>
 
             {/* Order summary */}
             <div
+              className={styles.summary}
               style={{
                 background: "var(--bg-card)",
                 borderRadius: "var(--radius-lg)",
                 border: "1px solid var(--border)",
                 overflow: "hidden",
-                position: "sticky",
-                top: "calc(var(--header-height) + 16px)",
               }}
             >
               <div
@@ -261,6 +274,9 @@ export default function CartPage() {
                 >
                   <i className="fa fa-list-alt" style={{ marginRight: 6 }} /> Thông tin đơn hàng
                 </h2>
+                <p style={{ fontSize: 12, color: "var(--primary-dark)", marginTop: 4 }}>
+                  Giao hàng & khuyến mãi: bản xem trước
+                </p>
               </div>
               <div style={{ padding: "20px" }}>
                 <div
@@ -292,9 +308,15 @@ export default function CartPage() {
                       color: "var(--text-secondary)",
                     }}
                   >
-                    <span>Phí vận chuyển</span>
-                    <span style={{ color: "var(--success)", fontWeight: 600 }}>
-                      Miễn phí
+                    <span>Phí giao hàng dự kiến</span>
+                    <span style={{ color: preview.shippingFee === 0 ? "#15803d" : "var(--text-secondary)", fontWeight: 600 }}>
+                      {preview.shippingFee === 0 ? "Miễn phí" : formatPrice(preview.shippingFee)}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 14, color: "var(--text-secondary)" }}>
+                    <span>Giảm giá mẫu{preview.promotion ? ` (${preview.promotion.code})` : ""}</span>
+                    <span style={{ fontWeight: 600, color: "#15803d", whiteSpace: "nowrap" }}>
+                      {preview.discount > 0 ? "−" : ""}{formatPrice(preview.discount)}
                     </span>
                   </div>
                   <div
@@ -310,7 +332,7 @@ export default function CartPage() {
                     }}
                   >
                     <span style={{ fontWeight: 800, fontSize: 15 }}>
-                      Tổng cộng
+                      Tổng dự kiến
                     </span>
                     <span
                       style={{
@@ -320,9 +342,14 @@ export default function CartPage() {
                         letterSpacing: "-0.5px",
                       }}
                     >
-                      {formatPrice(cart.totalPrice)}
+                      {formatPrice(preview.total)}
                     </span>
                   </div>
+                </div>
+
+                <div className={styles.summaryNote}>
+                  <strong>Giá trị đặt hàng hiện tại: {formatPrice(cart.totalPrice)}</strong>
+                  Địa chỉ, phương thức giao hàng, quà tặng và mã giảm giá mẫu chưa được lưu hoặc áp dụng vào đơn hàng thực tế.
                 </div>
 
                 <Button
@@ -331,6 +358,7 @@ export default function CartPage() {
                   size="lg"
                   fullWidth
                   loading={checkingOut}
+                  disabled={isLoading}
                   onClick={handleCheckout}
                   icon={<i className="fa fa-bolt" />}
                 >
@@ -420,11 +448,8 @@ function CartItemRow({
 
   return (
     <div
+      className={styles.itemRow}
       style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 120px 130px 40px",
-        gap: 16,
-        alignItems: "center",
         background: "var(--bg-card)",
         borderRadius: "var(--radius-md)",
         border: "1px solid var(--border)",
@@ -480,6 +505,7 @@ function CartItemRow({
           <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
             Đơn giá: {formatPrice(item.unitPrice)}
           </div>
+          <CartProductPromotion unitPrice={item.unitPrice} />
         </div>
       </div>
 
