@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import type { WarrantyStatus } from "../../lib/types/customer-services";
-import { WARRANTY_STATUS_LABEL } from "../../lib/services/customer-services";
+import type { WarrantyStatus } from "../../lib/types/warranty";
+import { WARRANTY_STATUS_LABEL } from "../../lib/services/warranty";
 
 export const adminServiceClasses = {
   panel: "min-w-0 rounded-2xl border border-[var(--border)] bg-white p-4 sm:p-6",
@@ -11,11 +11,11 @@ export const adminServiceClasses = {
   muted: "text-[13px] text-[var(--text-muted)]",
 };
 
-export function ServiceAdminIntro({ title, description, children }: { title: string; description: string; children?: ReactNode }) {
+export function ServiceAdminIntro({ title, description, children, demo = true }: { title: string; description: string; children?: ReactNode; demo?: boolean }) {
   return (
     <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
-        <span className="mb-2 inline-block rounded-full bg-[var(--primary-bg)] px-3 py-1 text-xs font-semibold text-primary-dark">Dữ liệu minh họa</span>
+        {demo && <span className="mb-2 inline-block rounded-full bg-[var(--primary-bg)] px-3 py-1 text-xs font-semibold text-primary-dark">Dữ liệu minh họa</span>}
         <h2 className="text-2xl font-extrabold text-[var(--text-primary)]">{title}</h2>
         <p className="mt-2 max-w-3xl text-sm text-[var(--text-secondary)]">{description}</p>
       </div>

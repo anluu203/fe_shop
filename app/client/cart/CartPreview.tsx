@@ -58,9 +58,6 @@ export function CartDeliveryPreview({
         <h2 id="delivery-heading"><i className="fa fa-map-marker" aria-hidden="true" /> Thông tin giao hàng</h2>
         <span className={styles.previewBadge}>Xem trước</span>
       </div>
-      <p className={styles.notice}>
-        Địa chỉ, phí giao hàng và ưu đãi là dữ liệu minh họa, chưa áp dụng khi đặt hàng.
-      </p>
 
       {editing ? (
         <form className={styles.addressForm} onSubmit={(event) => {

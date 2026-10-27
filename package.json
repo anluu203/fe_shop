@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:customer-services": "node --test tests/customer-services.test.mjs"
+    "test:customer-services": "node --test tests/customer-services.test.mjs",
+    "test:warranties": "node --test tests/warranties.test.mjs"
   },
   "dependencies": {
     "font-awesome": "^4.7.0",

@@ -9,11 +9,17 @@ interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | undefined>;
 }
 
+export class ApiRequestError extends Error {
+  constructor(public readonly status: number, message: string) {
+    super(message);
+    this.name = "ApiRequestError";
+  }
+}
+
 function buildUrl(
   path: string,
   params?: Record<string, string | number | undefined>
 ): string {
-  const url = new URL(path, BASE_URL + "/");
   // path có thể bắt đầu bằng /api/v1/... hoặc chỉ /products
   const fullUrl = path.startsWith("http")
     ? new URL(path)
@@ -69,7 +75,7 @@ export async function apiRequest<T>(
     const message = Array.isArray(err.message)
       ? err.message.join(", ")
       : err.message ?? "Có lỗi xảy ra";
-    throw new Error(message);
+    throw new ApiRequestError(response.status, message);
   }
 
   return data as T;

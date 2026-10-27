@@ -73,30 +73,5 @@
       "usages": ["gaming", "creative"], "specs": ["750W", "80 Plus Gold", "Full modular"],
       "reasons": { "gaming": "Có thêm dư địa công suất cho nhiều cấu hình gaming; kiểm tra yêu cầu nguồn của GPU cụ thể.", "creative": "Phù hợp nhiều cấu hình làm việc có GPU rời, dây tháo rời thuận tiện lắp đặt." }
     }
-  ],
-  "warrantyProducts": [
-    { "id": "warranty-cpu", "name": "AMD Ryzen 5 7600", "serial": "DEMO-CPU-7600-001", "orderCode": "DH-MAU-1001", "purchasedAt": "2026-08-10", "expiresAt": "2029-08-10" },
-    { "id": "warranty-gpu", "name": "NVIDIA GeForce RTX 4060 8GB", "serial": "DEMO-GPU-4060-002", "orderCode": "DH-MAU-1002", "purchasedAt": "2026-06-15", "expiresAt": "2029-06-15" },
-    { "id": "warranty-ssd", "name": "Samsung 990 PRO 1TB", "serial": "DEMO-SSD-990-003", "orderCode": "DH-MAU-1003", "purchasedAt": "2026-03-20", "expiresAt": "2031-03-20" },
-    { "id": "warranty-ram", "name": "Kingston Fury Beast 16GB DDR4", "serial": "DEMO-RAM-16-004", "orderCode": "DH-MAU-1004", "purchasedAt": "2022-09-01", "expiresAt": "2025-09-01" }
-  ],
-  "warrantyRequests": [
-    {
-      "id": "BH-MAU-001", "productId": "warranty-gpu", "contactName": "Khách hàng mẫu", "phone": "0900000000", "description": "Màn hình xuất hiện sọc khi chạy ứng dụng đồ họa.", "status": "repairing", "createdAt": "2026-10-12T02:00:00Z",
-      "timeline": [
-        { "status": "received", "date": "2026-10-12T02:00:00Z", "note": "Đã tiếp nhận sản phẩm và ghi nhận tình trạng." },
-        { "status": "checking", "date": "2026-10-13T03:00:00Z", "note": "Kỹ thuật viên đang kiểm tra lỗi hiển thị." },
-        { "status": "repairing", "date": "2026-10-14T07:00:00Z", "note": "Sản phẩm đang được xử lý tại trung tâm bảo hành." }
-      ]
-    },
-    {
-      "id": "BH-MAU-002", "productId": "warranty-ssd", "contactName": "Khách hàng mẫu", "phone": "0900000000", "description": "Ổ cứng không được nhận diện ổn định.", "status": "completed", "createdAt": "2026-09-15T02:00:00Z",
-      "timeline": [
-        { "status": "received", "date": "2026-09-15T02:00:00Z", "note": "Đã tiếp nhận ổ cứng." },
-        { "status": "checking", "date": "2026-09-16T03:00:00Z", "note": "Đã kiểm tra tình trạng kết nối và firmware." },
-        { "status": "repairing", "date": "2026-09-17T07:00:00Z", "note": "Đã xử lý và chạy kiểm tra độ ổn định." },
-        { "status": "completed", "date": "2026-09-19T08:00:00Z", "note": "Hoàn tất bảo hành và bàn giao cho khách hàng." }
-      ]
-    }
   ]
 }

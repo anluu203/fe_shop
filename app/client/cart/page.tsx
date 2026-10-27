@@ -347,10 +347,10 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                <div className={styles.summaryNote}>
+                {/* <div className={styles.summaryNote}>
                   <strong>Giá trị đặt hàng hiện tại: {formatPrice(cart.totalPrice)}</strong>
                   Địa chỉ, phương thức giao hàng, quà tặng và mã giảm giá mẫu chưa được lưu hoặc áp dụng vào đơn hàng thực tế.
-                </div>
+                </div> */}
 
                 <Button
                   id="checkout-btn"
