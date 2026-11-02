@@ -10,6 +10,7 @@ import {
 import { authApi } from "../lib/api/auth";
 import type { User } from "../lib/types";
 import { AUTH_TOKEN_KEY } from "../lib/mock/config";
+import { USE_MOCK } from "../lib/mock/config";
 
 interface AuthContextValue {
   user: User | null;
@@ -17,7 +18,7 @@ interface AuthContextValue {
   isLoading: boolean;
   isAdmin: boolean;
   login: (token: string, user: User) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateUser: (user: User) => void;
 }
 
@@ -30,28 +31,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Khôi phục phiên khi load app
   useEffect(() => {
-    let savedToken: string | null = null;
-    try {
-      savedToken = localStorage.getItem(AUTH_TOKEN_KEY);
-    } catch {
-      /* Browser may block persistent storage. */
+    let active = true;
+    async function restore() {
+      let savedToken: string | null = null;
+      try { savedToken = localStorage.getItem(AUTH_TOKEN_KEY); } catch {}
+      if (!savedToken) return null;
+      try { return { token: savedToken, user: await authApi.me() }; }
+      catch { try { if (localStorage.getItem(AUTH_TOKEN_KEY) === savedToken) localStorage.removeItem(AUTH_TOKEN_KEY); } catch {} return null; }
     }
-    if (!savedToken) {
-      setIsLoading(false);
-      return;
-    }
-    setToken(savedToken);
-    authApi
-      .me()
-      .then((u) => setUser(u))
-      .catch(() => {
-        // Token hết hạn hoặc không hợp lệ
-        try {
-          localStorage.removeItem(AUTH_TOKEN_KEY);
-        } catch {}
-        setToken(null);
-      })
-      .finally(() => setIsLoading(false));
+    restore().then((session) => {
+      if (!active) return;
+      setToken(session?.token ?? null); setUser(session?.user ?? null); setIsLoading(false);
+    });
+    return () => { active = false; };
   }, []);
 
   // A browser shares its demo session across tabs; keep the visible account in sync.
@@ -103,7 +95,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(newUser);
   }, []);
 
-  const logout = useCallback(() => {
+  useEffect(() => {
+    const expired = () => { setToken(null); setUser(null); };
+    window.addEventListener("bookstore:session-expired", expired);
+    return () => window.removeEventListener("bookstore:session-expired", expired);
+  }, []);
+
+  const logout = useCallback(async () => {
+    if (!USE_MOCK) {
+      try { await authApi.logout(); }
+      catch (error) { window.alert(error instanceof Error ? error.message : "Chưa thu hồi được phiên trên server. Vui lòng thử lại."); return; }
+    }
     try {
       localStorage.removeItem(AUTH_TOKEN_KEY);
     } catch {}

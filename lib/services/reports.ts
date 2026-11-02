@@ -144,6 +144,7 @@ export function reportCSV(report: RevenueReport): string {
     ["Kỳ", "Doanh thu (VND)", "Đơn hoàn thành", "Số sách"],
     ...report.buckets.map((b) => [b.label, b.revenue, b.orders, b.quantity]),
     ["Tổng", report.revenue, report.orders, report.quantity],
+    ...(report.refunded !== undefined ? [["Tiền đã hoàn trong kỳ", report.refunded], ["Doanh thu trừ hoàn trong kỳ", report.netRevenue ?? report.revenue]] : []),
     [],
     ["Sách bán chạy", "Số lượng", "Doanh thu (VND)"],
     ...report.bestSellers.map((b) => [b.name, b.quantity, b.revenue]),

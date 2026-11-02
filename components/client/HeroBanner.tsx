@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { Product } from "../../lib/types";
 import { imageSrc } from "../../lib/utils/image";
 export default function HeroBanner({ books = [] }: { books?: Product[] }) {
-  const featured = books.find((b) => b.id === "book-13") ?? books[0];
+  const featured = books.find((b) => (b.seedKey ?? b.id) === "book-13") ?? books[0];
   const companions = books.filter((b) => b.id !== featured?.id).slice(0, 2);
   return (
     <section className="journal-hero">

@@ -18,6 +18,7 @@ const STATUS_OPTIONS: { value: Exclude<OrderStatus, "AddingItem"> | ""; label: s
   { value: "Preparing", label: "Đang đóng gói" },
   { value: "Shipping", label: "Đang giao" },
   { value: "Done", label: "Hoàn thành" },
+  { value: "Cancelled", label: "Đã hủy" },
 ];
 
 function getStatusVariant(status: string) {
@@ -40,7 +41,6 @@ function AdminOrdersContent() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(() => {
-    setLoading(true);
     adminOrderApi
       .getAll({
         status: statusParam || undefined,
@@ -53,17 +53,19 @@ function AdminOrdersContent() {
   }, [statusParam, pageParam]);
 
   useEffect(() => {
-    load();
+    adminOrderApi.getAll({ status: statusParam || undefined, page: pageParam, pageSize: 20 }).then(setData).catch(() => setData(null)).finally(() => setLoading(false));
     return USE_MOCK ? subscribeMockData(load) : undefined;
-  }, [load]);
+  }, [load, statusParam, pageParam]);
 
   const setStatus = (s: string) => {
+    setLoading(true);
     const params = new URLSearchParams();
     if (s) params.set("status", s);
     router.push(`/admin/orders?${params.toString()}`);
   };
 
   const setPage = (p: number) => {
+    setLoading(true);
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(p));
     router.push(`/admin/orders?${params.toString()}`);

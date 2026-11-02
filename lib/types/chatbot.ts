@@ -1,6 +1,7 @@
 import type { Product } from "./index";
 
 export interface AIConfig {
+  mode?: "rules" | "provider";
   enabled: boolean;
   botName: string;
   welcomeMessage: string;
@@ -14,7 +15,7 @@ export interface AIConfig {
 }
 export type PublicAIConfig = Pick<
   AIConfig,
-  "enabled" | "botName" | "welcomeMessage" | "supportContact"
+  "enabled" | "botName" | "welcomeMessage" | "supportContact" | "mode"
 >;
 export interface ChatLog {
   id: string;

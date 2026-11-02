@@ -1,5 +1,5 @@
-import { api } from "./client";
-import type { AddCartItemBody, Order, UpdateCartItemBody } from "../types";
+import { api, apiRequest } from "./client";
+import type { AddCartItemBody, CheckoutBody, Order, UpdateCartItemBody } from "../types";
 
 export const orderApi = {
   // --- Cart ---
@@ -16,7 +16,8 @@ export const orderApi = {
 
   clearCart: () => api.delete("/orders/cart"),
 
-  checkout: () => api.post<Order>("/orders/checkout"),
+  checkout: (body?: CheckoutBody, key?: string) => apiRequest<Order>("/orders/checkout", { method: "POST", headers: key ? { "Idempotency-Key": key } : undefined, body: body ? JSON.stringify(body) : undefined }),
+  cancel: (id: string) => api.post<Order>(`/orders/${id}/cancel`),
 
   // --- Order history ---
   getHistory: () => api.get<Order[]>("/orders"),

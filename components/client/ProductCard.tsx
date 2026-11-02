@@ -77,13 +77,13 @@ export default function ProductCard({ product }: { product: Product }) {
           id={`add-to-cart-${product.id}`}
           className="book-add"
           onClick={handleAddToCart}
-          disabled={adding || isLoading}
+          disabled={adding || isLoading || product.stockQuantity === 0}
         >
           <i
             className={`fa ${adding ? "fa-spinner fa-spin" : added ? "fa-check" : "fa-cart-plus"}`}
             aria-hidden="true"
           />{" "}
-          {adding
+          {product.stockQuantity === 0 ? "Hết hàng" : adding
             ? "Đang thêm..."
             : added
               ? "Thêm tiếp vào giỏ"

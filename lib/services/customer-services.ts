@@ -48,6 +48,7 @@ export const WARRANTY_STATUS_LABEL: Record<WarrantyStatus, string> = {
   checking: "Đang kiểm tra",
   repairing: "Đang xử lý đổi trả",
   completed: "Hoàn tất",
+  rejected: "Từ chối",
 };
 
 export function todayInVietnam(now = new Date()): string {

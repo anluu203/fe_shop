@@ -12,8 +12,14 @@ import { customerServices, isWarrantyActive, subscribeCustomerServices, validate
 import { formatDate, formatDateOnly } from "../../../lib/utils/format";
 import type { User } from "../../../lib/types";
 import type { WarrantyProduct, WarrantyRequest, WarrantyRequestInput } from "../../../lib/types/customer-services";
+import { USE_MOCK } from "../../../lib/mock/config";
+import { DatabaseReturns } from "../../../components/client/DatabaseCustomerServices";
 
 export default function WarrantyPage() {
+  const { user } = useAuth();
+  return USE_MOCK ? <MockWarrantyPage /> : <DatabaseReturns key={user?.id ?? "guest"} />;
+}
+function MockWarrantyPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   useEffect(() => {

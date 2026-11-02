@@ -13,6 +13,7 @@ import { formatPrice } from "../../../../lib/utils/format";
 import BookFields, { emptyBookFields, bookFieldBody, validateBookFields } from "../../../../components/admin/BookFields";
 import { USE_MOCK } from "../../../../lib/mock/config";
 import ImageUpload from "../../../../components/ui/ImageUpload";
+import StockAdjustment from "../../../../components/admin/StockAdjustment";
 
 export default function EditProductPage() {
   const { id } = useParams<{ id: string }>();
@@ -27,11 +28,13 @@ export default function EditProductPage() {
     description: "",
     imageUrl: "",
     price: "",
+    originalPrice: "",
     categoryId: "",
   });
   const [errors, setErrors] = useState<Partial<typeof form>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [imageBusy, setImageBusy] = useState(false);
   const [apiError, setApiError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -51,6 +54,7 @@ export default function EditProductPage() {
         description: p.description ?? "",
         imageUrl: p.imageUrl ?? "",
         price: p.price,
+        originalPrice: p.originalPrice ?? p.price,
         categoryId: p.categoryId,
       });
     }).finally(() => setLoading(false));
@@ -81,23 +85,26 @@ export default function EditProductPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (imageBusy || !validate()) return;
     setSaving(true);
     setApiError("");
     setSuccess("");
     try {
-      await productApi.update(id, {
+      const updated = await productApi.update(id, {
         name: form.name.trim(),
         description: form.description.trim() || undefined,
         imageUrl: form.imageUrl.trim(),
         price: form.price,
+        originalPrice: form.originalPrice || undefined,
         categoryId: form.categoryId,
         ...bookFieldBody(bookFields),
       });
+      setProduct(updated);
+      setBookFields((fields) => ({ ...fields, discount: String(updated.discount ?? 0) }));
       setSuccess("Cập nhật thành công!");
       setTimeout(() => setSuccess(""), 3000);
-    } catch (err: any) {
-      setApiError(err.message ?? "Cập nhật thất bại");
+    } catch (err) {
+      setApiError(err instanceof Error ? err.message : "Cập nhật thất bại");
     } finally {
       setSaving(false);
     }
@@ -148,7 +155,13 @@ export default function EditProductPage() {
         </div>
 
         <form onSubmit={handleSubmit} style={{ padding: "28px 24px" }}>
-          <BookFields values={bookFields} onChange={(key, value) => setBookFields({ ...bookFields, [key]: value })} />
+          <BookFields values={bookFields} onChange={(key, value) => {
+            setBookFields({ ...bookFields, [key]: value });
+            if (key === "discount" && /^[1-9]\d{0,11}$/.test(form.originalPrice) && Number(value) >= 0 && Number(value) < 100) {
+              const basis = BigInt(Math.round(Number(value) * 100));
+              setForm({ ...form, price: ((BigInt(form.originalPrice) * (BigInt(10000) - basis) + BigInt(5000)) / BigInt(10000)).toString() });
+            }
+          }} />
           {apiError && (
             <div
               style={{
@@ -216,12 +229,13 @@ export default function EditProductPage() {
               />
             </div>
             <ImageUpload
+              onBusyChange={setImageBusy}
               id="edit-product-imageUrl"
               target="products"
               label="Ảnh sách"
               placeholder="https://example.com/product.jpg"
               value={form.imageUrl}
-              onChange={(url) => setForm({ ...form, imageUrl: url })}
+              onChange={(url) => setForm((current) => ({ ...current, imageUrl: url }))}
             />
             {errors.imageUrl && (
               <span style={{ fontSize: "calc(12px * var(--font-scale))", color: "var(--danger)", marginTop: -10, display: "block" }}>
@@ -229,6 +243,7 @@ export default function EditProductPage() {
               </span>
             )}
 
+            <Input id="edit-original-price" label="Giá gốc (VND)" value={form.originalPrice} onChange={set("originalPrice")} inputMode="numeric" />
             <Input
               id="edit-product-price"
               label="Giá (VND) *"
@@ -303,7 +318,7 @@ export default function EditProductPage() {
           </div>
 
           <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
-            <Button id="update-product-btn" type="submit" loading={saving}>
+            <Button id="update-product-btn" type="submit" loading={saving} disabled={imageBusy}>
               <i className="fa fa-floppy-o" style={{ marginRight: 6 }} /> Lưu thay đổi
             </Button>
             <Button type="button" variant="ghost" onClick={() => router.push("/admin/products")}>
@@ -311,6 +326,7 @@ export default function EditProductPage() {
             </Button>
           </div>
         </form>
+        <div className="px-6 pb-6"><StockAdjustment product={product} onUpdated={setProduct} /></div>
       </div>
     </div>
   );

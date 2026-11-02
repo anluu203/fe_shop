@@ -10,31 +10,30 @@ import { PageSpinner } from "../../../components/ui/Spinner";
 import { formatDate } from "../../../lib/utils/format";
 import ImageUpload from "../../../components/ui/ImageUpload";
 import { imageSrc } from "../../../lib/utils/image";
+import { USE_MOCK } from "../../../lib/mock/config";
+import type { User } from "../../../lib/types";
 
 export default function ProfilePage() {
-  const { user, isLoading: authLoading, updateUser, logout } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  useEffect(() => { if (!isLoading && !user) router.push("/client/auth/login"); }, [isLoading, user, router]);
+  if (isLoading) return <PageSpinner />;
+  return user ? <ProfileEditor key={user.id} user={user} /> : null;
+}
+function ProfileEditor({ user }: { user: User }) {
+  const { updateUser } = useAuth();
+  const [username, setUsername] = useState(user.username);
+  const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber ?? "");
+  const [address, setAddress] = useState(user.address ?? "");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [saving, setSaving] = useState(false);
 
   // Avatar state
-  const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl ?? "");
   const [avatarSaving, setAvatarSaving] = useState(false);
   const [avatarError, setAvatarError] = useState("");
   const [avatarSuccess, setAvatarSuccess] = useState("");
-
-  useEffect(() => {
-    if (!authLoading && !user) router.push("/client/auth/login");
-    if (user) {
-      setUsername(user.username);
-      setAvatarUrl(user.avatarUrl ?? "");
-    }
-  }, [user, authLoading]);
-
-  if (authLoading) return <PageSpinner />;
-  if (!user) return null;
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,12 +45,12 @@ export default function ProfilePage() {
     setError("");
     setSuccess("");
     try {
-      const updated = await authApi.updateMe({ username: username.trim() });
+      const updated = await authApi.updateMe({ username: username.trim(), ...(!USE_MOCK ? { phoneNumber: phoneNumber.trim() || null, address: address.trim() || null } : {}) });
       updateUser(updated);
       setSuccess("Cập nhật thành công!");
       setTimeout(() => setSuccess(""), 3000);
-    } catch (err: any) {
-      setError(err.message ?? "Cập nhật thất bại");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Cập nhật thất bại");
     } finally {
       setSaving(false);
     }
@@ -67,8 +66,8 @@ export default function ProfilePage() {
       setAvatarUrl(updated.avatarUrl ?? "");
       setAvatarSuccess("Đổi ảnh đại diện thành công!");
       setTimeout(() => setAvatarSuccess(""), 3000);
-    } catch (err: any) {
-      setAvatarError(err.message ?? "Cập nhật ảnh thất bại");
+    } catch (err) {
+      setAvatarError(err instanceof Error ? err.message : "Cập nhật ảnh thất bại");
     } finally {
       setAvatarSaving(false);
     }
@@ -212,6 +211,7 @@ export default function ProfilePage() {
                   onChange={(e) => setUsername(e.target.value)}
                   icon={<i className="fa fa-user" />}
                 />
+                {!USE_MOCK && <><Input id="profile-phone" label="Số điện thoại" value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} /><Input id="profile-address" label="Địa chỉ nhận hàng" value={address} onChange={(event) => setAddress(event.target.value)} /></>}
                 <div>
                   <label
                     style={{

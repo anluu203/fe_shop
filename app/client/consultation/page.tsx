@@ -7,10 +7,15 @@ import { serviceClasses as ui } from "../../../components/client/customer-servic
 import { customerServices, subscribeCustomerServices } from "../../../lib/services/customer-services";
 import { formatPrice } from "../../../lib/utils/format";
 import type { ComponentType, ConsultationQuery, Usage } from "../../../lib/types/customer-services";
+import { USE_MOCK } from "../../../lib/mock/config";
+import { DatabaseConsultation } from "../../../components/client/DatabaseCustomerServices";
 
 const options = customerServices.getConsultationOptions();
 
 export default function ConsultationPage() {
+  return USE_MOCK ? <MockConsultationPage /> : <DatabaseConsultation />;
+}
+function MockConsultationPage() {
   const [, refreshCatalog] = useState(0);
   useEffect(() => subscribeCustomerServices(() => refreshCatalog((revision) => revision + 1)), []);
   const [usage, setUsage] = useState<Usage>("relaxation");

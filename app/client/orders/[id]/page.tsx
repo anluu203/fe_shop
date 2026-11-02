@@ -29,6 +29,7 @@ export default function OrderDetailPage() {
   const router = useRouter();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [cancelling, setCancelling] = useState(false), [error, setError] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/client/auth/login");
@@ -52,6 +53,7 @@ export default function OrderDetailPage() {
 
   return (
     <div style={{ background: "var(--bg-page)", minHeight: "100vh" }}>
+      {!USE_MOCK && <div className="container py-4"><p>Người nhận: {order.shippingName || "Chưa có thông tin"} · {order.shippingPhone}</p><p>Địa chỉ: {order.shippingAddress || "Chưa có thông tin"}</p><p>Thanh toán COD: {order.paymentStatus === "PAID" ? "Đã thu tiền" : "Chưa ghi nhận thu tiền"}</p>{error && <p role="alert">{error}</p>}{order.status === "Processing" && <button disabled={cancelling} className="mt-2 rounded border px-3 py-2" onClick={async () => { setCancelling(true); setError(""); try { setOrder(await orderApi.cancel(id)); } catch (caught) { setError(caught instanceof Error ? caught.message : "Không hủy được đơn."); } finally { setCancelling(false); } }}>{cancelling ? "Đang hủy…" : "Hủy đơn"}</button>}</div>}
       {/* Header */}
       <div
         style={{

@@ -10,6 +10,8 @@ export interface User {
   email: string;
   role: "USER" | "ADMIN";
   avatarUrl: string | null;
+  phoneNumber?: string | null;
+  address?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -33,6 +35,8 @@ export interface LoginBody {
 export interface UpdateUserBody {
   username?: string;
   avatarUrl?: string | null;
+  phoneNumber?: string | null;
+  address?: string | null;
 }
 
 // ---------- Category ----------
@@ -71,6 +75,9 @@ export interface CategoryBody {
 
 // ---------- Product ----------
 export interface Product {
+  seedKey?: string | null;
+  originalPrice?: string;
+  stockQuantity?: number;
   isbn?: string;
   discount?: number; // percentage; price is the final selling price
   author?: string;
@@ -104,6 +111,8 @@ export interface Product {
 }
 
 export interface ProductBody {
+  originalPrice?: string;
+  isActive?: boolean;
   isbn?: string;
   discount?: number;
   author?: string;
@@ -145,6 +154,7 @@ export type OrderStatus =
   | "Processing"
   | "Preparing"
   | "Shipping"
+  | "Cancelled"
   | "Done";
 
 export interface OrderItem {
@@ -165,6 +175,11 @@ export interface OrderItem {
 }
 
 export interface Order {
+  shippingName?: string;
+  shippingPhone?: string;
+  shippingAddress?: string;
+  paymentMethod?: "COD" | "BANK_TRANSFER" | "E_WALLET";
+  paymentStatus?: string;
   completedAt?: string; // immutable revenue recognition date when status becomes Done
   id: string | null;
   userId?: string;
@@ -194,6 +209,15 @@ export interface AdminOrderQuery {
 
 export interface UpdateOrderStatusBody {
   status: OrderStatus;
+  paymentCollected?: boolean;
+  note?: string;
+}
+
+export interface CheckoutBody {
+  shippingName: string;
+  shippingPhone: string;
+  shippingAddress: string;
+  paymentMethod: "COD";
 }
 
 // ---------- Store ----------
@@ -236,4 +260,5 @@ export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
   Preparing: "Đang đóng gói",
   Shipping: "Đang giao",
   Done: "Hoàn thành",
+  Cancelled: "Đã hủy",
 };

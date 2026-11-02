@@ -5,6 +5,8 @@ import { adminServiceClasses as ui, ServiceAdminIntro, ServiceFeedback, Warranty
 import { adminCustomerServices, customerServices, subscribeCustomerServices, WARRANTY_STATUS_FLOW, WARRANTY_STATUS_LABEL } from "../../../lib/services/customer-services";
 import { formatDate, formatDateOnly } from "../../../lib/utils/format";
 import type { AdminWarrantyRequest, WarrantyStatus } from "../../../lib/types/customer-services";
+import { USE_MOCK } from "../../../lib/mock/config";
+import { DatabaseAdminReturns } from "../../../components/admin/DatabaseCustomerServices";
 
 const products = customerServices.getWarrantyProducts();
 
@@ -13,6 +15,9 @@ function requestKey(request: AdminWarrantyRequest) {
 }
 
 export default function AdminWarrantyPage() {
+  return USE_MOCK ? <MockAdminWarrantyPage /> : <DatabaseAdminReturns />;
+}
+function MockAdminWarrantyPage() {
   const [snapshot, setSnapshot] = useState(() => adminCustomerServices.loadWarrantyRequests());
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");

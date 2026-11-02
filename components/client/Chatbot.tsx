@@ -128,7 +128,7 @@ function ChatWindow() {
               <small>
                 {config?.enabled === false
                   ? "Đang tạm nghỉ"
-                  : "Tư vấn sách & chăm sóc khách hàng"}
+                  : config?.mode === "rules" ? "Tìm sách theo danh mục & hỗ trợ khách hàng" : "Tư vấn sách & chăm sóc khách hàng"}
               </small>
             </div>
             <button type="button" aria-label="Đóng cửa sổ chat" onClick={close}>

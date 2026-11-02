@@ -6,6 +6,10 @@
     "dev": "next dev -p 5173",
     "build": "next build",
     "start": "next start -p 5173",
+    "server:configure": "node scripts/configure-server.mjs",
+    "server:setup": "npm run server:configure && npm run db:setup:seed",
+    "server:maintenance": "node --conditions=react-server --import tsx scripts/server-maintenance.mts",
+    "server:admin": "node --conditions=react-server --import tsx scripts/create-admin.mts",
     "postinstall": "prisma generate",
     "db:create": "tsx scripts/create-database.ts",
     "db:generate": "prisma generate",
@@ -14,10 +18,15 @@
     "db:status": "prisma migrate status",
     "db:studio": "prisma studio",
     "db:check": "tsx scripts/check-database.ts",
+    "db:seed": "tsx scripts/import-mock-data.mts",
+    "db:seed:check": "tsx scripts/import-mock-data.mts --dry-run",
+    "db:setup:seed": "npm run db:setup && npm run db:seed",
     "db:setup": "npm run db:create && npm run db:deploy && npm run db:generate",
     "lint": "eslint",
     "test:customer-services": "node --test tests/customer-services.test.mjs",
     "test:db": "node --import tsx --test tests/database.test.mts",
+    "test:seed": "node --import tsx --test tests/mock-data-import.test.mts",
+    "test:backend": "npm run build && node --import tsx --test tests/backend.integration.mjs",
     "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
@@ -25,11 +34,14 @@
     "@prisma/client": "7.10.1",
     "dotenv": "^18.0.8",
     "font-awesome": "^4.7.0",
+    "jose": "^6.2.14",
     "next": "16.3.5",
     "pg": "^8.23.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "sharp": "^0.35.5",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

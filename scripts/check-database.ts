@@ -16,6 +16,7 @@ async function main() {
     // A transaction gives all table counts the same database snapshot.
     const counts = await prisma.$transaction([
       prisma.user.count(),
+      prisma.categoryParent.count(),
       prisma.category.count(),
       prisma.book.count(),
       prisma.cartItem.count(),
@@ -24,12 +25,16 @@ async function main() {
       prisma.review.count(),
       prisma.chatLog.count(),
       prisma.aIConfig.count(),
+      prisma.seedDocument.count(),
     ], { isolationLevel: "RepeatableRead" });
     console.log(`Prisma connected to ${database.name}.`);
     console.table(Object.fromEntries(
-      ["Users", "Categories", "Books", "Cart_Items", "Orders", "Order_Items", "Reviews", "Chat_Logs", "AI_Configs"]
+      ["Users", "Category_Parents", "Categories", "Books", "Cart_Items", "Orders", "Order_Items", "Reviews", "Chat_Logs", "AI_Configs", "Seed_Documents"]
         .map((table, index) => [table, counts[index]]),
     ));
+    console.table(await prisma.seedDocument.findMany({
+      select: { filename: true, recordCount: true }, orderBy: { filename: "asc" },
+    }));
   } finally {
     await prisma.$disconnect();
   }

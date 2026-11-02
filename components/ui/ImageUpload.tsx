@@ -13,7 +13,7 @@
 
 import { USE_MOCK } from "../../lib/mock/config";
 import { useRef, useState } from "react";
-import { uploadImage, type ImageTarget } from "../../lib/api/images";
+import { importProductImage, uploadImage, type ImageTarget } from "../../lib/api/images";
 import { imageSrc } from "../../lib/utils/image";
 
 interface ImageUploadProps {
@@ -29,6 +29,7 @@ interface ImageUploadProps {
   placeholder?: string;
   /** ID dùng cho test hoặc truy cập */
   id?: string;
+  onBusyChange?: (busy: boolean) => void;
 }
 
 export default function ImageUpload({
@@ -38,11 +39,22 @@ export default function ImageUpload({
   label = "Ảnh",
   placeholder = "https://example.com/image.jpg",
   id = "image-upload",
+  onBusyChange,
 }: ImageUploadProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [previewError, setPreviewError] = useState(false);
+  const [sourceUrl, setSourceUrl] = useState("");
+  const urlPending = useRef(false);
+  function setBusy(busy: boolean) { setUploading(busy); onBusyChange?.(busy || urlPending.current); }
+  const localProduct = target === "products" && !USE_MOCK;
+  async function importUrl() {
+    setBusy(true); setUploadError("");
+    try { const result = await importProductImage(sourceUrl.trim()); urlPending.current = false; setSourceUrl(""); onChange(result.imageUrl); setPreviewError(false); }
+    catch (error) { setUploadError(error instanceof Error ? error.message : "Không nhập được ảnh."); }
+    finally { setBusy(false); }
+  }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -55,21 +67,22 @@ export default function ImageUpload({
       return;
     }
     // Kiểm tra dung lượng (5 MB)
-    if (file.size > (USE_MOCK ? 2 : 5) * 1024 * 1024) {
-      setUploadError(`File không được vượt ${USE_MOCK ? 2 : 5} MB`);
+    if (file.size > 2 * 1024 * 1024) {
+      setUploadError("File không được vượt 2 MB");
       return;
     }
 
     setUploadError("");
-    setUploading(true);
+    setBusy(true);
     setPreviewError(false);
     try {
       const { imageUrl } = await uploadImage(target, file);
+      urlPending.current = false; setSourceUrl("");
       onChange(imageUrl);
-    } catch (err: any) {
-      setUploadError(err.message ?? "Upload thất bại");
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload thất bại");
     } finally {
-      setUploading(false);
+      setBusy(false);
       // Reset input để có thể chọn lại cùng file
       if (fileRef.current) fileRef.current.value = "";
     }
@@ -177,7 +190,7 @@ export default function ImageUpload({
               Kéo thả hoặc <span style={{ color: "var(--primary)" }}>chọn file</span>
             </div>
             <div style={{ fontSize: "calc(11px * var(--font-scale))", color: "var(--text-muted)", marginTop: 4 }}>
-              JPEG, PNG, GIF, WebP — tối đa {USE_MOCK ? 2 : 5} MB
+              JPEG, PNG, GIF, WebP — tối đa 2 MB
             </div>
           </div>
         )}
@@ -216,11 +229,13 @@ export default function ImageUpload({
           id={id}
           type="text"
           inputMode="url"
-          value={value}
+          value={localProduct ? sourceUrl : value}
+          disabled={uploading}
           onChange={(e) => {
             setPreviewError(false);
             setUploadError("");
-            onChange(e.target.value);
+            if (localProduct) { setSourceUrl(e.target.value); urlPending.current = !!e.target.value.trim(); onBusyChange?.(uploading || urlPending.current); }
+            else onChange(e.target.value);
           }}
           placeholder={placeholder}
           style={{
@@ -240,11 +255,15 @@ export default function ImageUpload({
         />
       </div>
 
+      {localProduct && <><button type="button" className="mt-2 rounded-lg border px-3 py-2 text-sm" disabled={uploading || !sourceUrl.trim()} onClick={importUrl}>{uploading ? "Đang xử lý ảnh…" : "Nhập ảnh từ URL"}</button>{sourceUrl.trim() && <p className="mt-1 text-sm">Nhấn “Nhập ảnh từ URL” để hoàn tất trước khi lưu sản phẩm, hoặc xóa URL đang nhập để giữ ảnh hiện tại.</p>}</>}
+
       {/* Nút xóa ảnh */}
       {value && (
         <button
           type="button"
+          disabled={uploading}
           onClick={() => {
+            urlPending.current = false; setSourceUrl(""); onBusyChange?.(false);
             onChange("");
             setPreviewError(false);
             setUploadError("");

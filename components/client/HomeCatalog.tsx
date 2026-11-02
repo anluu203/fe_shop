@@ -86,12 +86,12 @@ export default function HomeCatalog({
       {content.sections.map((section, sectionIndex) => {
         const customBooks =
           section.id === "new"
-            ? books.filter((b) => !/^book-\d{2}$/.test(b.id)).slice(0, 4)
+            ? books.filter((b) => !/^book-\d{2}$/.test(b.seedKey ?? b.id)).slice(0, 4)
             : [];
         const selection = [
           ...customBooks,
           ...section.bookIds
-            .map((id) => books.find((b) => b.id === id))
+            .map((id) => books.find((b) => (b.seedKey ?? b.id) === id))
             .filter((book): book is Product => !!book),
         ].slice(0, 8);
         return (

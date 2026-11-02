@@ -1,6 +1,6 @@
 export type Usage = "learning" | "relaxation" | "discovery";
 export type ComponentType = "literature" | "business" | "selfhelp" | "children" | "manga" | "education" | "language" | "history";
-export type WarrantyStatus = "received" | "checking" | "repairing" | "completed";
+export type WarrantyStatus = "received" | "checking" | "repairing" | "completed" | "rejected";
 
 export interface ConsultationProduct {
   id: string;
@@ -24,6 +24,7 @@ export interface AdminWarrantyRequest extends WarrantyRequest {
 }
 
 export interface WarrantyProduct {
+  remainingQuantity?: number;
   id: string;
   name: string;
   serial: string;
@@ -39,6 +40,10 @@ export interface WarrantyEvent {
 }
 
 export interface WarrantyRequest {
+  bookName?: string;
+  quantity?: number;
+  resolution?: string | null;
+  refundAmount?: string;
   id: string;
   productId: string;
   contactName: string;

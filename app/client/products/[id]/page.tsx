@@ -144,7 +144,7 @@ export default function ProductDetail() {
             <button
               className="solid-button"
               id="add-to-cart-detail-btn"
-              disabled={adding}
+              disabled={adding || book.stockQuantity === 0}
               onClick={() => {
                 void add();
               }}

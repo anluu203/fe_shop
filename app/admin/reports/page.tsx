@@ -208,7 +208,8 @@ export default function RevenueReportsPage() {
         <>
           <div className="feature-stats">
             {[
-              { label: "Doanh thu", value: formatPrice(report.revenue) },
+              { label: "Doanh thu đơn hoàn thành", value: formatPrice(report.revenue) },
+              ...(report.refunded !== undefined ? [{ label: "Tiền hoàn trong kỳ", value: formatPrice(report.refunded) }, { label: "Doanh thu trừ hoàn trong kỳ", value: formatPrice(report.netRevenue ?? report.revenue) }] : []),
               { label: "Đơn hoàn thành", value: report.orders },
               { label: "Số sách bán ra", value: report.quantity },
               {

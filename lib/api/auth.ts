@@ -6,6 +6,7 @@ export const authApi = {
     api.post<AuthResponse>("/auth/register", body),
 
   login: (body: LoginBody) => api.post<AuthResponse>("/auth/login", body),
+  logout: () => api.post<void>("/auth/logout"),
 
   me: () => api.get<User>("/auth/me"),
 

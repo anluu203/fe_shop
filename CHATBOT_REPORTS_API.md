@@ -1,6 +1,6 @@
 # Hợp đồng tích hợp chatbot và báo cáo
 
-Các endpoint dưới đây là hợp đồng frontend mới, đã chạy qua mock. Backend HTTP hiện chưa triển khai trong repo frontend này. Prefix theo `NEXT_PUBLIC_API_URL` (mặc định `/api/v1` trên backend cổng 8080). Dùng cùng Bearer token của hệ thống; backend phải kiểm tra quyền độc lập với giao diện.
+Các endpoint dưới đây đã triển khai bằng Next.js Route Handlers và Prisma. Prefix `NEXT_PUBLIC_API_URL=/api/v1`, cùng cổng 5173 với giao diện. Dùng Bearer JWT có phiên trong PostgreSQL; backend kiểm tra quyền độc lập với giao diện. Hướng dẫn vận hành tại [BACKEND_API.md](BACKEND_API.md).
 
 | Method | Endpoint | Quyền | Kết quả |
 | --- | --- | --- | --- |
@@ -20,7 +20,7 @@ Kiểu chi tiết nằm trong `lib/types/chatbot.ts` và `lib/types/reports.ts`.
 - `ChatReply`: `{ id, answer, books: Product[], needsHuman, createdAt }`. Chỉ trả các sách đang bán, sử dụng dữ liệu giá và catalog tin cậy từ server. Không cho mô hình thực thi sửa đơn, hoàn tiền hoặc thay đổi dữ liệu.
 - Lưu một `Chat_Logs` cho mỗi lượt gửi thành công; ghi câu hỏi, trả lời, ID sách gợi ý, tình trạng cần người hỗ trợ. Lỗi gọi AI hoặc ghi log phải trả lỗi rõ ràng để giao diện giữ lại câu hỏi cho lần gửi lại.
 - `AIConfig`: enabled, botName (1–80), welcomeMessage/fallbackMessage (1–1.000), systemPrompt (1–6.000), model (1–100), temperature (0–2), maxSuggestions (1–5), supportContact (1–254), updatedAt. ConfigID duy nhất là 1. Không trả systemPrompt hoặc model trong endpoint public.
-- Cấu hình API key qua biến môi trường server; backend dùng system prompt, model và temperature khi gọi nhà cung cấp AI. Demo frontend chỉ tìm kiếm dựa trên quy tắc, không dùng ba trường này để tạo câu trả lời.
+- Cấu hình provider bằng AI_API_URL/AI_API_KEY qua biến môi trường server; backend dùng system prompt, model và temperature khi gọi provider tương thích Chat Completions. Chưa có provider/key thì mode=rules tìm kiếm catalog DB; public config trả mode để UI hiển thị đúng. Không trình bày chế độ rules như đã gọi mô hình.
 - `adminNote`: tối đa 2.000 ký tự, chỉ ADMIN được đọc/ghi. Trạng thái xử lý tính theo từng lượt; `needsHuman && !resolved` là lượt cần chăm sóc. Ghi chú nội bộ chưa phải tin nhắn gửi cho khách.
 - Backend thật cần giới hạn tần suất, kích thước request và thời gian gọi mô hình; không tin lịch sử, catalog, cấu hình hay role từ trình duyệt.
 
@@ -28,9 +28,10 @@ Kiểu chi tiết nằm trong `lib/types/chatbot.ts` và `lib/types/reports.ts`.
 
 - `from`, `to`: ngày lịch `YYYY-MM-DD`, bao gồm hai đầu, múi giờ `Asia/Ho_Chi_Minh`; `period`: day/week/month/year. Tuần bắt đầu thứ Hai. Kỳ đầu/cuối chỉ cộng phần nằm trong khoảng lọc.
 - Tối đa 366 ngày với period=day; các kỳ còn lại tối đa 3.660 ngày. Ngày đảo ngược, ngày không tồn tại hoặc kỳ lạ trả lỗi validation.
-- Chỉ đơn hoàn thành. Backend cần lưu ngày hoàn thành bất biến khi chuyển sang DELIVERED/Done; trường này hiện mới có trong hợp đồng Order và mock. Schema Orders hiện chưa có cột ngày hoàn thành riêng, backend cần bổ sung nếu dùng báo cáo dựa trên thời điểm hoàn tất. Không dùng ngày cập nhật tùy ý cho đơn mới.
+- Chỉ đơn hoàn thành. Schema Orders đã có completedAt; backend ghi một lần khi chuyển DELIVERED/Done và không sửa khi request cùng trạng thái lặp lại. Đơn COD cần paymentCollected=true để xác nhận thu tiền. Không dùng ngày cập nhật tùy ý cho đơn mới.
 - Đơn demo cũ dùng updatedAt, sau đó createdAt nếu chưa có completedAt. Tổng hợp tiền bằng số nguyên/Decimal; dữ liệu sách bán chạy dùng đơn giá và tên chốt tại thời điểm mua trong Order_Items.
 - `RevenueReport` gồm query, revenue, orders, quantity, averageOrder, buckets (cả kỳ 0), bestSellers. Xếp sách theo số lượng giảm dần, hòa thì theo doanh thu; giao diện hiển thị top 20, CSV xuất toàn bộ.
+- API thật bổ sung refunded và netRevenue: tiền hoàn được xác nhận trong kỳ theo ngày hoàn và revenue trừ refunded. Khoản hoàn đơn kỳ trước có thể khiến netRevenue kỳ này âm; không thay đổi giá/tổng đơn gốc. UI và CSV hiển thị riêng các khoản này.
 
 ## Thông tin sách
 

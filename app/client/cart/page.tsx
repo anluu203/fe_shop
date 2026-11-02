@@ -1,7 +1,7 @@
 "use client";
 import { imageSrc } from "../../../lib/utils/image";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -9,7 +9,8 @@ import { useCart } from "../../../contexts/CartContext";
 import { formatPrice } from "../../../lib/utils/format";
 import { PageSpinner } from "../../../components/ui/Spinner";
 import Button from "../../../components/ui/Button";
-import type { OrderItem } from "../../../lib/types";
+import type { CheckoutBody, OrderItem } from "../../../lib/types";
+import { USE_MOCK } from "../../../lib/mock/config";
 
 export default function CartPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -18,6 +19,13 @@ export default function CartPage() {
   const [checkingOut, setCheckingOut] = useState(false);
   const [clearConfirm, setClearConfirm] = useState(false);
   const [cartError, setCartError] = useState("");
+  const [shippingDraft, setShippingDraft] = useState<{ userId?: string; shippingName: string; shippingPhone: string; shippingAddress: string } | null>(null);
+  const shipping = shippingDraft?.userId === user?.id && shippingDraft ? shippingDraft : { userId: user?.id, shippingName: user?.username ?? "", shippingPhone: user?.phoneNumber ?? "", shippingAddress: user?.address ?? "" };
+  const { shippingName, shippingPhone, shippingAddress } = shipping;
+  const setShippingName = (value: string) => setShippingDraft({ ...shipping, shippingName: value });
+  const setShippingPhone = (value: string) => setShippingDraft({ ...shipping, shippingPhone: value });
+  const setShippingAddress = (value: string) => setShippingDraft({ ...shipping, shippingAddress: value });
+  const checkoutAttempt = useRef<{ key: string; body: string } | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -32,13 +40,17 @@ export default function CartPage() {
   if (authLoading || (!user && !authLoading)) return <PageSpinner />;
 
   const handleCheckout = async () => {
-    if (!cart?.items.length) return;
+    if (!cart?.items.length || checkingOut) return;
     setCheckingOut(true);
     try {
-      const order = await checkout();
+      const body: CheckoutBody = { shippingName: shippingName.trim(), shippingPhone: shippingPhone.trim(), shippingAddress: shippingAddress.trim(), paymentMethod: "COD" };
+      const fingerprint = JSON.stringify({ body, items: cart.items.map((item) => [item.id, item.quantity, item.unitPrice]) });
+      if (checkoutAttempt.current?.body !== fingerprint) checkoutAttempt.current = { key: crypto.randomUUID(), body: fingerprint };
+      const order = await checkout(USE_MOCK ? undefined : body, checkoutAttempt.current!.key);
+      checkoutAttempt.current = null;
       router.push(`/client/orders/${order.id}`);
-    } catch (err: any) {
-      alert(err.message ?? "Checkout thất bại");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Checkout thất bại");
     } finally {
       setCheckingOut(false);
     }
@@ -329,6 +341,13 @@ export default function CartPage() {
                   </div>
                 </div>
 
+                {!USE_MOCK && <fieldset className="mb-4 space-y-3">
+                  <legend className="mb-2 font-bold">Thông tin nhận hàng</legend>
+                  <label className="block">Người nhận<input className="mt-1 w-full rounded border p-2" autoComplete="name" value={shippingName} onChange={(event) => setShippingName(event.target.value)} maxLength={150} /></label>
+                  <label className="block">Số điện thoại<input className="mt-1 w-full rounded border p-2" autoComplete="tel" value={shippingPhone} onChange={(event) => setShippingPhone(event.target.value)} maxLength={20} /></label>
+                  <label className="block">Địa chỉ<textarea className="mt-1 w-full rounded border p-2" autoComplete="street-address" value={shippingAddress} onChange={(event) => setShippingAddress(event.target.value)} maxLength={2000} /></label>
+                  <p className="text-sm">Thanh toán khi nhận hàng (COD).</p>
+                </fieldset>}
                 <Button
                   id="checkout-btn"
                   variant="accent"
@@ -407,11 +426,11 @@ function CartItemRow({
   onRemove: () => Promise<void>;
   loading: boolean;
 }) {
-  const [qty, setQty] = useState(item.quantity);
+  const [draftQty, setQty] = useState(item.quantity);
   const [updating, setUpdating] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [rowError, setRowError] = useState("");
-  useEffect(() => { setQty(item.quantity); }, [item.quantity]);
+  const qty = updating ? draftQty : item.quantity;
 
   const handleQtyChange = async (newQty: number) => {
     if (newQty < 1 || newQty > 999) return;

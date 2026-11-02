@@ -23,10 +23,12 @@ export default function NewProductPage() {
     description: "",
     imageUrl: "",
     price: "",
+    originalPrice: "",
     categoryId: "",
   });
   const [errors, setErrors] = useState<Partial<typeof form>>({});
   const [saving, setSaving] = useState(false);
+  const [imageBusy, setImageBusy] = useState(false);
   const [apiError, setApiError] = useState("");
 
   useEffect(() => {
@@ -62,7 +64,7 @@ export default function NewProductPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (imageBusy || !validate()) return;
     setSaving(true);
     setApiError("");
     try {
@@ -71,12 +73,13 @@ export default function NewProductPage() {
         description: form.description.trim() || undefined,
         imageUrl: form.imageUrl.trim(),
         price: form.price,
+        originalPrice: form.originalPrice || undefined,
         categoryId: form.categoryId,
         ...bookFieldBody(bookFields),
       });
       router.push("/admin/products");
-    } catch (err: any) {
-      setApiError(err.message ?? "Tạo sách thất bại");
+    } catch (err) {
+      setApiError(err instanceof Error ? err.message : "Tạo sách thất bại");
     } finally {
       setSaving(false);
     }
@@ -117,7 +120,13 @@ export default function NewProductPage() {
         </div>
 
         <form onSubmit={handleSubmit} style={{ padding: "28px 24px" }}>
-          <BookFields values={bookFields} onChange={(key, value) => setBookFields({ ...bookFields, [key]: value })} />
+          <BookFields values={bookFields} onChange={(key, value) => {
+            setBookFields({ ...bookFields, [key]: value });
+            if (key === "discount" && /^[1-9]\d{0,11}$/.test(form.originalPrice) && Number(value) >= 0 && Number(value) < 100) {
+              const basis = BigInt(Math.round(Number(value) * 100));
+              setForm({ ...form, price: ((BigInt(form.originalPrice) * (BigInt(10000) - basis) + BigInt(5000)) / BigInt(10000)).toString() });
+            }
+          }} />
           {apiError && (
             <div
               style={{
@@ -181,12 +190,13 @@ export default function NewProductPage() {
             </div>
 
             <ImageUpload
+              onBusyChange={setImageBusy}
               id="product-imageUrl"
               target="products"
               label="Ảnh sách"
               placeholder="https://example.com/product.jpg"
               value={form.imageUrl}
-              onChange={(url) => setForm({ ...form, imageUrl: url })}
+              onChange={(url) => setForm((current) => ({ ...current, imageUrl: url }))}
             />
             {errors.imageUrl && (
               <span style={{ fontSize: "calc(12px * var(--font-scale))", color: "var(--danger)", marginTop: -10, display: "block" }}>
@@ -194,6 +204,7 @@ export default function NewProductPage() {
               </span>
             )}
 
+            <Input id="product-original-price" label="Giá gốc (VND)" value={form.originalPrice} onChange={set("originalPrice")} inputMode="numeric" />
             <Input
               id="product-price"
               label="Giá (VND) *"
@@ -310,6 +321,7 @@ export default function NewProductPage() {
           <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
             <Button
               id="save-product-btn"
+              disabled={imageBusy}
               type="submit"
               variant="primary"
               size="lg"

@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { orderApi } from "../lib/api/orders";
-import type { Order } from "../lib/types";
+import type { CheckoutBody, Order } from "../lib/types";
 import { cartItemCount } from "../lib/utils/format";
 import { useAuth } from "./AuthContext";
 import { subscribeMockData, USE_MOCK } from "../lib/mock/config";
@@ -22,7 +22,7 @@ interface CartContextValue {
   updateItem: (itemId: string, quantity: number) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
   clearCart: () => Promise<void>;
-  checkout: () => Promise<Order>;
+  checkout: (body?: CheckoutBody, key?: string) => Promise<Order>;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -107,10 +107,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const checkout = useCallback(async (): Promise<Order> => {
+  const checkout = useCallback(async (body?: CheckoutBody, key?: string): Promise<Order> => {
     setIsLoading(true);
     try {
-      const order = await orderApi.checkout();
+      const order = await orderApi.checkout(body, key);
       setCart(EMPTY_CART);
       return order;
     } finally {

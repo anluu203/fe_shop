@@ -18,6 +18,8 @@ export interface BestSeller {
   revenue: string;
 }
 export interface RevenueReport {
+  refunded?: string;
+  netRevenue?: string;
   query: ReportQuery;
   revenue: string;
   orders: number;

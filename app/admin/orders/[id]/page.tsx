@@ -11,6 +11,7 @@ import { formatPrice, formatDate, shortId } from "../../../../lib/utils/format";
 import { PageSpinner } from "../../../../components/ui/Spinner";
 import Badge from "../../../../components/ui/Badge";
 import Button from "../../../../components/ui/Button";
+import { USE_MOCK } from "../../../../lib/mock/config";
 
 const NEXT_STATUS: Record<OrderStatus, OrderStatus | null> = {
   AddingItem: "Processing",
@@ -18,6 +19,7 @@ const NEXT_STATUS: Record<OrderStatus, OrderStatus | null> = {
   Preparing: "Shipping",
   Shipping: "Done",
   Done: null,
+  Cancelled: null,
 };
 
 function getStatusVariant(status: string) {
@@ -37,13 +39,12 @@ export default function AdminOrderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState("");
+  const [collected, setCollected] = useState(false);
 
   useEffect(() => {
     if (!id) return;
-    adminOrderApi
-      .getAll({ pageSize: 100 })
-      .then((page) => {
-        const found = page.items.find((o) => o.id === id);
+    (USE_MOCK ? adminOrderApi.getAll({ pageSize: 100 }).then((page) => page.items.find((order) => order.id === id)) : adminOrderApi.getOne(id))
+      .then((found) => {
         if (found) setOrder(found);
         else router.push("/admin/orders");
       })
@@ -57,10 +58,10 @@ export default function AdminOrderDetailPage() {
     setUpdating(true);
     setError("");
     try {
-      const updated = await adminOrderApi.updateStatus(order.id!, { status: next });
+      const updated = await adminOrderApi.updateStatus(order.id!, { status: next, ...(!USE_MOCK && next === "Done" ? { paymentCollected: collected } : {}) });
       setOrder(updated);
-    } catch (err: any) {
-      setError(err.message ?? "Cập nhật thất bại");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Cập nhật thất bại");
     } finally {
       setUpdating(false);
     }
@@ -215,11 +216,19 @@ export default function AdminOrderDetailPage() {
               )}
 
               {/* Advance button */}
+              {!USE_MOCK && nextStatus === "Done" && <label className="mb-3 block"><input type="checkbox" checked={collected} onChange={(event) => setCollected(event.target.checked)} /> Đã giao hàng và thu đủ tiền COD</label>}
+              {!USE_MOCK && ["Processing", "Preparing"].includes(order.status) && <Button variant="ghost" disabled={updating} onClick={async () => {
+                setUpdating(true); setError("");
+                try { setOrder(await adminOrderApi.updateStatus(order.id!, { status: "Cancelled", note: "Quản trị hủy đơn trước khi giao." })); }
+                catch (caught) { setError(caught instanceof Error ? caught.message : "Không hủy được đơn."); }
+                finally { setUpdating(false); }
+              }}>Hủy đơn và hoàn tồn kho</Button>}
               {nextStatus ? (
                 <Button
                   id="advance-status-btn"
                   variant="primary"
                   loading={updating}
+                  disabled={!USE_MOCK && nextStatus === "Done" && !collected}
                   onClick={handleAdvanceStatus}
                   icon={<i className="fa fa-bolt" />}
                 >
@@ -240,7 +249,7 @@ export default function AdminOrderDetailPage() {
                     fontWeight: 700,
                   }}
                 >
-                  <i className="fa fa-check-circle" /> Đơn hàng đã hoàn thành
+                  <i className="fa fa-check-circle" /> {order.status === "Cancelled" ? "Đơn hàng đã hủy" : "Đơn hàng đã hoàn thành"}
                 </div>
               )}
             </div>

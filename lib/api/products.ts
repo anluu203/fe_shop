@@ -1,7 +1,8 @@
-import { api } from "./client";
+import { api, apiRequest } from "./client";
 import type { Page, Product, ProductBody, ProductQuery } from "../types";
 
 export const productApi = {
+  adjustStock: (id: string, body: { delta: number; reason: string }, key: string) => apiRequest<Product>(`/admin/products/${id}/stock-adjustments`, { method: "POST", body: JSON.stringify(body), headers: { "Idempotency-Key": key } }),
   getAll: (query?: ProductQuery) =>
     api.get<Page<Product>>("/products", {
       page: query?.page,

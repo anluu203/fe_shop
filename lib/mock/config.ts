@@ -1,4 +1,4 @@
-export const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK !== "false";
+export const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "true";
 export const AUTH_TOKEN_KEY = USE_MOCK
   ? "bookstore:access-token:v1"
   : "accessToken";

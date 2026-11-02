@@ -15,68 +15,107 @@ enum PaymentMethod {
 
 enum OrderStatus {
   PENDING
+  PREPARING
   SHIPPING
   DELIVERED
   CANCELLED
 }
 
 model User {
-  id           Int        @id @default(autoincrement()) @map("UserID")
-  fullName     String     @map("FullName") @db.VarChar(150)
-  email        String     @unique @map("Email") @db.VarChar(254)
-  passwordHash String     @map("PasswordHash") @db.Text
-  phoneNumber  String?    @map("PhoneNumber") @db.VarChar(20)
-  address      String?    @map("Address") @db.Text
-  role         Int        @default(0) @map("Role") @db.SmallInt
-  createdAt    DateTime   @default(now()) @map("CreatedAt") @db.Timestamptz(3)
-  cartItems    CartItem[]
-  orders       Order[]
-  reviews      Review[]
-  chatLogs     ChatLog[]
+  id               Int               @id @default(autoincrement()) @map("UserID")
+  seedKey          String?           @unique @map("SeedKey") @db.VarChar(150)
+  fullName         String            @map("FullName") @db.VarChar(150)
+  email            String            @unique @map("Email") @db.VarChar(254)
+  passwordHash     String            @map("PasswordHash") @db.Text
+  phoneNumber      String?           @map("PhoneNumber") @db.VarChar(20)
+  address          String?           @map("Address") @db.Text
+  avatarUrl        String?           @map("AvatarUrl") @db.Text
+  role             Int               @default(0) @map("Role") @db.SmallInt
+  createdAt        DateTime          @default(now()) @map("CreatedAt") @db.Timestamptz(3)
+  updatedAt        DateTime          @default(now()) @updatedAt @map("UpdatedAt") @db.Timestamptz(3)
+  cartItems        CartItem[]
+  orders           Order[]
+  reviews          Review[]
+  chatLogs         ChatLog[]
+  sessions         Session[]
+  assets           UploadedAsset[]
+  checkoutRequests CheckoutRequest[]
+  returns          ReturnRequest[]
 
   @@map("Users")
 }
 
+model CategoryParent {
+  id          Int        @id @default(autoincrement()) @map("ParentID")
+  seedKey     String?    @unique @map("SeedKey") @db.VarChar(150)
+  name        String     @unique @map("Name") @db.VarChar(150)
+  description String?    @map("Description") @db.Text
+  imageUrl    String?    @map("ImageUrl") @db.Text
+  createdAt   DateTime   @default(now()) @map("CreatedAt") @db.Timestamptz(3)
+  updatedAt   DateTime   @default(now()) @updatedAt @map("UpdatedAt") @db.Timestamptz(3)
+  categories  Category[]
+
+  @@map("Category_Parents")
+}
+
 model Category {
-  id          Int     @id @default(autoincrement()) @map("CategoryID")
-  name        String  @map("CategoryName") @db.VarChar(150)
-  description String? @map("Description") @db.Text
+  id          Int             @id @default(autoincrement()) @map("CategoryID")
+  seedKey     String?         @unique @map("SeedKey") @db.VarChar(150)
+  parentId    Int?            @map("ParentID")
+  name        String          @map("CategoryName") @db.VarChar(150)
+  description String?         @map("Description") @db.Text
+  imageUrl    String?         @map("ImageUrl") @db.Text
+  createdAt   DateTime        @default(now()) @map("CreatedAt") @db.Timestamptz(3)
+  updatedAt   DateTime        @default(now()) @updatedAt @map("UpdatedAt") @db.Timestamptz(3)
+  parent      CategoryParent? @relation(fields: [parentId], references: [id], onDelete: Restrict)
   books       Book[]
 
+  @@index([parentId])
+  @@unique([parentId, name])
   @@map("Categories")
 }
 
 model Book {
-  id            Int         @id @default(autoincrement()) @map("BookID")
-  categoryId    Int         @map("CategoryID")
-  title         String      @map("Title") @db.VarChar(255)
-  author        String      @map("Author") @db.VarChar(255)
-  publisher     String?     @map("Publisher") @db.VarChar(255)
-  isbn          String?     @map("ISBN") @db.VarChar(17)
-  pageCount     Int?        @map("PageCount")
-  discount      Decimal     @default(0) @map("Discount") @db.Decimal(5, 2)
-  description   String?     @map("Description") @db.Text
-  originalPrice Decimal     @map("OriginalPrice") @db.Decimal(14, 2)
-  sellingPrice  Decimal     @map("SellingPrice") @db.Decimal(14, 2)
-  stockQuantity Int         @default(0) @map("StockQuantity")
-  coverImage    String?     @map("CoverImage") @db.Text
-  createdAt     DateTime    @default(now()) @map("CreatedAt") @db.Timestamptz(3)
-  category      Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  cartItems     CartItem[]
-  orderItems    OrderItem[]
-  reviews       Review[]
+  id              Int                  @id @default(autoincrement()) @map("BookID")
+  seedKey         String?              @unique @map("SeedKey") @db.VarChar(150)
+  categoryId      Int                  @map("CategoryID")
+  title           String               @map("Title") @db.VarChar(255)
+  author          String               @map("Author") @db.VarChar(255)
+  publisher       String?              @map("Publisher") @db.VarChar(255)
+  isbn            String?              @map("ISBN") @db.VarChar(17)
+  pageCount       Int?                 @map("PageCount")
+  publicationYear Int?                 @map("PublicationYear")
+  language        String?              @map("Language") @db.VarChar(100)
+  coverType       String?              @map("CoverType") @db.VarChar(100)
+  isActive        Boolean              @default(true) @map("IsActive")
+  discount        Decimal              @default(0) @map("Discount") @db.Decimal(5, 2)
+  description     String?              @map("Description") @db.Text
+  originalPrice   Decimal              @map("OriginalPrice") @db.Decimal(14, 2)
+  sellingPrice    Decimal              @map("SellingPrice") @db.Decimal(14, 2)
+  stockQuantity   Int                  @default(0) @map("StockQuantity")
+  coverImage      String?              @map("CoverImage") @db.Text
+  createdAt       DateTime             @default(now()) @map("CreatedAt") @db.Timestamptz(3)
+  updatedAt       DateTime             @default(now()) @updatedAt @map("UpdatedAt") @db.Timestamptz(3)
+  category        Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+  reviews         Review[]
+  consultation    ConsultationProfile?
+  movements       InventoryMovement[]
 
   @@index([categoryId])
   @@map("Books")
 }
 
 model CartItem {
-  id       Int  @id @default(autoincrement()) @map("CartItemID")
-  userId   Int  @map("UserID")
-  bookId   Int  @map("BookID")
-  quantity Int  @default(1) @map("Quantity")
-  user     User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  book     Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  id        Int      @id @default(autoincrement()) @map("CartItemID")
+  userId    Int      @map("UserID")
+  bookId    Int      @map("BookID")
+  quantity  Int      @default(1) @map("Quantity")
+  createdAt DateTime @default(now()) @map("CreatedAt") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("UpdatedAt") @db.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
   @@unique([userId, bookId])
   @@index([bookId])
@@ -84,15 +123,23 @@ model CartItem {
 }
 
 model Order {
-  id              Int           @id @default(autoincrement()) @map("OrderID")
-  userId          Int           @map("UserID")
-  orderDate       DateTime      @default(now()) @map("OrderDate") @db.Timestamptz(3)
-  totalAmount     Decimal       @map("TotalAmount") @db.Decimal(14, 2)
-  shippingAddress String        @map("ShippingAddress") @db.Text
-  paymentMethod   PaymentMethod @default(COD) @map("PaymentMethod")
-  status          OrderStatus   @default(PENDING) @map("OrderStatus")
-  user            User          @relation(fields: [userId], references: [id], onDelete: Restrict)
-  items           OrderItem[]
+  id               Int               @id @default(autoincrement()) @map("OrderID")
+  seedKey          String?           @unique @map("SeedKey") @db.VarChar(150)
+  userId           Int               @map("UserID")
+  orderDate        DateTime          @default(now()) @map("OrderDate") @db.Timestamptz(3)
+  updatedAt        DateTime          @default(now()) @updatedAt @map("UpdatedAt") @db.Timestamptz(3)
+  completedAt      DateTime?         @map("CompletedAt") @db.Timestamptz(3)
+  totalAmount      Decimal           @map("TotalAmount") @db.Decimal(14, 2)
+  shippingAddress  String            @map("ShippingAddress") @db.Text
+  shippingName     String            @default("") @map("ShippingName") @db.VarChar(150)
+  shippingPhone    String            @default("") @map("ShippingPhone") @db.VarChar(20)
+  paymentStatus    String            @default("UNPAID") @map("PaymentStatus") @db.VarChar(30)
+  paymentMethod    PaymentMethod     @default(COD) @map("PaymentMethod")
+  status           OrderStatus       @default(PENDING) @map("OrderStatus")
+  user             User              @relation(fields: [userId], references: [id], onDelete: Restrict)
+  items            OrderItem[]
+  events           OrderEvent[]
+  checkoutRequests CheckoutRequest[]
 
   @@index([userId, orderDate])
   @@index([status])
@@ -101,14 +148,19 @@ model Order {
 
 // Snapshot the purchased title and price so later catalog edits do not change an order.
 model OrderItem {
-  id        Int     @id @default(autoincrement()) @map("OrderItemID")
-  orderId   Int     @map("OrderID")
-  bookId    Int     @map("BookID")
-  bookTitle String  @map("BookTitle") @db.VarChar(255)
-  quantity  Int     @map("Quantity")
-  unitPrice Decimal @map("UnitPrice") @db.Decimal(14, 2)
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  book      Book    @relation(fields: [bookId], references: [id], onDelete: Restrict)
+  id        Int             @id @default(autoincrement()) @map("OrderItemID")
+  seedKey   String?         @unique @map("SeedKey") @db.VarChar(150)
+  orderId   Int             @map("OrderID")
+  bookId    Int             @map("BookID")
+  bookTitle String          @map("BookTitle") @db.VarChar(255)
+  bookImage String?         @map("BookImage") @db.Text
+  quantity  Int             @map("Quantity")
+  unitPrice Decimal         @map("UnitPrice") @db.Decimal(14, 2)
+  createdAt DateTime        @default(now()) @map("CreatedAt") @db.Timestamptz(3)
+  updatedAt DateTime        @default(now()) @updatedAt @map("UpdatedAt") @db.Timestamptz(3)
+  order     Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  book      Book            @relation(fields: [bookId], references: [id], onDelete: Restrict)
+  returns   ReturnRequest[]
 
   @@unique([orderId, bookId])
   @@index([bookId])
@@ -117,6 +169,7 @@ model OrderItem {
 
 model Review {
   id        Int      @id @default(autoincrement()) @map("ReviewID")
+  seedKey   String?  @unique @map("SeedKey") @db.VarChar(150)
   userId    Int      @map("UserID")
   bookId    Int      @map("BookID")
   rating    Int      @map("Rating") @db.SmallInt
@@ -163,4 +216,165 @@ model ChatLog {
   @@index([userId])
   @@index([needsHuman, resolved, createdAt])
   @@map("Chat_Logs")
+}
+
+// Complete source documents for datasets without relational models yet.
+// users.json is stored without plaintext passwords; hashes live only in Users.
+model SeedDocument {
+  filename    String   @id @map("Filename") @db.VarChar(255)
+  payload     Json     @map("Payload")
+  checksum    String   @map("Checksum") @db.VarChar(64)
+  recordCount Int      @map("RecordCount")
+  importedAt  DateTime @default(now()) @map("ImportedAt") @db.Timestamptz(3)
+
+  @@map("Seed_Documents")
+}
+
+model Session {
+  id        String    @id @db.VarChar(64)
+  userId    Int
+  expiresAt DateTime  @db.Timestamptz(3)
+  revokedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@map("Sessions")
+}
+
+model CheckoutRequest {
+  userId      Int
+  key         String   @db.VarChar(100)
+  requestHash String   @db.VarChar(64)
+  orderId     Int
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@id([userId, key])
+  @@map("Checkout_Requests")
+}
+
+model OrderEvent {
+  id        Int         @id @default(autoincrement())
+  orderId   Int
+  status    OrderStatus
+  actorId   Int?
+  note      String      @default("") @db.Text
+  createdAt DateTime    @default(now()) @db.Timestamptz(3)
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+  @@map("Order_Events")
+}
+
+model InventoryMovement {
+  id           Int      @id @default(autoincrement())
+  bookId       Int
+  delta        Int
+  reason       String   @db.Text
+  referenceKey String   @unique @db.VarChar(150)
+  actorId      Int?
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  book         Book     @relation(fields: [bookId], references: [id], onDelete: Restrict)
+
+  @@index([bookId, createdAt])
+  @@map("Inventory_Movements")
+}
+
+model ConsultationProfile {
+  bookId    Int      @id
+  component String   @db.VarChar(40)
+  usages    Json
+  specs     Json
+  reasons   Json
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(3)
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@map("Consultation_Profiles")
+}
+
+model ReturnRequest {
+  id                Int           @id @default(autoincrement())
+  userId            Int
+  orderItemId       Int
+  quantity          Int           @default(1)
+  contactName       String        @db.VarChar(150)
+  phone             String        @db.VarChar(20)
+  description       String        @db.Text
+  status            String        @default("received") @db.VarChar(30)
+  resolution        String?       @db.VarChar(30)
+  restockQuantity   Int           @default(0)
+  replacementBookId Int?
+  createdAt         DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime      @default(now()) @updatedAt @db.Timestamptz(3)
+  user              User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  orderItem         OrderItem     @relation(fields: [orderItemId], references: [id], onDelete: Restrict)
+  events            ReturnEvent[]
+  refund            RefundRecord?
+
+  @@index([userId, createdAt])
+  @@index([orderItemId, status])
+  @@map("Return_Requests")
+}
+
+model ReturnEvent {
+  id        Int           @id @default(autoincrement())
+  requestId Int
+  status    String        @db.VarChar(30)
+  note      String        @db.Text
+  actorId   Int?
+  createdAt DateTime      @default(now()) @db.Timestamptz(3)
+  request   ReturnRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, createdAt])
+  @@map("Return_Events")
+}
+
+model RefundRecord {
+  id        Int           @id @default(autoincrement())
+  requestId Int           @unique
+  amount    Decimal       @db.Decimal(14, 2)
+  actorId   Int
+  note      String        @db.Text
+  createdAt DateTime      @default(now()) @db.Timestamptz(3)
+  request   ReturnRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
+
+  @@index([createdAt])
+  @@map("Refund_Records")
+}
+
+model ChatSession {
+  id        String   @id @db.VarChar(100)
+  userId    Int?
+  ownerHash String   @db.VarChar(64)
+  expiresAt DateTime @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@map("Chat_Sessions")
+}
+
+model UploadedAsset {
+  filename  String   @id @db.VarChar(150)
+  imageUrl  String   @unique @db.Text
+  target    String   @db.VarChar(30)
+  mimeType  String   @db.VarChar(60)
+  size      Int
+  sourceUrl String?  @db.Text
+  ownerId   Int
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+
+  @@index([createdAt])
+  @@map("Uploaded_Assets")
+}
+
+model RateLimitWindow {
+  key       String   @id @db.VarChar(64)
+  hits      Int      @default(1)
+  expiresAt DateTime @db.Timestamptz(3)
+
+  @@index([expiresAt])
+  @@map("Rate_Limit_Windows")
 }

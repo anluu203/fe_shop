@@ -9,6 +9,7 @@ export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
+    seed: "tsx scripts/import-mock-data.mts",
   },
   datasource: hasDatabaseConfig ? {
     url: getDatabaseUrl(),

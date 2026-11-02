@@ -516,7 +516,7 @@ test("existing api wrapper selects mock by default and HTTP when explicitly disa
     .api.get("/products", { parentId: "history" });
   assert.equal(response.connected, true);
   assert.ok(
-    requested.url.includes("localhost:8080/api/v1/products?parentId=history"),
+    requested.url.includes("localhost:5173/api/v1/products?parentId=history"),
   );
 });
 

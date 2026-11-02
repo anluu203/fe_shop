@@ -6,10 +6,15 @@ import { adminServiceClasses as ui, ServiceAdminIntro, ServiceFeedback } from ".
 import { adminCustomerServices, customerServices, subscribeCustomerServices } from "../../../lib/services/customer-services";
 import { formatPrice } from "../../../lib/utils/format";
 import type { ComponentType, ConsultationProductInput, ManagedConsultationProduct, Usage } from "../../../lib/types/customer-services";
+import { USE_MOCK } from "../../../lib/mock/config";
+import { DatabaseAdminConsultation } from "../../../components/admin/DatabaseCustomerServices";
 
 const options = customerServices.getConsultationOptions();
 
 export default function AdminConsultationPage() {
+  return USE_MOCK ? <MockAdminConsultationPage /> : <DatabaseAdminConsultation />;
+}
+function MockAdminConsultationPage() {
   const [snapshot, setSnapshot] = useState(() => adminCustomerServices.loadConsultationProducts());
   const [editor, setEditor] = useState<ManagedConsultationProduct | "new" | null>(null);
   const [search, setSearch] = useState("");

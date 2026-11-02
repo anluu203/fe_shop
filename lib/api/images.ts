@@ -3,9 +3,10 @@
 // =============================================
 
 import { AUTH_TOKEN_KEY, USE_MOCK } from "../mock/config";
+import { api } from "./client";
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api/v1";
+  process.env.NEXT_PUBLIC_API_URL ?? "/api/v1";
 
 export type ImageTarget = "avatars" | "products" | "categories";
 
@@ -13,6 +14,11 @@ export interface UploadImageResponse {
   imageUrl: string;
   mimeType: string;
   size: number;
+}
+
+export async function importProductImage(url: string): Promise<UploadImageResponse> {
+  if (USE_MOCK) return { imageUrl: url, mimeType: "image/webp", size: 0 };
+  return api.post<UploadImageResponse>("/images/products/import", { url });
 }
 
 function getToken(): string | null {
