@@ -4,7 +4,7 @@ Các endpoint dưới đây đã triển khai bằng Next.js Route Handlers và 
 
 | Method | Endpoint | Quyền | Kết quả |
 | --- | --- | --- | --- |
-| GET | `/chatbot/config` | Public | `PublicAIConfig`: enabled, botName, welcomeMessage, supportContact |
+| GET | `/chatbot/config` | Public | `PublicAIConfig`: enabled, botName, welcomeMessage, supportContact, mode |
 | POST | `/chatbot/messages` | Public hoặc tài khoản | `ChatReply`; body `{ sessionId, message }` |
 | GET | `/admin/chatbot/config` | ADMIN | `AIConfig` |
 | PATCH | `/admin/chatbot/config` | ADMIN | Cấu hình sau cập nhật |
@@ -16,11 +16,14 @@ Kiểu chi tiết nằm trong `lib/types/chatbot.ts` và `lib/types/reports.ts`.
 
 ## Chatbot
 
+- Các câu hỏi gợi ý trong `lib/services/chatbot-suggestions.ts` luôn được xử lý bằng mẫu trả lời và catalog database, trả `mode=rules`, không gọi Gemini hay provider khác (kể cả khi dịch vụ AI lỗi). Client và server dùng chung danh sách 10 câu hỏi; nhận diện đúng nội dung sau chuẩn hóa chữ hoa, khoảng trắng và dấu tiếng Việt. Tin nhắn tùy chỉnh khác vẫn sử dụng chế độ AI đã cấu hình. Lượt hỏi từ nút gợi ý vẫn kiểm tra quyền phiên, trạng thái bật/tắt và lưu lịch sử admin như bình thường. Không có sách phù hợp thì dùng thông báo dự phòng, không chuyển sang AI.
 - `message`: 1–2.000 ký tự sau kiểm tra; `sessionId`: 8–100 ký tự `[a-zA-Z0-9_-]`. Lấy `userId` từ phiên đăng nhập, bỏ qua userId do client gửi. Phiên đã gắn tài khoản phải thuộc tài khoản đó; phiên khách cần định danh ký/cookie trên server khi triển khai thật.
 - `ChatReply`: `{ id, answer, books: Product[], needsHuman, createdAt }`. Chỉ trả các sách đang bán, sử dụng dữ liệu giá và catalog tin cậy từ server. Không cho mô hình thực thi sửa đơn, hoàn tiền hoặc thay đổi dữ liệu.
 - Lưu một `Chat_Logs` cho mỗi lượt gửi thành công; ghi câu hỏi, trả lời, ID sách gợi ý, tình trạng cần người hỗ trợ. Lỗi gọi AI hoặc ghi log phải trả lỗi rõ ràng để giao diện giữ lại câu hỏi cho lần gửi lại.
 - `AIConfig`: enabled, botName (1–80), welcomeMessage/fallbackMessage (1–1.000), systemPrompt (1–6.000), model (1–100), temperature (0–2), maxSuggestions (1–5), supportContact (1–254), updatedAt. ConfigID duy nhất là 1. Không trả systemPrompt hoặc model trong endpoint public.
-- Cấu hình provider bằng AI_API_URL/AI_API_KEY qua biến môi trường server; backend dùng system prompt, model và temperature khi gọi provider tương thích Chat Completions. Chưa có provider/key thì mode=rules tìm kiếm catalog DB; public config trả mode để UI hiển thị đúng. Không trình bày chế độ rules như đã gọi mô hình.
+- Cấu hình `GEMINI_API_KEY` trên server để dùng `@google/genai` Interactions API (`mode=gemini`), ưu tiên hơn `AI_API_URL/AI_API_KEY`. Model mặc định `gemini-3.5-flash-lite` được dùng khi database còn `backend-default` hoặc tên model cũ. Admin lưu model Gemini, system prompt, lời chào, thông báo dự phòng, liên hệ và số sách gợi ý; không gửi `mode`/`updatedAt` trong PATCH. Gemini 3.6+ và 4 không dùng temperature; giao diện vô hiệu hóa trường này. Các model 3.1/3.5 sử dụng temperature đã lưu.
+- Mỗi lượt Gemini nhận tối đa 30 sách ứng viên từ catalog và 6 lượt hỏi đáp gần nhất của chính phiên đã kiểm tra quyền. Dùng `store:false`, JSON schema và kiểm tra kết quả trên server; ID sách gợi ý được đối chiếu catalog và giới hạn theo cấu hình. Timeout 20 giây, không tự thử lại; lỗi dịch vụ AI trả 503 (phân biệt quá tải, hạn mức, quyền và cấu hình), timeout trả 504, nội dung không hợp lệ trả 502. Không lưu lượt hỏi đáp thất bại. Log server ghi provider, model, mã phân loại và HTTP status từ nhà cung cấp, không ghi API key hay nội dung hội thoại. Khóa API và hướng dẫn nội bộ không xuất hiện ở endpoint public.
+- Vẫn hỗ trợ provider tương thích Chat Completions qua `AI_API_URL/AI_API_KEY` (`mode=provider`). Chưa có key thì `mode=rules` tìm catalog DB; chế độ mock chỉ chạy quy tắc trong trình duyệt. Dùng `NEXT_PUBLIC_USE_MOCK=false`, `NEXT_PUBLIC_API_URL=/api/v1`, khởi động lại server sau khi thêm biến môi trường rồi vào `/admin/chatbot` lưu cấu hình.
 - `adminNote`: tối đa 2.000 ký tự, chỉ ADMIN được đọc/ghi. Trạng thái xử lý tính theo từng lượt; `needsHuman && !resolved` là lượt cần chăm sóc. Ghi chú nội bộ chưa phải tin nhắn gửi cho khách.
 - Backend thật cần giới hạn tần suất, kích thước request và thời gian gọi mô hình; không tin lịch sử, catalog, cấu hình hay role từ trình duyệt.
 

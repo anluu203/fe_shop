@@ -65,7 +65,7 @@ Thư mục `mock-data/` chứa dữ liệu khởi tạo cho cả admin và clien
 
 - Mở **Hỏi BookStore AI** ở góc dưới, hoặc nút tư vấn trên trang chủ/danh mục/chi tiết sách. Hỗ trợ khách vãng lai, gợi ý sách có link chi tiết và tiếp nhận nhu cầu hỗ trợ đơn hàng/đổi trả.
 - `/admin/chatbot`: bật/tắt chatbot, tên trợ lý, lời chào, thông báo dự phòng, số sách gợi ý và liên hệ hỗ trợ. Tab lịch sử tìm theo người hỏi/nội dung/mã phiên, lọc lượt cần hỗ trợ và lưu ghi chú nội bộ/trạng thái xử lý cho từng lượt.
-- Chế độ mock chỉ tìm theo quy tắc trong trình duyệt. Backend thật mặc định tìm trong catalog PostgreSQL; khi cấu hình AI_API_URL/AI_API_KEY, backend gọi provider bằng model, temperature và system prompt của admin. Không nhập API key vào trình duyệt; xem [CHATBOT_REPORTS_API.md](CHATBOT_REPORTS_API.md).
+- Chế độ mock chỉ tìm theo quy tắc trong trình duyệt. Với backend thật, thêm `GEMINI_API_KEY` trên server để dùng Gemini, rồi chọn model và lưu hướng dẫn tại `/admin/chatbot`; cửa sổ chat khách hàng dùng cùng cấu hình. Model mặc định là `gemini-3.5-flash-lite`. Vẫn hỗ trợ `AI_API_URL/AI_API_KEY`; không có key thì tìm sách theo quy tắc trong PostgreSQL. Xem [CHATBOT_REPORTS_API.md](CHATBOT_REPORTS_API.md).
 - Lịch sử quản trị lưu trong localStorage dùng chung của demo. Cửa sổ khách giữ hội thoại trong bộ nhớ khi điều hướng; tải lại trang tạo phiên mới. Đăng nhập/đăng xuất đổi cửa sổ và mã phiên để không lẫn hội thoại giữa tài khoản.
 - Cấu hình và log tự bổ sung vào dữ liệu demo cũ, giữ sách đã sửa, tài khoản, giỏ hàng và đơn mua. Khách không đọc API lịch sử quản trị hoặc ghi chú nội bộ.
 
@@ -179,7 +179,7 @@ Khởi động lại dev server, hoặc build lại bản production sau khi đ�
 
 Model `Product`/`ProductBody` hỗ trợ thông tin xuất bản, ISBN, giá gốc/bán, discount và tồn kho. Backend chuẩn hóa ISBN và kiểm tra checksum ISBN-10/13; giá là chuỗi nguyên VND. Truy vấn sách hỗ trợ `parentId`, `categoryId`, tìm kiếm không dấu theo tên/tác giả/mô tả/ISBN; chỉ admin được dùng `includeInactive=1` để xem sách ẩn. Thay đổi tồn đi qua API stock-adjustments và có nhật ký riêng.
 
-Hợp đồng chatbot/báo cáo nằm trong `lib/api/chatbot.ts`, `lib/api/reports.ts` và [CHATBOT_REPORTS_API.md](CHATBOT_REPORTS_API.md); các endpoint đã triển khai trên backend. Chatbot mặc định tìm sách từ catalog theo quy tắc; cấu hình AI_API_URL/AI_API_KEY và model thật để dùng provider. Thanh toán hiện là COD; chuyển khoản/ví chưa được mở.
+Hợp đồng chatbot/báo cáo nằm trong `lib/api/chatbot.ts`, `lib/api/reports.ts` và [CHATBOT_REPORTS_API.md](CHATBOT_REPORTS_API.md); các endpoint đã triển khai trên backend. Chatbot dùng Gemini khi có `GEMINI_API_KEY` trên server; admin quản lý model và hướng dẫn AI. Thanh toán hiện là COD; chuyển khoản/ví chưa được mở.
 
 ## Kiểm thử
 

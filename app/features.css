@@ -505,6 +505,9 @@
   display: flex;
   gap: 7px;
   flex-wrap: wrap;
+  flex-shrink: 0;
+  max-height: 140px;
+  overflow-y: auto;
   border-top: 1px solid var(--border);
 }
 .chat-suggestions button {

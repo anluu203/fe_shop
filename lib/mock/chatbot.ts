@@ -2,6 +2,7 @@ import type { ChatBody, ChatLog, ChatReply } from "../types/chatbot";
 import type { User } from "../types";
 import { hydrateProduct, type MockState } from "./store";
 import { formatPrice } from "../utils/format";
+import { suggestedChatReply } from "../services/chatbot-suggestions";
 
 const normalize = (value: string) =>
   value
@@ -160,19 +161,21 @@ export function createChatReply(
     : books.length
       ? `Bạn có thể tham khảo ${books.length} cuốn sách sau${Number.isFinite(maximum) ? `, giá không quá ${formatPrice(maximum)}` : ""}. Giá bên dưới là giá đang bán. Bạn muốn tìm thêm theo tác giả hoặc thể loại nào?`
       : `${config.fallbackMessage}\nLiên hệ hỗ trợ: ${config.supportContact}`;
+  const reply = suggestedChatReply(message, state.products.map((book) => hydrateProduct(state, book)), config)
+    ?? { answer, books, needsHuman, mode: "rules" as const };
   const log: ChatLog = {
     id: `chat-${crypto.randomUUID()}`,
     sessionId: body.sessionId,
     userId: user?.id ?? null,
     customerName: user?.username ?? "Khách vãng lai",
     question: message,
-    answer,
-    recommendedBooks: books.map((b) => b.id),
-    needsHuman,
+    answer: reply.answer,
+    recommendedBooks: reply.books.map((b) => b.id),
+    needsHuman: reply.needsHuman,
     resolved: false,
     adminNote: "",
     createdAt: new Date().toISOString(),
   };
   state.chatLogs.push(log);
-  return { id: log.id, answer, books, needsHuman, createdAt: log.createdAt };
+  return { id: log.id, ...reply, createdAt: log.createdAt };
 }

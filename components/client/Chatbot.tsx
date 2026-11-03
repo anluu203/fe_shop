@@ -9,6 +9,7 @@ import type { ChatReply, PublicAIConfig } from "../../lib/types/chatbot";
 import { subscribeMockData, USE_MOCK } from "../../lib/mock/config";
 import { formatPrice } from "../../lib/utils/format";
 import { imageSrc } from "../../lib/utils/image";
+import { CHAT_SUGGESTIONS } from "../../lib/services/chatbot-suggestions";
 
 export const OPEN_CHAT_EVENT = "bookstore:open-chat";
 export default function Chatbot() {
@@ -25,6 +26,7 @@ function ChatWindow() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [configError, setConfigError] = useState("");
+  const [showAllSuggestions, setShowAllSuggestions] = useState(false);
   const session = useRef<string | null>(null);
   const busy = useRef(false);
   const alive = useRef(true);
@@ -92,6 +94,8 @@ function ChatWindow() {
       }
     } catch (caught) {
       if (alive.current) {
+        // A failed first request may not have received the guest ownership cookie.
+        if (!turns.length) session.current = null;
         setMessage(value);
         setError(
           caught instanceof Error
@@ -128,7 +132,9 @@ function ChatWindow() {
               <small>
                 {config?.enabled === false
                   ? "Đang tạm nghỉ"
-                  : config?.mode === "rules" ? "Tìm sách theo danh mục & hỗ trợ khách hàng" : "Tư vấn sách & chăm sóc khách hàng"}
+                  : config?.mode === "gemini"
+                    ? "Trợ lý Gemini · Tư vấn sách & hỗ trợ khách hàng"
+                    : config?.mode === "rules" ? "Tìm sách theo danh mục & hỗ trợ khách hàng" : "Tư vấn sách & chăm sóc khách hàng"}
               </small>
             </div>
             <button type="button" aria-label="Đóng cửa sổ chat" onClick={close}>
@@ -174,7 +180,7 @@ function ChatWindow() {
                   <span className="sr-only">Bạn: </span>
                   {question}
                 </div>
-                <div className="chat-bubble assistant">
+                <div className="chat-bubble assistant" style={{ whiteSpace: "pre-wrap" }}>
                   <span className="sr-only">Trợ lý: </span>
                   {reply.answer}
                 </div>
@@ -229,20 +235,23 @@ function ChatWindow() {
           </div>
           {config?.enabled && (
             <div className="chat-suggestions">
-              {[
-                "Gợi ý sách thiếu nhi",
-                "Sách kỹ năng dưới 200k",
-                "Liên hệ nhân viên",
-              ].map((text) => (
+              {(showAllSuggestions ? CHAT_SUGGESTIONS : CHAT_SUGGESTIONS.slice(0, 3)).map(({ id, text }) => (
                 <button
                   type="button"
-                  key={text}
+                  key={id}
                   disabled={sending}
                   onClick={() => void send(text)}
                 >
                   {text}
                 </button>
               ))}
+              <button
+                type="button"
+                aria-expanded={showAllSuggestions}
+                onClick={() => setShowAllSuggestions((value) => !value)}
+              >
+                {showAllSuggestions ? "Thu gọn gợi ý" : "Thêm câu hỏi gợi ý"}
+              </button>
             </div>
           )}
           {config?.enabled === false && (
@@ -290,8 +299,8 @@ function ChatWindow() {
             </button>
           </form>
           <footer className="chatbot-disclaimer">
-            {USE_MOCK
-              ? "Demo: gợi ý tự động từ danh mục sách hiện có."
+            {USE_MOCK || config?.mode === "rules"
+              ? "Gợi ý tự động từ danh mục sách hiện có."
               : "Nội dung AI có thể có sai sót. Vui lòng kiểm tra chi tiết sách."}{" "}
             Không gửi thông tin nhạy cảm.
           </footer>

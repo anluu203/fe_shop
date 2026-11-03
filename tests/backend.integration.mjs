@@ -18,6 +18,7 @@ import { PrismaClient } from "../generated/prisma/client.ts";
 import { getDatabaseUrl } from "../lib/server/database-config.ts";
 import { importMockData, loadMockData } from "../scripts/mock-data-import.ts";
 import { isPublicAddress, pinnedLookup } from "../lib/server/image-network.ts";
+import { CHAT_SUGGESTIONS } from "../lib/services/chatbot-suggestions.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 test("remote image policy blocks private, mapped and transition IPs", () => {
@@ -64,7 +65,7 @@ test("production HTTP backend, real PostgreSQL, and runtime images", { timeout: 
     assert.match(database, /^book_shop_api_test_[a-f0-9]{32}$/);
     await connection.query(`CREATE DATABASE "${database}" TEMPLATE template0 ENCODING 'UTF8'`); created = true;
     const target = new URL(adminUrl); target.pathname = `/${database}`;
-    const environment = { ...process.env, DATABASE_URL: target.toString(), AUTH_SECRET: secret, IMAGE_ROOT: imageRoot, NEXT_PUBLIC_USE_MOCK: "false", NEXT_PUBLIC_API_URL: "/api/v1", AI_API_URL: "", AI_API_KEY: "", RETURN_WINDOW_DAYS: "14", TRUST_PROXY: "false" };
+    const environment = { ...process.env, DATABASE_URL: target.toString(), AUTH_SECRET: secret, IMAGE_ROOT: imageRoot, NEXT_PUBLIC_USE_MOCK: "false", NEXT_PUBLIC_API_URL: "/api/v1", GEMINI_API_KEY: "", AI_API_URL: "", AI_API_KEY: "", RETURN_WINDOW_DAYS: "14", TRUST_PROXY: "false" };
     const migration = spawnSync(process.execPath, [resolve(root, "node_modules/prisma/build/index.js"), "migrate", "deploy"], { cwd: root, env: environment, encoding: "utf8", timeout: 40_000 });
     assert.equal(migration.status, 0, migration.stderr);
     db = new PrismaClient({ adapter: new PrismaPg({ connectionString: target.toString(), connectionTimeoutMillis: 5000 }) });
@@ -265,19 +266,33 @@ test("production HTTP backend, real PostgreSQL, and runtime images", { timeout: 
       await expect("/chatbot/messages", 403, { method: "POST", body: { sessionId, message: "Tôi là người khác" } });
       await expect("/chatbot/messages", 200, { method: "POST", headers: { Cookie: cookie }, body: { sessionId, message: "thêm sách văn học" } });
       const accountSession = randomUUID(); await expect("/chatbot/messages", 200, { method: "POST", token: reader, body: { sessionId: accountSession, message: "Sách văn học" } }); await expect("/chatbot/messages", 403, { method: "POST", token: other, body: { sessionId: accountSession, message: "Sách văn học" } });
-      const configAdmin = await expect("/admin/chatbot/config", 200, { token: admin }); await expect("/admin/chatbot/config", 200, { method: "PATCH", token: admin, body: { ...configAdmin, updatedAt: undefined, enabled: false } });
+      const { mode, ...configAdmin } = await expect("/admin/chatbot/config", 200, { token: admin }); assert.equal(mode, "rules"); await expect("/admin/chatbot/config", 200, { method: "PATCH", token: admin, body: { ...configAdmin, updatedAt: undefined, enabled: false } });
       await expect("/chatbot/messages", 409, { method: "POST", token: reader, body: { sessionId: randomUUID(), message: "Sách" } }); await expect("/admin/chatbot/config", 200, { method: "PATCH", token: admin, body: { ...configAdmin, updatedAt: undefined } });
       const logs = await expect("/admin/chatbot/logs", 200, { token: admin }); assert.ok(logs.length >= 3); await expect("/admin/chatbot/logs", 403, { token: reader });
       await expect(`/admin/chatbot/logs/${logs[0].id}`, 200, { method: "PATCH", token: admin, body: { resolved: true, adminNote: "Internal only" } });
     });
 
     await t.test("provider adapter validates AI output and does not save failed responses", async () => {
-      let fail = false;
-      provider = createHttpServer((request, response) => { request.resume(); request.on("end", () => { response.writeHead(fail ? 503 : 200, { "Content-Type": "application/json" }); response.end(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ answer: "Kết quả từ provider kiểm thử", bookIds: [], needsHuman: true }) } }] })); }); });
+      let fail = false, providerCalls = 0;
+      provider = createHttpServer((request, response) => { providerCalls++; request.resume(); request.on("end", () => { response.writeHead(fail ? 503 : 200, { "Content-Type": "application/json" }); response.end(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ answer: "Kết quả từ provider kiểm thử", bookIds: [], needsHuman: true }) } }] })); }); });
       provider.listen(0, "127.0.0.1"); await once(provider, "listening");
       const second = await start({ AI_API_URL: `http://127.0.0.1:${provider.address().port}/chat/completions`, AI_API_KEY: "integration-provider-key" });
       const result = await expect("/chatbot/messages", 200, { method: "POST", base: second.base, body: { sessionId: randomUUID(), message: "gợi ý sách" } }); assert.equal(result.mode, "provider");
       fail = true; const before = await db.chatLog.count(); await expect("/chatbot/messages", 503, { method: "POST", base: second.base, body: { sessionId: randomUUID(), message: "provider failing" } }); assert.equal(await db.chatLog.count(), before);
+      // Even with an AI provider configured and failing, every client suggestion
+      // must reply from database/templates and keep the normal admin history.
+      const callsBeforeSuggestions = providerCalls;
+      for (const suggestion of CHAT_SUGGESTIONS) {
+        const sessionId = randomUUID();
+        const quick = await expect("/chatbot/messages", 200, { method: "POST", base: second.base, body: { sessionId, message: suggestion.text } });
+        assert.equal(quick.mode, "rules");
+        assert.ok(quick.answer.length > 0);
+        assert.ok(quick.books.length <= 3);
+        assert.ok(quick.books.every((book) => book.isActive && book.stockQuantity > 0));
+        if (suggestion.maxPrice) assert.ok(quick.books.every((book) => Number(book.price) <= suggestion.maxPrice));
+        assert.equal(await db.chatLog.count({ where: { sessionId, answer: quick.answer } }), 1);
+      }
+      assert.equal(providerCalls, callsBeforeSuggestions, "Suggested questions must never call the AI provider");
       await stop(second.child);
     });
 

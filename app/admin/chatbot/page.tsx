@@ -6,6 +6,7 @@ import type { AIConfig, ChatLog } from "../../../lib/types/chatbot";
 import { subscribeMockData, USE_MOCK } from "../../../lib/mock/config";
 import { formatDate } from "../../../lib/utils/format";
 import { PageSpinner } from "../../../components/ui/Spinner";
+import { GEMINI_MODELS, geminiSupportsTemperature } from "../../../lib/services/chatbot-config";
 
 export default function AdminChatbotPage() {
   const [config, setConfig] = useState<AIConfig | null>(null);
@@ -287,19 +288,27 @@ export default function AdminChatbotPage() {
               <div className="feature-note">
                 {USE_MOCK
                   ? "Chế độ demo dùng quy tắc tìm sách trong catalog. Model, temperature và hướng dẫn AI bên dưới được lưu để tích hợp backend; chúng chưa điều khiển câu trả lời demo."
-                  : "Backend dùng model và hướng dẫn này khi gọi dịch vụ AI. Khóa API được cấu hình riêng trên server."}
+                  : config.mode === "gemini"
+                    ? "Đã cấu hình Gemini trên server. Chatbot khách hàng dùng model, hướng dẫn AI và số sách gợi ý bên dưới. API key được giữ riêng trên server."
+                    : config.mode === "provider"
+                      ? "Đã cấu hình dịch vụ AI trên server. Backend dùng model và hướng dẫn bên dưới khi trả lời khách hàng."
+                      : "Chưa cấu hình dịch vụ AI. Chatbot đang tìm sách theo quy tắc. Thêm GEMINI_API_KEY trên server và khởi động lại để sử dụng Gemini."}
               </div>
               <div className="feature-form-grid">
                 <label>
-                  Model trên backend
+                  {config.mode === "gemini" ? "Model Gemini" : "Model trên backend"}
                   <input
                     required
                     maxLength={100}
+                    list="chatbot-gemini-models"
                     value={config.model}
                     onChange={(e) =>
                       setConfig({ ...config, model: e.target.value })
                     }
                   />
+                  <datalist id="chatbot-gemini-models">
+                    {GEMINI_MODELS.map((model) => <option key={model} value={model} />)}
+                  </datalist>
                 </label>
                 <label>
                   Temperature (0–2)
@@ -309,6 +318,7 @@ export default function AdminChatbotPage() {
                     min={0}
                     max={2}
                     step={0.01}
+                    disabled={config.mode === "gemini" && !geminiSupportsTemperature(config.model)}
                     value={config.temperature}
                     onChange={(e) =>
                       setConfig({
@@ -317,6 +327,9 @@ export default function AdminChatbotPage() {
                       })
                     }
                   />
+                  {config.mode === "gemini" && !geminiSupportsTemperature(config.model) && (
+                    <small>Model này tự điều chỉnh độ ngẫu nhiên, không sử dụng temperature.</small>
+                  )}
                 </label>
               </div>
               <label>

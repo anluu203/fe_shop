@@ -1,5 +1,18 @@
 import type { AIConfig, PublicAIConfig } from "../types/chatbot";
 
+export const DEFAULT_GEMINI_MODEL = "gemini-3.5-flash-lite";
+export const GEMINI_MODELS = [
+  DEFAULT_GEMINI_MODEL,
+  "gemini-3.8-flash",
+  "gemini-3.1-flash-lite",
+  "gemini-4-argon",
+] as const;
+
+// Gemini 3.6+ and Gemini 4 ignore sampling parameters.
+export function geminiSupportsTemperature(model: string) {
+  return /^gemini-3\.[1-5]-/.test(model);
+}
+
 export const defaultAIConfig: AIConfig = {
   enabled: true,
   botName: "BookStore AI",

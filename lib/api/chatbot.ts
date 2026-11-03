@@ -13,7 +13,7 @@ export const chatbotApi = {
 };
 export const adminChatbotApi = {
   getConfig: () => api.get<AIConfig>("/admin/chatbot/config"),
-  updateConfig: (body: Omit<AIConfig, "updatedAt">) =>
+  updateConfig: (body: Omit<AIConfig, "updatedAt" | "mode">) =>
     api.patch<AIConfig>("/admin/chatbot/config", body),
   getLogs: () => api.get<ChatLog[]>("/admin/chatbot/logs"),
   updateLog: (id: string, body: Pick<ChatLog, "resolved" | "adminNote">) =>

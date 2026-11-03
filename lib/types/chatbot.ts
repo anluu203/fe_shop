@@ -1,7 +1,7 @@
 import type { Product } from "./index";
 
 export interface AIConfig {
-  mode?: "rules" | "provider";
+  mode?: "rules" | "provider" | "gemini";
   enabled: boolean;
   botName: string;
   welcomeMessage: string;
@@ -31,6 +31,7 @@ export interface ChatLog {
   createdAt: string;
 }
 export interface ChatReply {
+  mode?: AIConfig["mode"];
   id: string;
   answer: string;
   books: Product[];
