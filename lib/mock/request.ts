@@ -114,6 +114,22 @@ function total(order: Order) {
   order.updatedAt = now();
   return order;
 }
+function cancelMockOrder(state: MockState, order: Order, note: unknown, admin: boolean) {
+  if (order.status === "Cancelled") return order;
+  if (order.status !== "Processing" && !(admin && order.status === "Preparing")) throw new Error("Đơn này không thể hủy ở trạng thái hiện tại.");
+  if (typeof note !== "string" || !note.trim() || note.length > 2000) throw new Error("Vui lòng nhập lý do hủy đơn (tối đa 2000 ký tự).");
+  if (order.inventoryDeducted) {
+    for (const item of order.items) {
+      const book = state.products.find((row) => row.id === item.productId);
+      if (book && typeof book.stockQuantity === "number") book.stockQuantity += item.quantity;
+    }
+    order.inventoryDeducted = false;
+  }
+  order.status = "Cancelled";
+  order.updatedAt = now();
+  order.events = [...(order.events ?? []), { status: "Cancelled", note: note.trim(), createdAt: now() }];
+  return order;
+}
 function cartFor(state: MockState, userId: string): Order {
   const cart = state.orders.find(
     (o) => o.userId === userId && o.status === "AddingItem",
@@ -151,6 +167,7 @@ export async function mockRequest<T>(
   ) as Record<string, any>;
   const parts = path.split("/").filter(Boolean);
   const [resource, entityId, action, itemId] = parts;
+  if (resource === "payments" && entityId === "methods" && method === "GET") return { codAvailable: true, vnpayAvailable: false } as T;
   const commit = (value: unknown): T => {
     writeMockState(state);
     return structuredClone(value) as T;
@@ -525,6 +542,11 @@ export async function mockRequest<T>(
 
   if (resource === "admin" && entityId === "orders") {
     requireAdmin(state, token);
+    if (method === "GET" && action) {
+      const order = state.orders.find((row) => row.id === action && row.status !== "AddingItem");
+      if (!order) throw new Error("Không tìm thấy đơn hàng.");
+      return result({ ...order, user: publicUser(state.users.find((row) => row.id === order.userId)!) });
+    }
     if (method === "GET")
       return result(
         paginate(
@@ -550,13 +572,20 @@ export async function mockRequest<T>(
       );
       if (!order) throw new Error("Không tìm thấy đơn hàng.");
       const current = ORDER_STATUS_FLOW.indexOf(order.status);
+      if (body.status === "Cancelled") return commit({ ...cancelMockOrder(state, order, body.note, true), user: publicUser(state.users.find((row) => row.id === order.userId)!) });
+      if (order.status === "Cancelled") throw new Error("Không thể sửa đơn đã hủy.");
       const next = ORDER_STATUS_FLOW.indexOf(body.status);
       if (next < current || next > current + 1 || next < 1)
         throw new Error(
           "Chỉ được giữ nguyên trạng thái hoặc chuyển sang bước tiếp theo.",
         );
-      if (body.status === "Done" && order.status !== "Done") order.completedAt = now();
+      if (body.status === "Done" && order.status !== "Done") {
+        if (body.paymentCollected !== true) throw new Error("Cần xác nhận đã thu tiền COD khi hoàn thành đơn.");
+        order.completedAt = now();
+        order.paymentStatus = "PAID";
+      }
       if (order.status === "Done" && !order.completedAt) order.completedAt = order.updatedAt ?? order.createdAt;
+      if (order.status !== body.status) order.events = [...(order.events ?? []), { status: body.status, note: typeof body.note === "string" ? body.note : "Quản trị cập nhật trạng thái đơn.", createdAt: now() }];
       order.status = body.status;
       order.updatedAt = now();
       return commit({
@@ -567,6 +596,11 @@ export async function mockRequest<T>(
   }
   if (resource === "orders") {
     const user = requireUser(state, token);
+    if (method === "POST" && action === "cancel") {
+      const order = state.orders.find((row) => row.id === entityId && row.userId === user.id && row.status !== "AddingItem");
+      if (!order) throw new Error("Không tìm thấy đơn hàng.");
+      return commit(cancelMockOrder(state, order, body.note, false));
+    }
     if (entityId === "cart" || entityId === "checkout") {
       const cart = cartFor(state, user.id);
       if (method === "GET") return result(cart);
@@ -574,10 +608,23 @@ export async function mockRequest<T>(
         if (method !== "POST")
           throw new Error("Thao tác đặt hàng không hợp lệ.");
         if (!cart.items.length) throw new Error("Giỏ hàng đang trống.");
+        if (body.paymentMethod && body.paymentMethod !== "COD") throw new Error("Thanh toán VNPay cần chế độ backend thật.");
         if (cart.items.some((i) => !i.product.isActive))
           throw new Error(
             "Có sách ngừng bán trong giỏ hàng. Vui lòng xóa sách đó trước khi đặt hàng.",
           );
+        const withStock = cart.items.every((item) => typeof state.products.find((book) => book.id === item.productId)?.stockQuantity === "number");
+        if (withStock) {
+          for (const item of cart.items) if (state.products.find((book) => book.id === item.productId)!.stockQuantity! < item.quantity) throw new Error("Số lượng vượt tồn kho.");
+          for (const item of cart.items) state.products.find((book) => book.id === item.productId)!.stockQuantity! -= item.quantity;
+        }
+        cart.inventoryDeducted = withStock;
+        cart.paymentMethod = "COD";
+        cart.paymentStatus = "UNPAID";
+        cart.shippingName = body.shippingName;
+        cart.shippingPhone = body.shippingPhone;
+        cart.shippingAddress = body.shippingAddress;
+        cart.events = [{ status: "Processing", note: "Khách hàng đặt đơn COD.", createdAt: now() }];
         cart.status = "Processing";
         cart.createdAt = now();
         total(cart);

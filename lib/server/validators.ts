@@ -25,7 +25,9 @@ export const productSchema = z.object({
 export const stockSchema = z.object({ delta: z.number().int().min(-1_000_000).max(1_000_000).refine((value) => value !== 0), reason: z.string().trim().min(1).max(1000) }).strict();
 export const quantitySchema = z.object({ quantity: z.number().int().min(1).max(999) }).strict();
 export const addCartSchema = quantitySchema.extend({ productId: idString }).strict();
-export const checkoutSchema = z.object({ shippingName: name, shippingPhone: phone, shippingAddress: z.string().trim().min(5).max(2000), paymentMethod: z.literal("COD") }).strict();
+export const checkoutSchema = z.object({ shippingName: name, shippingPhone: phone, shippingAddress: z.string().trim().min(5).max(2000), paymentMethod: z.enum(["COD", "VNPAY"]) }).strict();
+export const cancelOrderSchema = z.object({ note: z.string().trim().min(1).max(2000) }).strict();
+export const confirmPaymentRefundSchema = z.object({ reference: z.string().trim().min(1).max(150), note: z.string().trim().min(1).max(2000), refundConfirmed: z.literal(true) }).strict();
 export const orderStatusSchema = z.object({ status: z.enum(["Processing", "Preparing", "Shipping", "Done", "Cancelled"]), paymentCollected: z.boolean().optional(), note: z.string().trim().max(2000).optional() }).strict();
 export const reviewSchema = z.object({ Rating: z.number().int().min(1).max(5), Comment: z.string().trim().max(2000).nullable().optional() }).strict();
 export const usages = z.enum(["learning", "relaxation", "discovery"]);

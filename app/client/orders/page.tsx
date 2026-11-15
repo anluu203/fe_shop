@@ -12,6 +12,7 @@ import { ORDER_STATUS_LABEL } from "../../../lib/types";
 import { formatPrice, formatDate, shortId } from "../../../lib/utils/format";
 import { PageSpinner } from "../../../components/ui/Spinner";
 import Badge from "../../../components/ui/Badge";
+import { PAYMENT_STATUS_LABEL } from "../../../components/client/OrderPaymentDetails";
 
 function getStatusVariant(status: string) {
   const map: Record<string, "info" | "warning" | "primary" | "success" | "neutral"> = {
@@ -31,7 +32,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/client/auth/login");
-  }, [user, authLoading]);
+  }, [user, authLoading, router]);
 
   useEffect(() => {
     if (user) {
@@ -167,6 +168,7 @@ export default function OrdersPage() {
                     <Badge variant={getStatusVariant(order.status)} dot>
                       {ORDER_STATUS_LABEL[order.status]}
                     </Badge>
+                    <span style={{ fontSize: 13 }}>{order.paymentMethod ?? "COD"} · {PAYMENT_STATUS_LABEL[order.paymentStatus ?? "UNPAID"] ?? order.paymentStatus}</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                     <span style={{ fontSize: "calc(12px * var(--font-scale))", color: "var(--text-muted)" }}>

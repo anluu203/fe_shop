@@ -24,6 +24,7 @@
     "db:setup": "npm run db:create && npm run db:deploy && npm run db:generate",
     "lint": "eslint",
     "test:customer-services": "node --test tests/customer-services.test.mjs",
+    "test:payments": "node --import tsx --test tests/vnpay.test.mts",
     "test:gemini": "node --conditions=react-server --import tsx --test tests/gemini.test.mts",
     "test:db": "node --import tsx --test tests/database.test.mts",
     "test:seed": "node --import tsx --test tests/mock-data-import.test.mts",

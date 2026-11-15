@@ -9,6 +9,8 @@ async function handle(request: Request, context: Context) {
 }
 export { handle as GET, handle as POST, handle as PATCH, handle as DELETE };
 export async function HEAD(request: Request, context: Context) {
+  const { path } = await context.params;
+  if (path.join("/") === "payments/vnpay/ipn") return new Response(null, { status: 405, headers: { Allow: "GET" } });
   const response = await handle(new Request(request, { method: "GET" }), context);
   return new Response(null, { status: response.status, headers: response.headers });
 }

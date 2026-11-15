@@ -9,6 +9,7 @@ datasource db {
 
 enum PaymentMethod {
   COD
+  VNPAY
   BANK_TRANSFER
   E_WALLET
 }
@@ -140,10 +141,52 @@ model Order {
   items            OrderItem[]
   events           OrderEvent[]
   checkoutRequests CheckoutRequest[]
+  payments         PaymentAttempt[]
+  paymentRefunds   OrderPaymentRefund[]
 
   @@index([userId, orderDate])
   @@index([status])
   @@map("Orders")
+}
+
+model PaymentAttempt {
+  id                   String              @id @db.VarChar(100)
+  orderId              Int
+  amount               Decimal             @db.Decimal(14, 2)
+  status               String              @default("PENDING") @db.VarChar(20)
+  paymentUrl           String              @db.Text
+  expiresAt            DateTime            @db.Timestamptz(3)
+  createdAt            DateTime            @default(now()) @db.Timestamptz(3)
+  paidAt               DateTime?           @db.Timestamptz(3)
+  gatewayTransactionNo String?             @unique @db.VarChar(30)
+  responseCode         String?             @db.VarChar(2)
+  applied              Boolean             @default(false)
+  order                Order               @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  refund               OrderPaymentRefund?
+
+  @@index([orderId, createdAt])
+  @@map("Payment_Attempts")
+}
+
+// Cancellation/duplicate-payment refunds are separate from delivered-book returns.
+model OrderPaymentRefund {
+  id           Int             @id @default(autoincrement())
+  orderId      Int
+  paymentId    String?         @unique @db.VarChar(100)
+  referenceKey String          @unique @db.VarChar(150)
+  amount       Decimal         @db.Decimal(14, 2)
+  status       String          @default("PENDING") @db.VarChar(20)
+  reason       String          @db.Text
+  reference    String?         @db.VarChar(150)
+  note         String?         @db.Text
+  confirmedBy  Int?
+  createdAt    DateTime        @default(now()) @db.Timestamptz(3)
+  confirmedAt  DateTime?       @db.Timestamptz(3)
+  order        Order           @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  payment      PaymentAttempt? @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+
+  @@index([orderId, createdAt])
+  @@map("Order_Payment_Refunds")
 }
 
 // Snapshot the purchased title and price so later catalog edits do not change an order.

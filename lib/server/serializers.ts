@@ -1,7 +1,7 @@
-import type { Prisma, User, Category, CategoryParent, Book, Order, OrderItem, OrderEvent, Review } from "@/generated/prisma/client";
+import type { Prisma, User, Category, CategoryParent, Book, Order, OrderItem, OrderEvent, Review, PaymentAttempt, OrderPaymentRefund } from "@/generated/prisma/client";
 
 export const catalogInclude = { category: { include: { parent: true } } } as const;
-export const orderInclude = { user: true, items: { include: { book: true } }, events: { orderBy: { createdAt: "asc" as const } } } as const;
+export const orderInclude = { user: true, items: { include: { book: true } }, events: { orderBy: { createdAt: "asc" as const } }, payments: { orderBy: { createdAt: "desc" as const } }, paymentRefunds: { orderBy: { createdAt: "asc" as const } } } as const;
 export const reviewInclude = { user: true, book: true } as const;
 export type CatalogBook = Prisma.BookGetPayload<{ include: typeof catalogInclude }>;
 export type FullOrder = Prisma.OrderGetPayload<{ include: typeof orderInclude }>;
@@ -27,7 +27,7 @@ export function publicBook(book: CatalogBook) {
 }
 export const statusToDto = { PENDING: "Processing", PREPARING: "Preparing", SHIPPING: "Shipping", DELIVERED: "Done", CANCELLED: "Cancelled" } as const;
 export const statusToDb = { Processing: "PENDING", Preparing: "PREPARING", Shipping: "SHIPPING", Done: "DELIVERED", Cancelled: "CANCELLED" } as const;
-export function publicOrder(order: Order & { items: (OrderItem & { book: Book })[]; user?: User; events?: OrderEvent[] }, admin = false) {
+export function publicOrder(order: Order & { items: (OrderItem & { book: Book })[]; user?: User; events?: OrderEvent[]; payments?: PaymentAttempt[]; paymentRefunds?: OrderPaymentRefund[] }, admin = false) {
   return {
     id: String(order.id), userId: String(order.userId), status: statusToDto[order.status], totalPrice: money(order.totalAmount),
     shippingName: order.shippingName, shippingPhone: order.shippingPhone, shippingAddress: order.shippingAddress, paymentMethod: order.paymentMethod, paymentStatus: order.paymentStatus,
@@ -35,6 +35,8 @@ export function publicOrder(order: Order & { items: (OrderItem & { book: Book })
     ...(admin && order.user ? { user: publicUser(order.user) } : {}),
     items: order.items.map((item) => ({ id: String(item.id), orderId: String(order.id), productId: String(item.bookId), quantity: item.quantity, unitPrice: money(item.unitPrice), createdAt: item.createdAt.toISOString(), updatedAt: item.updatedAt.toISOString(), product: { id: String(item.bookId), name: item.bookTitle, price: money(item.unitPrice), imageUrl: item.bookImage ?? item.book.coverImage, isActive: item.book.isActive } })),
     events: order.events?.map((event) => ({ status: statusToDto[event.status], note: event.note, createdAt: event.createdAt.toISOString() })),
+    payments: order.payments?.map((payment) => ({ id: payment.id, amount: money(payment.amount), status: payment.status === "PENDING" && payment.expiresAt <= new Date() ? "EXPIRED" : payment.status, expiresAt: payment.expiresAt.toISOString(), createdAt: payment.createdAt.toISOString(), paidAt: payment.paidAt?.toISOString(), ...(admin ? { gatewayTransactionNo: payment.gatewayTransactionNo, responseCode: payment.responseCode } : {}) })),
+    paymentRefunds: order.paymentRefunds?.map((refund) => ({ id: String(refund.id), amount: money(refund.amount), status: refund.status, reason: refund.reason, createdAt: refund.createdAt.toISOString(), confirmedAt: refund.confirmedAt?.toISOString(), ...(admin ? { reference: refund.reference, note: refund.note } : {}) })),
   };
 }
 export function publicReview(review: Review & { user: User; book: Book }) {

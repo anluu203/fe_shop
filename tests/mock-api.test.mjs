@@ -374,7 +374,7 @@ test("checkout moves cart into shared orders and admin status reaches the custom
     await call(
       `/admin/orders/${order.id}/status`,
       "PATCH",
-      { status },
+      { status, ...(status === "Done" ? { paymentCollected: true } : {}) },
       {},
       ADMIN,
     );

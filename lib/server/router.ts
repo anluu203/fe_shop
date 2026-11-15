@@ -6,6 +6,7 @@ import { clientIdentifier, empty, errorResponse, HttpError, json, jsonBody, nume
 import * as schema from "./validators";
 import * as catalog from "./services/catalog";
 import * as orders from "./services/orders";
+import * as payments from "./services/payments";
 import * as customer from "./services/customer-services";
 import * as support from "./services/support";
 import { publicCategory, publicParent, publicUser } from "./serializers";
@@ -84,7 +85,32 @@ route("DELETE", /^orders\/cart\/items\/(\d+)$/, async (request, match) => json(a
 route("POST", /^orders\/checkout$/, async (request) => json(await orders.checkout((await requireUser(request)).user, await jsonBody(request, schema.checkoutSchema), request.headers.get("idempotency-key")), 201));
 route("GET", /^orders$/, async (request) => json(await orders.orderHistory((await requireUser(request)).user.id)));
 route("GET", /^orders\/(\d+)$/, async (request, match) => json(await orders.orderDetail(numericId(match[1]), (await requireUser(request)).user.id)));
-route("POST", /^orders\/(\d+)\/cancel$/, async (request, match) => json(await orders.changeOrderStatus(numericId(match[1]), (await requireUser(request)).user, { status: "Cancelled" })));
+route("POST", /^orders\/(\d+)\/cancel$/, async (request, match) => {
+  const { user } = await requireUser(request);
+  // Keep existing body-less API consumers working; the UI always sends a reason.
+  const raw = await readBytes(request);
+  let body = { note: "Khách hàng yêu cầu hủy đơn." };
+  if (raw.length) {
+    requireCondition(request.headers.get("content-type")?.split(";")[0].trim() === "application/json", 400, "Yêu cầu body JSON.");
+    let value: unknown;
+    try { value = JSON.parse(Buffer.from(raw).toString("utf8")); }
+    catch { throw new HttpError(400, "JSON không hợp lệ."); }
+    body = schema.cancelOrderSchema.parse(value);
+  }
+  return json(await orders.changeOrderStatus(numericId(match[1]), user, { status: "Cancelled", ...body }));
+});
+route("GET", /^payments\/methods$/, async () => json(payments.paymentMethods()));
+route("POST", /^orders\/(\d+)\/payments\/vnpay$/, async (request, match) => {
+  const { user } = await requireUser(request);
+  await rateLimit("payment-link", String(user.id), 20);
+  return json(await payments.startPayment(numericId(match[1]), user.id, request));
+});
+route("GET", /^payments\/vnpay\/ipn$/, async (_request, _match, query) => payments.receiveVnpay(query));
+route("GET", /^payments\/vnpay\/return$/, async (_request, _match, query) => payments.vnpayReturn(query));
+route("POST", /^admin\/orders\/(\d+)\/refunds\/(\d+)\/confirm$/, async (request, match) => {
+  const { user } = await requireAdmin(request);
+  return json(await payments.confirmPaymentRefund(numericId(match[1]), numericId(match[2]), user.id, await jsonBody(request, schema.confirmPaymentRefundSchema)));
+});
 route("GET", /^admin\/orders$/, async (request, _match, query) => { await requireAdmin(request); return json(await orders.adminOrders(query)); });
 route("GET", /^admin\/orders\/(\d+)$/, async (request, match) => json(await orders.orderDetail(numericId(match[1]), (await requireAdmin(request)).user.id, true)));
 route("PATCH", /^admin\/orders\/(\d+)\/status$/, async (request, match) => json(await orders.changeOrderStatus(numericId(match[1]), (await requireAdmin(request)).user, await jsonBody(request, schema.orderStatusSchema), true)));

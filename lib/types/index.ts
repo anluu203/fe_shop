@@ -178,8 +178,13 @@ export interface Order {
   shippingName?: string;
   shippingPhone?: string;
   shippingAddress?: string;
-  paymentMethod?: "COD" | "BANK_TRANSFER" | "E_WALLET";
+  paymentMethod?: "COD" | "VNPAY" | "BANK_TRANSFER" | "E_WALLET";
   paymentStatus?: string;
+  events?: { status: OrderStatus; note: string; createdAt: string }[];
+  payments?: { id: string; amount: string; status: string; expiresAt: string; createdAt: string; paidAt?: string; gatewayTransactionNo?: string | null; responseCode?: string | null }[];
+  paymentRefunds?: { id: string; amount: string; status: string; reason: string; createdAt: string; confirmedAt?: string; reference?: string | null; note?: string | null }[];
+  // Mock checkouts record whether stock was actually deducted, unlike legacy seeds.
+  inventoryDeducted?: boolean;
   completedAt?: string; // immutable revenue recognition date when status becomes Done
   id: string | null;
   userId?: string;
@@ -217,7 +222,16 @@ export interface CheckoutBody {
   shippingName: string;
   shippingPhone: string;
   shippingAddress: string;
-  paymentMethod: "COD";
+  paymentMethod: "COD" | "VNPAY";
+}
+
+export interface PaymentMethods {
+  codAvailable: boolean;
+  vnpayAvailable: boolean;
+}
+export interface PaymentLink {
+  paymentUrl: string;
+  expiresAt: string;
 }
 
 // ---------- Store ----------

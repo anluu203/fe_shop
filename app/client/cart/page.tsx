@@ -11,6 +11,7 @@ import { PageSpinner } from "../../../components/ui/Spinner";
 import Button from "../../../components/ui/Button";
 import type { CheckoutBody, OrderItem } from "../../../lib/types";
 import { USE_MOCK } from "../../../lib/mock/config";
+import { orderApi } from "../../../lib/api/orders";
 
 export default function CartPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -19,6 +20,8 @@ export default function CartPage() {
   const [checkingOut, setCheckingOut] = useState(false);
   const [clearConfirm, setClearConfirm] = useState(false);
   const [cartError, setCartError] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<CheckoutBody["paymentMethod"]>("COD");
+  const [vnpayAvailable, setVnpayAvailable] = useState(false);
   const [shippingDraft, setShippingDraft] = useState<{ userId?: string; shippingName: string; shippingPhone: string; shippingAddress: string } | null>(null);
   const shipping = shippingDraft?.userId === user?.id && shippingDraft ? shippingDraft : { userId: user?.id, shippingName: user?.username ?? "", shippingPhone: user?.phoneNumber ?? "", shippingAddress: user?.address ?? "" };
   const { shippingName, shippingPhone, shippingAddress } = shipping;
@@ -28,6 +31,12 @@ export default function CartPage() {
   const checkoutAttempt = useRef<{ key: string; body: string } | null>(null);
 
   useEffect(() => {
+    let active = true;
+    orderApi.paymentMethods().then((methods) => { if (active) setVnpayAvailable(methods.vnpayAvailable); }).catch(() => { if (active) setVnpayAvailable(false); });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
     if (!authLoading && !user) {
       router.push("/client/auth/login");
     }
@@ -35,22 +44,32 @@ export default function CartPage() {
 
   useEffect(() => {
     if (user) refreshCart();
-  }, [user]);
+  }, [user, refreshCart]);
 
   if (authLoading || (!user && !authLoading)) return <PageSpinner />;
 
   const handleCheckout = async () => {
     if (!cart?.items.length || checkingOut) return;
     setCheckingOut(true);
+    setCartError("");
     try {
-      const body: CheckoutBody = { shippingName: shippingName.trim(), shippingPhone: shippingPhone.trim(), shippingAddress: shippingAddress.trim(), paymentMethod: "COD" };
+      const body: CheckoutBody = { shippingName: shippingName.trim(), shippingPhone: shippingPhone.trim(), shippingAddress: shippingAddress.trim(), paymentMethod };
       const fingerprint = JSON.stringify({ body, items: cart.items.map((item) => [item.id, item.quantity, item.unitPrice]) });
       if (checkoutAttempt.current?.body !== fingerprint) checkoutAttempt.current = { key: crypto.randomUUID(), body: fingerprint };
-      const order = await checkout(USE_MOCK ? undefined : body, checkoutAttempt.current!.key);
+      const order = await checkout(body, checkoutAttempt.current!.key);
       checkoutAttempt.current = null;
+      if (paymentMethod === "VNPAY") {
+        try {
+          const link = await orderApi.payVnpay(order.id!);
+          window.location.assign(link.paymentUrl);
+        } catch {
+          router.push(`/client/orders/${order.id}?payment=init-failed`);
+        }
+        return;
+      }
       router.push(`/client/orders/${order.id}`);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Checkout thất bại");
+      setCartError(err instanceof Error ? err.message : "Đặt hàng thất bại");
     } finally {
       setCheckingOut(false);
     }
@@ -341,15 +360,22 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                {!USE_MOCK && <fieldset className="mb-4 space-y-3">
+                {!USE_MOCK && <fieldset className="mb-4 space-y-3" disabled={checkingOut}>
                   <legend className="mb-2 font-bold">Thông tin nhận hàng</legend>
                   <label className="block">Người nhận<input className="mt-1 w-full rounded border p-2" autoComplete="name" value={shippingName} onChange={(event) => setShippingName(event.target.value)} maxLength={150} /></label>
                   <label className="block">Số điện thoại<input className="mt-1 w-full rounded border p-2" autoComplete="tel" value={shippingPhone} onChange={(event) => setShippingPhone(event.target.value)} maxLength={20} /></label>
                   <label className="block">Địa chỉ<textarea className="mt-1 w-full rounded border p-2" autoComplete="street-address" value={shippingAddress} onChange={(event) => setShippingAddress(event.target.value)} maxLength={2000} /></label>
-                  <p className="text-sm">Thanh toán khi nhận hàng (COD).</p>
                 </fieldset>}
+                <fieldset className="order-payment-options" disabled={checkingOut}>
+                  <legend>Phương thức thanh toán</legend>
+                  <label><input type="radio" name="paymentMethod" value="COD" checked={paymentMethod === "COD"} onChange={() => setPaymentMethod("COD")} /> Tiền mặt khi nhận hàng (COD)</label>
+                  <label><input type="radio" name="paymentMethod" value="VNPAY" disabled={!vnpayAvailable} checked={paymentMethod === "VNPAY"} onChange={() => setPaymentMethod("VNPAY")} /> VNPay online (sandbox)</label>
+                  {!vnpayAvailable && <p>VNPay {USE_MOCK ? "cần chế độ backend thật" : "chưa được cấu hình"}. Bạn có thể đặt hàng COD.</p>}
+                  {paymentMethod === "VNPAY" && <p>Chuyển đến VNPay sau khi đặt đơn. Link có hiệu lực 15 phút; hết hạn có thể thanh toán lại tại chi tiết đơn.</p>}
+                </fieldset>
                 <Button
                   id="checkout-btn"
+                  style={{ whiteSpace: "normal" }}
                   variant="accent"
                   size="lg"
                   fullWidth
@@ -357,7 +383,7 @@ export default function CartPage() {
                   onClick={handleCheckout}
                   icon={<i className="fa fa-bolt" />}
                 >
-                  Đặt hàng ngay
+                  {paymentMethod === "VNPAY" ? "Đặt hàng và thanh toán VNPay" : "Đặt hàng COD"}
                 </Button>
 
                 <Link

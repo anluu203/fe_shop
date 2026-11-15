@@ -103,7 +103,7 @@ export async function updateReturn(id: number, actorId: number, input: z.infer<t
         requireCondition(changed.count, 409, "Không đủ tồn kho sách thay thế.");
         await tx.inventoryMovement.create({ data: { bookId: replacement, delta: -row.quantity, referenceKey: `exchange:${id}`, actorId, reason: "Xuất sách thay thế cho phiếu đổi trả" } });
       } else {
-        requireCondition(row.orderItem.order.paymentMethod === "COD" && row.orderItem.order.paymentStatus === "PAID" && input.refundConfirmed === true, 400, "Cần đơn COD đã thu tiền và xác nhận đã hoàn tiền thủ công.");
+        requireCondition(["COD", "VNPAY"].includes(row.orderItem.order.paymentMethod) && row.orderItem.order.paymentStatus === "PAID" && input.refundConfirmed === true, 400, "Cần đơn đã thanh toán và xác nhận đã hoàn tiền thủ công.");
         await tx.refundRecord.create({ data: { requestId: id, amount: row.orderItem.unitPrice.mul(row.quantity), actorId, note: input.note } });
       }
       await tx.returnRequest.update({ where: { id }, data: { resolution: input.resolution, restockQuantity, replacementBookId: replacement } });

@@ -12,4 +12,6 @@ export const adminOrderApi = {
 
   updateStatus: (id: string, body: UpdateOrderStatusBody) =>
     api.patch<Order>(`/admin/orders/${id}/status`, body),
+  confirmRefund: (id: string, refundId: string, body: { reference: string; note: string; refundConfirmed: true }) =>
+    api.post<Order>(`/admin/orders/${id}/refunds/${refundId}/confirm`, body),
 };

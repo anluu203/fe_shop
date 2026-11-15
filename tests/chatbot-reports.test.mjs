@@ -336,7 +336,7 @@ test("marking Done recognizes revenue once and later same-status writes keep the
   const first = await call(
     `/admin/orders/${state.orders[0].id}/status`,
     "PATCH",
-    { status: "Done" },
+    { status: "Done", paymentCollected: true },
     {},
     ADMIN,
   );
@@ -344,7 +344,7 @@ test("marking Done recognizes revenue once and later same-status writes keep the
   const second = await call(
     `/admin/orders/${state.orders[0].id}/status`,
     "PATCH",
-    { status: "Done" },
+    { status: "Done", paymentCollected: true },
     {},
     ADMIN,
   );

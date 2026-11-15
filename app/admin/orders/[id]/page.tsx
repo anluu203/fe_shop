@@ -12,6 +12,9 @@ import { PageSpinner } from "../../../../components/ui/Spinner";
 import Badge from "../../../../components/ui/Badge";
 import Button from "../../../../components/ui/Button";
 import { USE_MOCK } from "../../../../lib/mock/config";
+import OrderPaymentDetails from "../../../../components/client/OrderPaymentDetails";
+import CancelOrderDialog from "../../../../components/client/CancelOrderDialog";
+import OrderRefundActions from "../../../../components/admin/OrderRefundActions";
 
 const NEXT_STATUS: Record<OrderStatus, OrderStatus | null> = {
   AddingItem: "Processing",
@@ -40,16 +43,17 @@ export default function AdminOrderDetailPage() {
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState("");
   const [collected, setCollected] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
-    (USE_MOCK ? adminOrderApi.getAll({ pageSize: 100 }).then((page) => page.items.find((order) => order.id === id)) : adminOrderApi.getOne(id))
+    adminOrderApi.getOne(id)
       .then((found) => {
         if (found) setOrder(found);
         else router.push("/admin/orders");
       })
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, router]);
 
   const handleAdvanceStatus = async () => {
     if (!order) return;
@@ -58,7 +62,7 @@ export default function AdminOrderDetailPage() {
     setUpdating(true);
     setError("");
     try {
-      const updated = await adminOrderApi.updateStatus(order.id!, { status: next, ...(!USE_MOCK && next === "Done" ? { paymentCollected: collected } : {}) });
+      const updated = await adminOrderApi.updateStatus(order.id!, { status: next, ...(next === "Done" && order.paymentMethod !== "VNPAY" ? { paymentCollected: collected } : {}) });
       setOrder(updated);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Cập nhật thất bại");
@@ -75,6 +79,10 @@ export default function AdminOrderDetailPage() {
 
   return (
     <div>
+      <OrderPaymentDetails order={order} admin />
+      {!USE_MOCK && <OrderRefundActions order={order} onUpdate={setOrder} />}
+      {order.paymentMethod === "VNPAY" && order.paymentStatus === "UNPAID" && order.status !== "Cancelled" && <p className="order-payment-notice">Đang chờ khách thanh toán VNPay. Chỉ xử lý đơn sau khi đã nhận xác nhận thanh toán.</p>}
+      <CancelOrderDialog open={cancelOpen} paid={order.paymentStatus === "PAID"} onClose={() => setCancelOpen(false)} onConfirm={async (note) => { setOrder(await adminOrderApi.updateStatus(order.id!, { status: "Cancelled", note })); }} />
       {/* Breadcrumb */}
       <div
         style={{
@@ -216,19 +224,14 @@ export default function AdminOrderDetailPage() {
               )}
 
               {/* Advance button */}
-              {!USE_MOCK && nextStatus === "Done" && <label className="mb-3 block"><input type="checkbox" checked={collected} onChange={(event) => setCollected(event.target.checked)} /> Đã giao hàng và thu đủ tiền COD</label>}
-              {!USE_MOCK && ["Processing", "Preparing"].includes(order.status) && <Button variant="ghost" disabled={updating} onClick={async () => {
-                setUpdating(true); setError("");
-                try { setOrder(await adminOrderApi.updateStatus(order.id!, { status: "Cancelled", note: "Quản trị hủy đơn trước khi giao." })); }
-                catch (caught) { setError(caught instanceof Error ? caught.message : "Không hủy được đơn."); }
-                finally { setUpdating(false); }
-              }}>Hủy đơn và hoàn tồn kho</Button>}
+              {nextStatus === "Done" && order.paymentMethod !== "VNPAY" && <label className="mb-3 block"><input type="checkbox" checked={collected} onChange={(event) => setCollected(event.target.checked)} /> Đã giao hàng và thu đủ tiền</label>}
+              {["Processing", "Preparing"].includes(order.status) && <Button variant="danger" disabled={updating} onClick={() => setCancelOpen(true)}>Hủy đơn và hoàn tồn kho</Button>}
               {nextStatus ? (
                 <Button
                   id="advance-status-btn"
+                  disabled={(order.paymentMethod === "VNPAY" && order.paymentStatus !== "PAID") || (nextStatus === "Done" && order.paymentMethod !== "VNPAY" && !collected)}
                   variant="primary"
                   loading={updating}
-                  disabled={!USE_MOCK && nextStatus === "Done" && !collected}
                   onClick={handleAdvanceStatus}
                   icon={<i className="fa fa-bolt" />}
                 >

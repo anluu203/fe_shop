@@ -235,6 +235,7 @@ function AdminOrdersContent() {
                   }}
                 >
                   {formatPrice(order.totalPrice)}
+                  <small style={{ display: "block", fontSize: 12, color: "var(--text-secondary)" }}>{order.paymentMethod ?? "COD"} · {order.paymentStatus === "PAID" ? "Đã thanh toán" : order.paymentStatus === "REFUND_PENDING" ? "Chờ hoàn tiền" : order.paymentStatus === "REFUNDED" ? "Đã hoàn tiền" : "Chưa thanh toán"}</small>
                 </span>
                 <span style={{ fontSize: "calc(12px * var(--font-scale))", color: "var(--text-muted)" }}>
                   {order.createdAt ? formatDate(order.createdAt) : "—"}

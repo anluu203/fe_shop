@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { digest, lockUser, pageResult, pagination, requireCondition, transaction } from "../http";
 import { addCartSchema, checkoutSchema, orderStatusSchema } from "../validators";
 import { money, orderInclude, publicOrder, statusToDb } from "../serializers";
+import { paymentAmount, vnpayConfig } from "../vnpay";
+import { queuePaymentRefunds } from "./payments";
 
 async function cartDto(db: Prisma.TransactionClient, userId: number) {
   const rows = await db.cartItem.findMany({ where: { userId }, include: { book: true }, orderBy: { id: "asc" } });
@@ -41,6 +43,7 @@ export async function checkout(user: User, body: z.infer<typeof checkoutSchema>,
     await lockUser(tx, user.id);
     const previous = await tx.checkoutRequest.findUnique({ where: { userId_key: { userId: user.id, key } }, include: { order: { include: orderInclude } } });
     if (previous) { requireCondition(previous.requestHash === requestHash, 409, "Idempotency-Key đã được dùng với nội dung khác."); return publicOrder(previous.order); }
+    if (body.paymentMethod === "VNPAY") requireCondition(vnpayConfig(), 503, "VNPay chưa được cấu hình. Vui lòng chọn COD.");
     const cart = await tx.cartItem.findMany({ where: { userId: user.id }, orderBy: { bookId: "asc" } });
     requireCondition(cart.length, 400, "Giỏ hàng đang trống.");
     const items: { bookId: number; bookTitle: string; bookImage: string | null; quantity: number; unitPrice: Prisma.Decimal }[] = [];
@@ -55,7 +58,10 @@ export async function checkout(user: User, body: z.infer<typeof checkoutSchema>,
       items.push({ bookId: book.id, bookTitle: book.title, bookImage: book.coverImage, quantity: item.quantity, unitPrice: book.sellingPrice });
     }
     requireCondition(total <= BigInt("999999999999"), 400, "Tổng tiền đơn vượt giới hạn.");
-    const order = await tx.order.create({ data: { userId: user.id, ...body, totalAmount: total.toString(), items: { create: items }, events: { create: { status: "PENDING", actorId: user.id, note: "Khách hàng đặt đơn COD." } } }, include: orderInclude });
+    if (body.paymentMethod === "VNPAY") {
+      try { paymentAmount(total.toString()); } catch { requireCondition(false, 400, "Số tiền vượt giới hạn thanh toán VNPay."); }
+    }
+    const order = await tx.order.create({ data: { userId: user.id, ...body, totalAmount: total.toString(), items: { create: items }, events: { create: { status: "PENDING", actorId: user.id, note: `Khách hàng đặt đơn ${body.paymentMethod}.` } } }, include: orderInclude });
     for (const item of cart) await tx.inventoryMovement.create({ data: { bookId: item.bookId, delta: -item.quantity, reason: "Checkout", referenceKey: `sale:${order.id}:${item.bookId}`, actorId: user.id } });
     await tx.cartItem.deleteMany({ where: { userId: user.id, id: { in: cart.map((item) => item.id) } } });
     await tx.checkoutRequest.create({ data: { userId: user.id, key, requestHash, orderId: order.id } });
@@ -86,6 +92,7 @@ export async function changeOrderStatus(id: number, user: User, body: z.infer<ty
     const next = statusToDb[body.status];
     if (order.status === next) return publicOrder(order, admin);
     if (next === "CANCELLED") {
+      requireCondition(body.note?.trim(), 400, "Vui lòng nhập lý do hủy đơn.");
       requireCondition(order.status === "PENDING" || (admin && order.status === "PREPARING"), 409, "Đơn này không thể hủy ở trạng thái hiện tại.");
       for (const item of [...order.items].sort((a, b) => a.bookId - b.bookId)) {
         const sale = await tx.inventoryMovement.findUnique({ where: { referenceKey: `sale:${id}:${item.bookId}` } });
@@ -99,12 +106,18 @@ export async function changeOrderStatus(id: number, user: User, body: z.infer<ty
       requireCondition(admin, 403, "Chỉ admin được cập nhật trạng thái.");
       const allowed = { PENDING: "PREPARING", PREPARING: "SHIPPING", SHIPPING: "DELIVERED" };
       requireCondition(allowed[order.status as keyof typeof allowed] === next, 409, "Không được bỏ bước hoặc quay lại trạng thái cũ.");
-      if (next === "DELIVERED") requireCondition(body.paymentCollected === true, 400, "Cần xác nhận đã thu tiền COD khi hoàn thành đơn.");
+      if (order.paymentMethod === "VNPAY") requireCondition(order.paymentStatus === "PAID", 409, "Cần thanh toán VNPay thành công trước khi xử lý đơn.");
+      if (next === "DELIVERED" && order.paymentMethod !== "VNPAY") requireCondition(body.paymentCollected === true, 400, "Cần xác nhận đã thu đủ tiền khi hoàn thành đơn.");
     }
     const changed = await tx.order.update({ where: { id }, data: {
       status: next, ...(next === "DELIVERED" ? { completedAt: order.completedAt ?? new Date(), paymentStatus: "PAID" } : {}),
       events: { create: { status: next, actorId: user.id, note: body.note ?? "" } },
     }, include: orderInclude });
+    if (next === "CANCELLED") {
+      await tx.paymentAttempt.updateMany({ where: { orderId: id, status: "PENDING" }, data: { status: "EXPIRED" } });
+      await queuePaymentRefunds(tx, id);
+      return publicOrder(await tx.order.findUniqueOrThrow({ where: { id }, include: orderInclude }), admin);
+    }
     return publicOrder(changed, admin);
   });
 }

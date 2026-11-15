@@ -609,3 +609,21 @@
     gap: 14px;
   }
 }
+
+/* Order payment, cancellation and manual refund controls. */
+.order-payment-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; overflow-wrap: anywhere; }
+.order-payment-panel h2 { font-size: 18px; font-weight: 800; margin-bottom: 10px; }
+.order-payment-panel h3, .order-payment-options legend { font-weight: 700; }
+.order-payment-panel p { margin: 6px 0; }
+.order-payment-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 20px; }
+.order-payment-field { display: grid; gap: 6px; margin: 14px 0; font-weight: 600; }
+.order-payment-field input, .order-payment-field textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-primary); font: inherit; }
+.order-payment-options { margin: 16px 0; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; }
+.order-payment-options label { display: flex; align-items: baseline; gap: 8px; margin: 10px 0; }
+.order-payment-options p { color: var(--text-muted); font-size: 13px; }
+.order-payment-options input { accent-color: var(--primary); }
+.order-payment-notice { background: var(--primary-bg); color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); margin: 12px 0; }
+.order-payment-error { color: var(--danger); margin: 10px 0; }
+.order-payment-history { margin-top: 14px; }
+.order-payment-history summary { cursor: pointer; font-weight: 700; }
+.order-payment-record { border-top: 1px solid var(--border); padding: 8px 0; font-size: 14px; }

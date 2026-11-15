@@ -2,7 +2,7 @@
 
 Nhà sách trực tuyến sử dụng Next.js App Router, React và TypeScript. Client có trợ lý tư vấn chọn sách và chăm sóc khách hàng; admin quản lý sách, đơn mua, cấu hình chatbot và báo cáo doanh thu. Giao diện giữ nền giấy, xanh rêu và tiêu đề serif.
 
-Backend hiện chạy ngay trong Next.js với Prisma/PostgreSQL tại `/api/v1`, cùng cổng 5173. Có API tài khoản/phân quyền, sách/danh mục/tồn kho, ảnh local (upload hoặc nhập URL), giỏ/checkout COD, đơn, đánh giá, tư vấn, đổi trả, chatbot và báo cáo. Hướng dẫn và hợp đồng hiện tại: [BACKEND_API.md](BACKEND_API.md), [FE_API_HANDOFF.md](FE_API_HANDOFF.md).
+Backend hiện chạy ngay trong Next.js với Prisma/PostgreSQL tại `/api/v1`, cùng cổng 5173. Có API tài khoản/phân quyền, sách/danh mục/tồn kho, ảnh local (upload hoặc nhập URL), giỏ/checkout COD hoặc VNPay sandbox, hủy đơn và hoàn tiền thủ công, đánh giá, tư vấn, đổi trả, chatbot và báo cáo. Hướng dẫn và hợp đồng hiện tại: [BACKEND_API.md](BACKEND_API.md), [FE_API_HANDOFF.md](FE_API_HANDOFF.md). Cấu hình merchant và IPN HTTPS: [PAYMENTS.md](PAYMENTS.md).
 
 ## Chạy dự án
 
@@ -143,7 +143,7 @@ Nếu đã setup schema, chạy `npm run db:seed`. Script thêm dữ liệu thi�
 
 Tên bảng/cột giữ theo thiết kế (`Users`, `UserID`, `FullName`...), các model/field Prisma dùng tên TypeScript như `User`, `id`, `fullName` thông qua `@map`/`@@map`. Khi truy vấn SQL trực tiếp cần đặt tên trong dấu nháy kép, ví dụ `SELECT * FROM "Books"`.
 
-Giá tiền dùng `Decimal(14,2)`, thời gian dùng `timestamptz`. Migration ràng buộc giá/tồn kho/tổng tiền không âm, số lượng mua lớn hơn 0, vai trò 0/1 và điểm 1–5. `PaymentMethod`: `COD`, `BANK_TRANSFER`, `E_WALLET`. `OrderStatus`: `PENDING` (chờ xác nhận), `SHIPPING` (đang giao), `DELIVERED` (đã giao), `CANCELLED` (đã hủy).
+Giá tiền dùng `Decimal(14,2)`, thời gian dùng `timestamptz`. Migration ràng buộc giá/tồn kho/tổng tiền không âm, số lượng mua lớn hơn 0, vai trò 0/1 và điểm 1–5. `PaymentMethod`: `COD`, `VNPAY`, `BANK_TRANSFER`, `E_WALLET` (hai loại cuối giữ cho dữ liệu cũ). `OrderStatus`: `PENDING` (chờ xác nhận), `PREPARING` (đóng gói), `SHIPPING` (đang giao), `DELIVERED` (đã giao), `CANCELLED` (đã hủy).
 
 Khóa ngoại ngăn xóa danh mục đang chứa sách, người dùng đã có đơn hoặc sách đã được mua. API ẩn sách thay vì xóa vật lý. Tên, ảnh và đơn giá trong `Order_Items` được lưu riêng để giữ lịch sử khi sửa catalog; checkout tính tổng, trừ tồn, tạo đơn/chi tiết và xóa giỏ trong cùng transaction.
 
@@ -179,7 +179,7 @@ Khởi động lại dev server, hoặc build lại bản production sau khi đ�
 
 Model `Product`/`ProductBody` hỗ trợ thông tin xuất bản, ISBN, giá gốc/bán, discount và tồn kho. Backend chuẩn hóa ISBN và kiểm tra checksum ISBN-10/13; giá là chuỗi nguyên VND. Truy vấn sách hỗ trợ `parentId`, `categoryId`, tìm kiếm không dấu theo tên/tác giả/mô tả/ISBN; chỉ admin được dùng `includeInactive=1` để xem sách ẩn. Thay đổi tồn đi qua API stock-adjustments và có nhật ký riêng.
 
-Hợp đồng chatbot/báo cáo nằm trong `lib/api/chatbot.ts`, `lib/api/reports.ts` và [CHATBOT_REPORTS_API.md](CHATBOT_REPORTS_API.md); các endpoint đã triển khai trên backend. Chatbot dùng Gemini khi có `GEMINI_API_KEY` trên server; admin quản lý model và hướng dẫn AI. Thanh toán hiện là COD; chuyển khoản/ví chưa được mở.
+Hợp đồng chatbot/báo cáo nằm trong `lib/api/chatbot.ts`, `lib/api/reports.ts` và [CHATBOT_REPORTS_API.md](CHATBOT_REPORTS_API.md); các endpoint đã triển khai trên backend. Chatbot dùng Gemini khi có `GEMINI_API_KEY` trên server; admin quản lý model và hướng dẫn AI. Thanh toán hỗ trợ COD và VNPay sandbox; xem [PAYMENTS.md](PAYMENTS.md) để cấu hình merchant, IPN và hoàn tiền thủ công.
 
 ## Kiểm thử
 

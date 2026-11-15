@@ -2,7 +2,7 @@
 import { imageSrc } from "../../../../lib/utils/image";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { subscribeMockData, USE_MOCK } from "../../../../lib/mock/config";
@@ -12,6 +12,9 @@ import { ORDER_STATUS_LABEL, ORDER_STATUS_FLOW } from "../../../../lib/types";
 import { formatPrice, formatDate, shortId } from "../../../../lib/utils/format";
 import { PageSpinner } from "../../../../components/ui/Spinner";
 import Badge from "../../../../components/ui/Badge";
+import Button from "../../../../components/ui/Button";
+import OrderPaymentDetails from "../../../../components/client/OrderPaymentDetails";
+import CancelOrderDialog from "../../../../components/client/CancelOrderDialog";
 
 function getStatusVariant(status: string) {
   const map: Record<string, "info" | "warning" | "primary" | "success" | "neutral"> = {
@@ -27,13 +30,17 @@ export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
+  const paymentResult = useSearchParams().get("payment");
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
-  const [cancelling, setCancelling] = useState(false), [error, setError] = useState("");
+  const [cancelOpen, setCancelOpen] = useState(false), [error, setError] = useState("");
+  const [paying, setPaying] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [paymentNotice, setPaymentNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/client/auth/login");
-  }, [user, authLoading]);
+  }, [user, authLoading, router]);
 
   useEffect(() => {
     if (!id || !user) return;
@@ -44,16 +51,64 @@ export default function OrderDetailPage() {
       .finally(() => setLoading(false));
     void loadOrder();
     return USE_MOCK ? subscribeMockData(() => { void loadOrder(); }) : undefined;
-  }, [id, user]);
+  }, [id, user, router]);
+
+  useEffect(() => {
+    if (!id || !user || USE_MOCK) return;
+    const result = paymentResult;
+    if (!result) return;
+    let active = true;
+    let timer: ReturnType<typeof setTimeout>;
+    const deadline = Date.now() + 30_000;
+    if (result !== "pending") return;
+    async function poll() {
+      try {
+        const updated = await orderApi.getOne(id);
+        if (!active) return;
+        setOrder(updated);
+        if (updated.paymentStatus !== "UNPAID") { setPaymentNotice(""); return; }
+      } catch { /* Preserve the order and allow a manual refresh after polling. */ }
+      if (!active) return;
+      if (Date.now() >= deadline) { setPaymentNotice("Chưa nhận được xác nhận từ VNPay. Vui lòng làm mới trạng thái trước khi thanh toán lại."); return; }
+      timer = setTimeout(() => void poll(), 2000);
+    }
+    void poll();
+    return () => { active = false; clearTimeout(timer); };
+  }, [id, user, paymentResult]);
+
+  async function refreshPayment() {
+    setRefreshing(true); setError("");
+    try { const updated = await orderApi.getOne(id); setOrder(updated); if (updated.paymentStatus !== "UNPAID") setPaymentNotice(""); }
+    catch (caught) { setError(caught instanceof Error ? caught.message : "Không tải được đơn."); }
+    finally { setRefreshing(false); }
+  }
+  async function pay() {
+    if (paying) return;
+    setPaying(true); setError("");
+    try { const link = await orderApi.payVnpay(id); window.location.assign(link.paymentUrl); }
+    catch (caught) { setError(caught instanceof Error ? caught.message : "Không tạo được thanh toán."); }
+    finally { setPaying(false); }
+  }
 
   if (authLoading || loading) return <PageSpinner />;
   if (!order) return null;
 
   const statusIndex = ORDER_STATUS_FLOW.indexOf(order.status);
+  const notice = order.status === "Processing" && order.paymentStatus === "UNPAID" ? paymentNotice ?? (paymentResult === "failed" ? "Thanh toán chưa thành công. Bạn có thể thử lại hoặc hủy đơn." : paymentResult === "init-failed" ? "Đơn đã được tạo nhưng chưa lấy được link VNPay. Hãy bấm thanh toán lại." : paymentResult === "pending" ? "Đang chờ VNPay xác nhận thanh toán…" : "") : "";
 
   return (
     <div style={{ background: "var(--bg-page)", minHeight: "100vh" }}>
-      {!USE_MOCK && <div className="container py-4"><p>Người nhận: {order.shippingName || "Chưa có thông tin"} · {order.shippingPhone}</p><p>Địa chỉ: {order.shippingAddress || "Chưa có thông tin"}</p><p>Thanh toán COD: {order.paymentStatus === "PAID" ? "Đã thu tiền" : "Chưa ghi nhận thu tiền"}</p>{error && <p role="alert">{error}</p>}{order.status === "Processing" && <button disabled={cancelling} className="mt-2 rounded border px-3 py-2" onClick={async () => { setCancelling(true); setError(""); try { setOrder(await orderApi.cancel(id)); } catch (caught) { setError(caught instanceof Error ? caught.message : "Không hủy được đơn."); } finally { setCancelling(false); } }}>{cancelling ? "Đang hủy…" : "Hủy đơn"}</button>}</div>}
+      <div className="container py-4">
+        <OrderPaymentDetails order={order} />
+        {notice && <p role="status" className="order-payment-notice">{notice}</p>}
+        {error && <p role="alert" className="order-payment-error">{error}</p>}
+        <div className="order-payment-actions">
+          {order.paymentMethod === "VNPAY" && order.status === "Processing" && order.paymentStatus === "UNPAID" && <Button loading={paying} onClick={() => void pay()}>Thanh toán VNPay / thử lại</Button>}
+          <Button variant="outline" loading={refreshing} onClick={() => void refreshPayment()}>Làm mới trạng thái</Button>
+          {order.status === "Processing" && <Button variant="danger" disabled={paying} onClick={() => setCancelOpen(true)}>Hủy đơn hàng</Button>}
+        </div>
+        <CancelOrderDialog open={cancelOpen} paid={order.paymentStatus === "PAID"} onClose={() => setCancelOpen(false)} onConfirm={async (note) => { setOrder(await orderApi.cancel(id, note)); setPaymentNotice(""); }} />
+      </div>
       {/* Header */}
       <div
         style={{

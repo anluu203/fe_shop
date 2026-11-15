@@ -1,6 +1,6 @@
 import "dotenv/config";
 import assert from "node:assert/strict";
-import { randomUUID, randomBytes } from "node:crypto";
+import { randomUUID, randomBytes, createHmac } from "node:crypto";
 import { spawn, spawnSync } from "node:child_process";
 import { once } from "node:events";
 import { createServer } from "node:net";
@@ -65,7 +65,7 @@ test("production HTTP backend, real PostgreSQL, and runtime images", { timeout: 
     assert.match(database, /^book_shop_api_test_[a-f0-9]{32}$/);
     await connection.query(`CREATE DATABASE "${database}" TEMPLATE template0 ENCODING 'UTF8'`); created = true;
     const target = new URL(adminUrl); target.pathname = `/${database}`;
-    const environment = { ...process.env, DATABASE_URL: target.toString(), AUTH_SECRET: secret, IMAGE_ROOT: imageRoot, NEXT_PUBLIC_USE_MOCK: "false", NEXT_PUBLIC_API_URL: "/api/v1", GEMINI_API_KEY: "", AI_API_URL: "", AI_API_KEY: "", RETURN_WINDOW_DAYS: "14", TRUST_PROXY: "false" };
+    const environment = { ...process.env, DATABASE_URL: target.toString(), AUTH_SECRET: secret, IMAGE_ROOT: imageRoot, NEXT_PUBLIC_USE_MOCK: "false", NEXT_PUBLIC_API_URL: "/api/v1", GEMINI_API_KEY: "", AI_API_URL: "", AI_API_KEY: "", RETURN_WINDOW_DAYS: "14", TRUST_PROXY: "false", VNPAY_TMN_CODE: "TEST1234", VNPAY_HASH_SECRET: secret, VNPAY_URL: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html" };
     const migration = spawnSync(process.execPath, [resolve(root, "node_modules/prisma/build/index.js"), "migrate", "deploy"], { cwd: root, env: environment, encoding: "utf8", timeout: 40_000 });
     assert.equal(migration.status, 0, migration.stderr);
     db = new PrismaClient({ adapter: new PrismaPg({ connectionString: target.toString(), connectionTimeoutMillis: 5000 }) });
@@ -74,10 +74,10 @@ test("production HTTP backend, real PostgreSQL, and runtime images", { timeout: 
 
     async function start(extra = {}) {
       const port = await freePort();
-      const child = spawn(process.execPath, [resolve(root, "node_modules/next/dist/bin/next"), "start", "-p", String(port), "-H", "127.0.0.1"], { cwd: root, env: { ...environment, ...extra }, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
+      const base = `http://127.0.0.1:${port}`;
+      const child = spawn(process.execPath, [resolve(root, "node_modules/next/dist/bin/next"), "start", "-p", String(port), "-H", "127.0.0.1"], { cwd: root, env: { ...environment, APP_URL: base, ...extra }, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
       children.push(child);
       let logs = ""; for (const stream of [child.stdout, child.stderr]) stream.on("data", (bytes) => { logs = (logs + bytes).slice(-8000); });
-      const base = `http://127.0.0.1:${port}`;
       const deadline = Date.now() + 30_000;
       while (Date.now() < deadline) {
         if (child.exitCode !== null) assert.fail(`Server exited: ${logs}`);
@@ -231,7 +231,124 @@ test("production HTTP backend, real PostgreSQL, and runtime images", { timeout: 
       const recommendations = await expect("/consultation/recommendations?usage=relaxation&component=literature&budget=100000", 200); assert.equal(recommendations.find((row) => row.id === book.id).price, 95000);
     });
 
+    let gatewayNumber = 100000;
+    async function onlineOrder() {
+      await expect("/orders/cart/items", 200, { method: "POST", token: reader, body: { productId: book.id, quantity: 1 } });
+      return expect("/orders/checkout", 201, { method: "POST", token: reader, body: { ...shipping, paymentMethod: "VNPAY" }, headers: { "Idempotency-Key": randomUUID() } });
+    }
+    const linkFor = (id) => expect(`/orders/${id}/payments/vnpay`, 200, { method: "POST", token: reader });
+    function notification(link, overrides = {}) {
+      const fields = Object.fromEntries(new URL(link.paymentUrl).searchParams);
+      delete fields.vnp_SecureHash;
+      Object.assign(fields, { vnp_ResponseCode: "00", vnp_TransactionStatus: "00", vnp_TransactionNo: String(++gatewayNumber), vnp_BankCode: "NCB", vnp_PayDate: "20261115190000" }, overrides);
+      const params = new URLSearchParams(Object.entries(fields).sort(([a], [b]) => a.localeCompare(b)));
+      params.set("vnp_SecureHash", createHmac("sha512", secret).update(params.toString()).digest("hex"));
+      return params;
+    }
+    const notify = (query) => expect(`/payments/vnpay/ipn?${query}`, 200);
+
+    await t.test("missing VNPay configuration does not consume cart or stock", async () => {
+      const unconfigured = await start({ VNPAY_HASH_SECRET: "" });
+      try {
+        assert.equal((await expect("/payments/methods", 200, { base: unconfigured.base })).vnpayAvailable, false);
+        await expect("/orders/cart/items", 200, { method: "POST", token: reader, body: { productId: book.id, quantity: 1 } });
+        const before = (await db.book.findUnique({ where: { id: Number(book.id) } })).stockQuantity;
+        await expect("/orders/checkout", 503, { method: "POST", token: reader, base: unconfigured.base, body: { ...shipping, paymentMethod: "VNPAY" }, headers: { "Idempotency-Key": randomUUID() } });
+        assert.equal((await db.book.findUnique({ where: { id: Number(book.id) } })).stockQuantity, before);
+        assert.equal((await expect("/orders/cart", 200, { token: reader })).items.length, 1);
+        await expect("/orders/cart", 204, { method: "DELETE", token: reader });
+      } finally { await stop(unconfigured.child); }
+    });
+
+    await t.test("VNPay ownership, signing, browser return, concurrent IPN and delivery", async () => {
+      await stock(book.id, 20);
+      const online = await onlineOrder();
+      assert.equal((await expect("/payments/methods", 200)).vnpayAvailable, true);
+      await expect(`/orders/${online.id}/payments/vnpay`, 401, { method: "POST" });
+      await expect(`/orders/${online.id}/payments/vnpay`, 404, { method: "POST", token: other });
+      await expect(`/admin/orders/${online.id}/status`, 409, { method: "PATCH", token: admin, body: { status: "Preparing" } });
+      const links = await Promise.all([linkFor(online.id), linkFor(online.id)]);
+      assert.equal(links[0].paymentUrl, links[1].paymentUrl);
+      assert.equal(await db.paymentAttempt.count({ where: { orderId: Number(online.id) } }), 1);
+      const good = notification(links[0]);
+      const tampered = new URLSearchParams(good); tampered.set("vnp_Amount", "1");
+      assert.equal((await notify(tampered)).RspCode, "97");
+      assert.equal((await notify(notification(links[0], { vnp_Amount: "1" }))).RspCode, "04");
+      assert.equal((await notify(notification(links[0], { vnp_TmnCode: "OTHER123" }))).RspCode, "97");
+      const duplicate = new URLSearchParams(good); duplicate.append("vnp_Amount", good.get("vnp_Amount"));
+      assert.equal((await notify(duplicate)).RspCode, "97");
+      const returned = await fetch(`${app.base}/api/v1/payments/vnpay/return?${good}`, { redirect: "manual" });
+      assert.equal(returned.status, 303);
+      assert.equal(returned.headers.get("location"), `${app.base}/client/orders/${online.id}?payment=pending`);
+      assert.equal((await expect(`/orders/${online.id}`, 200, { token: reader })).paymentStatus, "UNPAID");
+      const head = await fetch(`${app.base}/api/v1/payments/vnpay/ipn?${good}`, { method: "HEAD" }); assert.equal(head.status, 405);
+      const confirmations = await Promise.all([notify(good), notify(good)]);
+      assert.deepEqual(confirmations.map((row) => row.RspCode).sort(), ["00", "02"]);
+      const paid = await expect(`/orders/${online.id}`, 200, { token: reader });
+      assert.equal(paid.paymentStatus, "PAID");
+      assert.equal(paid.payments[0].gatewayTransactionNo, undefined);
+      assert.equal(paid.payments[0].paymentUrl, undefined);
+      assert.equal(paid.events.filter((event) => event.note === "VNPay xác nhận đã thanh toán.").length, 1);
+      await expect(`/orders/${online.id}/payments/vnpay`, 409, { method: "POST", token: reader });
+      let delivered;
+      for (const status of ["Preparing", "Shipping", "Done"]) delivered = await expect(`/admin/orders/${online.id}/status`, 200, { method: "PATCH", token: admin, body: { status } });
+      assert.equal(delivered.paymentStatus, "PAID");
+      assert.ok(delivered.completedAt);
+      // Existing book-return refunds must also accept paid online orders.
+      const request = await expect("/returns", 201, { method: "POST", token: reader, body: { productId: delivered.items[0].id, quantity: 1, contactName: shipping.shippingName, phone: shipping.shippingPhone, description: "Sách bị lỗi in trang" } });
+      for (const status of ["checking", "repairing"]) await expect(`/admin/returns/${request.id}/status`, 200, { method: "PATCH", token: admin, body: { status, note: "Đã kiểm tra" } });
+      await expect(`/admin/returns/${request.id}/status`, 200, { method: "PATCH", token: admin, body: { status: "completed", note: "Đã chuyển hoàn tiền", resolution: "refund", restockQuantity: 1, refundConfirmed: true } });
+    });
+
+    await t.test("VNPay retry/expiry, late/duplicate captures and manual refunds are idempotent", async () => {
+      const online = await onlineOrder();
+      const first = await linkFor(online.id);
+      assert.equal((await notify(notification(first, { vnp_ResponseCode: "24", vnp_TransactionStatus: "02" }))).RspCode, "00");
+      const second = await linkFor(online.id); assert.notEqual(second.paymentUrl, first.paymentUrl);
+      const secondId = new URL(second.paymentUrl).searchParams.get("vnp_TxnRef");
+      await db.paymentAttempt.update({ where: { id: secondId }, data: { expiresAt: new Date(Date.now() - 1000) } });
+      const third = await linkFor(online.id); assert.notEqual(third.paymentUrl, second.paymentUrl);
+      assert.equal((await expect(`/orders/${online.id}`, 200, { token: reader })).status, "Processing");
+      const captured = notification(third);
+      assert.equal((await notify(captured)).RspCode, "00");
+      assert.equal((await notify(notification(second))).RspCode, "00");
+      let current = await expect(`/admin/orders/${online.id}`, 200, { token: admin });
+      assert.equal(current.paymentStatus, "PAID");
+      assert.equal(current.paymentRefunds.length, 1); // Extra capture, without cancelling order.
+      const before = (await db.book.findUnique({ where: { id: Number(book.id) } })).stockQuantity;
+      const cancellations = await Promise.all([1, 2].map(() => expect(`/orders/${online.id}/cancel`, 200, { method: "POST", token: reader, body: { note: "Tôi không còn nhu cầu" } })));
+      current = cancellations[1];
+      assert.equal(current.paymentStatus, "REFUND_PENDING");
+      assert.equal(current.paymentRefunds.length, 2);
+      assert.equal((await db.book.findUnique({ where: { id: Number(book.id) } })).stockQuantity, before + 1);
+      assert.equal((await notify(captured)).RspCode, "02");
+      const reportQuery = new URLSearchParams({ from: "2026-01-01", to: "2026-12-31", period: "month" });
+      const reportBefore = await expect(`/admin/reports/revenue?${reportQuery}`, 200, { token: admin });
+      for (const refund of current.paymentRefunds) {
+        const path = `/admin/orders/${online.id}/refunds/${refund.id}/confirm`;
+        const body = { reference: `BANK-REFUND-${refund.id}`, note: "Đã hoàn đủ tiền vào tài khoản khách", refundConfirmed: true };
+        await expect(path, 403, { method: "POST", token: reader, body });
+        await expect(path, 400, { method: "POST", token: admin, body: { ...body, refundConfirmed: false } });
+        await expect(path, 200, { method: "POST", token: admin, body });
+        current = await expect(path, 200, { method: "POST", token: admin, body });
+        await expect(path, 409, { method: "POST", token: admin, body: { ...body, reference: "CHANGED" } });
+      }
+      assert.equal(current.paymentStatus, "REFUNDED");
+      const reportAfter = await expect(`/admin/reports/revenue?${reportQuery}`, 200, { token: admin });
+      assert.equal(reportAfter.netRevenue, reportBefore.netRevenue); // Never recognized as a delivered sale.
+      const late = await onlineOrder(); const lateLink = await linkFor(late.id);
+      await Promise.all([
+        expect(`/orders/${late.id}/cancel`, 200, { method: "POST", token: reader, body: { note: "Hủy trước giao" } }),
+        notify(notification(lateLink)),
+      ]);
+      const cancelled = await expect(`/orders/${late.id}`, 200, { token: reader });
+      assert.equal(cancelled.status, "Cancelled"); assert.equal(cancelled.paymentStatus, "REFUND_PENDING");
+      assert.equal(cancelled.paymentRefunds.length, 1);
+      await expect(`/orders/${late.id}/payments/vnpay`, 409, { method: "POST", token: reader });
+    });
+
     await t.test("returns enforce ownership/quantity, refund atomically, and update revenue", async () => {
+      const previousRefunds = await db.refundRecord.aggregate({ _sum: { amount: true } });
       const item = order.items[0];
       const input = { productId: item.id, quantity: 1, contactName: "Người nhận", phone: "0901234567", description: "Sách bị lỗi in một trang" };
       await expect("/returns", 404, { method: "POST", token: other, body: input });
@@ -244,9 +361,9 @@ test("production HTTP backend, real PostgreSQL, and runtime images", { timeout: 
       const complete = { status: "completed", note: "Đã hoàn tiền mặt và kiểm tra sách", resolution: "refund", restockQuantity: 1 };
       await expect(`/admin/returns/${request.id}/status`, 400, { method: "PATCH", token: admin, body: complete }); assert.equal((await db.book.findUnique({ where: { id: Number(book.id) } })).stockQuantity, before);
       for (let run = 0; run < 2; run++) { const result = await expect(`/admin/returns/${request.id}/status`, 200, { method: "PATCH", token: admin, body: { ...complete, refundConfirmed: true } }); assert.equal(result.refundAmount, "90000"); }
-      assert.equal((await db.book.findUnique({ where: { id: Number(book.id) } })).stockQuantity, before + 1); assert.equal(await db.refundRecord.count(), 1);
+      assert.equal((await db.book.findUnique({ where: { id: Number(book.id) } })).stockQuantity, before + 1); assert.equal(await db.refundRecord.count({ where: { requestId: Number(request.id) } }), 1);
       const now = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" });
-      const report = await expect(`/admin/reports/revenue?from=${now}&to=${now}&period=day`, 200, { token: admin }); assert.equal(report.refunded, "90000"); assert.equal(report.netRevenue, (BigInt(report.revenue) - BigInt(report.refunded)).toString());
+      const report = await expect(`/admin/reports/revenue?from=${now}&to=${now}&period=day`, 200, { token: admin }); assert.equal(report.refunded, (BigInt(previousRefunds._sum.amount?.toFixed(0) ?? "0") + BigInt(90000)).toString()); assert.equal(report.netRevenue, (BigInt(report.revenue) - BigInt(report.refunded)).toString());
       await expect("/admin/reports/revenue?from=2026-02-30&to=2026-03-02&period=day", 400, { token: admin });
     });
 

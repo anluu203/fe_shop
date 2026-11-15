@@ -112,7 +112,7 @@ function isValid(value: unknown): value is MockState {
     ) &&
     state.orders.every(
       (o) =>
-        ["AddingItem", "Processing", "Preparing", "Shipping", "Done"].includes(
+        ["AddingItem", "Processing", "Preparing", "Shipping", "Done", "Cancelled"].includes(
           o.status,
         ) &&
         state.users.some((u) => u.id === o.userId) &&

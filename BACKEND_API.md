@@ -56,8 +56,12 @@ Tất cả đường dẫn trong bảng có prefix `/api/v1`.
 | Upload | `POST /images/products`, `/images/categories`, `/images/avatars` | Multipart `file`; sách/danh mục ADMIN, avatar đăng nhập. |
 | Nhập URL ảnh | `POST /images/products/import` | ADMIN; `{ url }`, tải ảnh internet về folder local, trả URL nội bộ. |
 | Giỏ | `GET/DELETE /orders/cart`; `POST /orders/cart/items`; `PATCH/DELETE /orders/cart/items/:itemId` | Giỏ của tài khoản; thêm `{ productId, quantity }`, sửa `{ quantity }`; số lượng 1–999 và không vượt tồn hiện tại. |
-| Checkout | `POST /orders/checkout` | `{ shippingName, shippingPhone, shippingAddress, paymentMethod: "COD" }`; Idempotency-Key bắt buộc; trả đơn 201. |
-| Đơn của khách | `GET /orders`, `GET /orders/:id`, `POST /orders/:id/cancel` | Chỉ đơn của mình; khách hủy PENDING. |
+| Checkout | `POST /orders/checkout` | `{ shippingName, shippingPhone, shippingAddress, paymentMethod: "COD" hoặc "VNPAY" }`; Idempotency-Key bắt buộc; trả đơn 201. |
+| Đơn của khách | `GET /orders`, `GET /orders/:id`, `POST /orders/:id/cancel` | Chỉ đơn của mình; khách hủy PENDING với `{ note }`. Body trống vẫn tương thích client cũ. |
+| Phương thức thanh toán | `GET /payments/methods` | Public; `{ codAvailable, vnpayAvailable }`, không trả cấu hình bí mật. |
+| Tạo link VNPay | `POST /orders/:id/payments/vnpay` | Chủ đơn; trả `{ paymentUrl, expiresAt }`; cùng đơn chỉ có một link đang hiệu lực. |
+| Callback VNPay | `GET /payments/vnpay/ipn`, `GET /payments/vnpay/return` | IPN xác thực và cập nhật tiền; Return chỉ xác thực/chuyển hướng, không cập nhật thanh toán. |
+| Hoàn tiền đơn | `POST /admin/orders/:id/refunds/:refundId/confirm` | ADMIN; `{ reference, note, refundConfirmed: true }`, xác nhận đã chuyển trả toàn bộ khoản hoàn. |
 | Đơn admin | `GET /admin/orders`, `GET /admin/orders/:id`; `PATCH /admin/orders/:id/status` | ADMIN; list phân trang/lọc status, sửa `{ status, paymentCollected?, note? }`. |
 | Đánh giá | `GET/POST /products/:id/reviews`; `GET /admin/reviews`; `DELETE /admin/reviews/:id` | Đọc sách public; tạo cần đăng nhập với `{ Rating: 1..5, Comment? }`; quản trị ADMIN. |
 | Tư vấn | `GET /consultation/options`; `GET /consultation/recommendations` | Public; query usage/component/budget; tên và giá từ sách thật. |
@@ -76,10 +80,12 @@ PATCH chỉ gửi trường thay đổi, trừ cấu hình chatbot dùng toàn b
 - Sách mới/mẫu không có tồn được giữ ở 0. Admin vào chi tiết sách để nhập tồn có lý do trước khi bán. Không tự dùng tồn mượn làm tồn bán.
 - Thêm giỏ chưa giữ chỗ tồn. Checkout khóa giỏ theo tài khoản và sách theo thứ tự ID, kiểm tra lại active/giá/tồn; tạo đơn, snapshot tên/giá/ảnh, trừ tồn, ghi lịch sử và xóa giỏ trong cùng transaction. Mọi thao tác giỏ sử dụng cùng khóa tài khoản.
 - `Idempotency-Key` là chuỗi 8–100 ký tự `[A-Za-z0-9_-]` (UUID dùng được). Cùng key và cùng body trả lại đơn cũ; cùng key khác body trả 409. Lượt checkout khác key trên giỏ đã xử lý không tạo đơn thứ hai. Điều chỉnh tồn dùng cùng quy tắc key.
-- DB `PENDING → PREPARING → SHIPPING → DELIVERED`; DTO `Processing → Preparing → Shipping → Done`. Admin phải gửi `paymentCollected: true` khi chuyển Done để xác nhận thu COD; completedAt chỉ ghi một lần.
+- DB `PENDING → PREPARING → SHIPPING → DELIVERED`; DTO `Processing → Preparing → Shipping → Done`. Đơn COD cần `paymentCollected: true` khi chuyển Done; đơn VNPay cần PAID trước khi chuyển Preparing và không thu tiền lần hai khi giao. completedAt chỉ ghi một lần.
 - Khách hủy PENDING, admin hủy PENDING/PREPARING; trả tồn và ghi movement đúng một lần. Không hủy đơn đã giao/đang giao; không nhảy bước hoặc đi lùi.
 - Đơn mẫu import chưa từng trừ tồn qua backend nên khi hủy không tự cộng tồn; chỉ hoàn phần có bút toán sale tương ứng. Đơn thật thiếu bút toán sẽ báo cần đối soát, tránh tạo thêm tồn không có căn cứ.
-- Hiện chỉ nhận COD; tạo đơn là UNPAID, hoàn thành và xác nhận thu COD là PAID. Không có giao dịch online hoặc webhook giả.
+- COD tạo đơn UNPAID, hoàn thành và xác nhận thu COD là PAID. VNPay chỉ cập nhật PAID qua IPN hợp lệ. Hủy đơn đã thu tiền chuyển REFUND_PENDING; xác nhận hoàn đủ các khoản chuyển REFUNDED. Giao dịch đến trễ sau hủy và thu trùng đều có khoản hoàn riêng.
+- DTO đơn có `events`, `payments`, `paymentRefunds`; chỉ admin thấy mã giao dịch cổng, mã đối soát/ghi chú hoàn tiền. Không trả paymentUrl trong lịch sử đơn.
+- Hướng dẫn cấu hình, hạn thanh toán và kiểm thử: [PAYMENTS.md](PAYMENTS.md).
 
 ## Ảnh trong folder dự án
 
@@ -102,9 +108,9 @@ Route `/images/uploads/:target/:filename` phục vụ file runtime ngay sau uplo
 - Phiếu được khóa/kiểm tra tổng số lượng để nhiều lượt gửi không vượt số đã mua. Phiếu từ chối không tiêu thụ số lượng hợp lệ; phiếu hoàn tất có tiêu thụ.
 - Trạng thái `received → checking → repairing → completed`; có thể rejected trước khi kết thúc. Ghi chú timeline là thông tin tiến độ khách hàng xem được.
 - Hoàn tất phải có `resolution: exchange/refund`, `restockQuantity` từ 0 đến số sách đổi trả. Chỉ nhập lại phần đủ chất lượng bán. Exchange có thể gửi replacementBookId, mặc định sách cũ; kiểm tra/trừ tồn sách thay thế.
-- Refund chỉ cho đơn COD đã thu tiền, yêu cầu `refundConfirmed: true` và ghi chú; tạo RefundRecord đúng một lần trong transaction cùng trạng thái/tồn. Đây là xác nhận hoàn tiền thủ công, không tự chuyển tiền qua ngân hàng.
+- Refund đổi trả cho đơn COD hoặc VNPay đã thanh toán, yêu cầu `refundConfirmed: true` và ghi chú; tạo RefundRecord đúng một lần trong transaction cùng trạng thái/tồn. Đây là xác nhận hoàn tiền thủ công, không tự chuyển tiền qua ngân hàng.
 - Báo cáo cộng đơn DELIVERED theo completedAt bất biến, dùng snapshot OrderItem; from/to gồm hai đầu theo Asia/Ho_Chi_Minh, tuần bắt đầu thứ Hai. Tối đa 366 ngày khi period=day; các kỳ khác tối đa 3.660 ngày.
-- revenue là tổng đơn hoàn thành trong kỳ; refunded là các khoản hoàn được xác nhận trong kỳ theo ngày hoàn; netRevenue = revenue - refunded. Một khoản hoàn của đơn kỳ trước có thể làm netRevenue kỳ hiện tại âm. UI/CSV hiển thị riêng, không sửa tổng đơn cũ và không coi gross revenue là tiền thực thu.
+- revenue là tổng đơn hoàn thành trong kỳ; refunded là các khoản hoàn đổi trả được xác nhận trong kỳ theo ngày hoàn; netRevenue = revenue - refunded. Hoàn đơn hủy và thu dư theo dõi riêng tại paymentRefunds, không trừ doanh thu chưa ghi nhận. Một khoản hoàn đổi trả của đơn kỳ trước có thể làm netRevenue kỳ hiện tại âm. UI/CSV hiển thị riêng, không sửa tổng đơn cũ và không coi gross revenue là tiền thực thu.
 - Phiếu đổi trả mẫu JSON không khớp chi tiết đơn vẫn nằm nguyên trong Seed_Documents; không được tự coi là phiếu hợp lệ của người dùng thật.
 
 ## Chatbot
